@@ -1,3 +1,6 @@
+using MA_Sys.API.Data.Repository;
+using MA_Sys.API.Data.Repository.interfaces;
+using MA_Sys.API.Services;
 using MA_SYS.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -8,6 +11,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
+builder.Services.AddScoped<AlunoService>();
+
+
+
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -16,7 +26,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "MartialArtsSys API",
+        Title = "MA_Sys API",
         Version = "v1"
     });
 });

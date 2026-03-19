@@ -374,3 +374,5 @@ D:\Dev\MA Sys\back\ma_sys.api\obj\Debug\net10.0\swae.build.ex.cache
 D:\Dev\MA Sys\back\ma_sys.api\obj\Debug\net10.0\MartialA.4B3FA81E.Up2Date
 D:\Dev\MA Sys\back\ma_sys.api\obj\Debug\net10.0\MartialArtsSys.Api.genruntimeconfig.cache
 D:\Dev\MA Sys\back\ma_sys.api\obj\Debug\net10.0\ref\MartialArtsSys.Api.dll
+D:\Dev\MA Sys\back\ma_sys.api\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Dev\MA Sys\back\ma_sys.api\obj\Debug\net10.0\MartialArtsSys.Api.sourcelink.json
