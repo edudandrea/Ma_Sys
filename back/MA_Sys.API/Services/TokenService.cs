@@ -19,31 +19,29 @@ namespace MA_Sys.API.Services
             _configuration = configuration;
         }
 
-        public string CreateToken (Users users, Claim[] claims)
+        public string GerarToken(Users user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("Key").Get<string>());
+            var key = Encoding.ASCII.GetBytes("SUA_CHAVE_SECRETA_SUPER_FORTE");
 
-            var claimsIdentity = new ClaimsIdentity(new[]
+            var claims = new[]
             {
-                new Claim(ClaimTypes.Name, users.UserName.ToString()),  // Nome do usuário
-                  // Função/Role do usuário
-            });
-
-            // Incluindo os claims adicionais recebidos como parâmetro
-            if (claims != null && claims.Length > 0)
-            {
-                claimsIdentity.AddClaims(claims);  // Adiciona os claims extras
-            }
-
+        new Claim(ClaimTypes.Name, user.Email),
+        new Claim("AcademiaId", user.AcademiaId.ToString()) // 🔥 ESSENCIAL
+    };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                    Subject = claimsIdentity,
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(8),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
             };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
             return tokenHandler.WriteToken(token);
         }
     }

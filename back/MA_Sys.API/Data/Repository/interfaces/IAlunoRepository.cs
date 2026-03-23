@@ -10,6 +10,7 @@ namespace MA_Sys.API.Data.Repository.interfaces
     {
         List<Aluno> GetByAcademia(int academiaId);
         Aluno GetById(int id, int academiaId);
+        IQueryable<Aluno> Query();
         void Add(Aluno aluno);
         void Update(Aluno aluno);
         void Delete (Aluno aluno);

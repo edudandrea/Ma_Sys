@@ -24,10 +24,15 @@ namespace MA_Sys.API.Data.Repository
                 .ToList();
         }
 
+        public IQueryable<Aluno> Query()
+        {
+            return _context.Alunos;
+        }
+
         public Aluno GetById(int id, int academiaId)
         {
             return _context.Alunos
-                .FirstOrDefault(a => a.Id == id && a.AcademiaId == academiaId);
+                .FirstOrDefault(a => a.Id == id || a.AcademiaId == academiaId);
         }
 
         public void Add(Aluno aluno)
@@ -50,6 +55,5 @@ namespace MA_Sys.API.Data.Repository
             _context.SaveChanges();
         }
     }
-
 
 }
