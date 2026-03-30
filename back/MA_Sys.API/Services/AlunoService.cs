@@ -26,7 +26,7 @@ namespace MA_Sys.API.Services
                Nome = a.Nome,
                CPF = a.CPF,
                Telefone = a.Telefone,
-               Ativo = a.AlunoAtivo
+               Ativo = a.Ativo
            }).ToList();
         }
 
@@ -49,9 +49,19 @@ namespace MA_Sys.API.Services
                 Id = a.Id,
                 Nome = a.Nome,
                 CPF = a.CPF,
+                Endereco = a.Endereco,
+                Bairro = a.Bairro,
+                Cidade = a.Cidade,
+                Estado = a.Estado,
+                CEP = a.CEP,
+                Email = a.Email,
+                RedeSocial = a.RedeSocial,
+                ModalidadeId = a.ModalidadeId,
+                DataNascimento = a.DataNascimento,
+                DataCadastro = a.DataCadastro,
                 Telefone = a.Telefone,
                 Graduacao = a.Graduacao,
-                Ativo = a.AlunoAtivo,
+                Ativo = a.Ativo,
 
             }).ToList();
         }
@@ -76,7 +86,7 @@ namespace MA_Sys.API.Services
                     Graduacao = a.Graduacao,
                     DataCadastro = a.DataCadastro,
                     DataNascimento = a.DataNascimento,
-                    AlunoAtivo = a.AlunoAtivo
+                    Ativo = a.Ativo
                 })
                 .FirstOrDefault();
         }
@@ -93,7 +103,7 @@ namespace MA_Sys.API.Services
 
                 AcademiaId = academiaId,
                 DataCadastro = DateTime.UtcNow,
-                AlunoAtivo = true
+                Ativo = true
             };
 
             _repo.Add(aluno);
@@ -113,13 +123,13 @@ namespace MA_Sys.API.Services
             aluno.Telefone = dto.Telefone;
             aluno.Endereco = dto.Endereco;
             aluno.Cidade = dto.Cidade;
+            aluno.CEP = dto.CEP;
             aluno.Estado = dto.Estado;
             aluno.RedeSocial = dto.RedeSocial;
             aluno.Email = dto.Email;
             aluno.ModalidadeId = dto.ModalidadeId;
             aluno.Graduacao = dto.Graduacao;
-            aluno.DataNascimento = dto.DataNascimento;
-            aluno.DataCadastro = DateTime.UtcNow;
+            aluno.DataNascimento = dto.DataNascimento;           
 
             _repo.Save();
         }
@@ -142,7 +152,7 @@ namespace MA_Sys.API.Services
             if (aluno == null)
                 throw new Exception("Aluno não encontrado");
 
-            aluno.AlunoAtivo = ativo;
+            aluno.Ativo = ativo;
 
             _repo.Update(aluno);
             _repo.Save();

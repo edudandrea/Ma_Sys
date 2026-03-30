@@ -23,7 +23,7 @@ namespace MA_SYS.Api.Models
         public int Sexo { get; set; }
         public string? Graduacao { get; set; }
         public int ModalidadeId { get; set; }
-        public bool AlunoAtivo { get; set; }
+        public bool Ativo { get; set; }
         public DateTime DataNascimento { get; set; }
         public DateTime DataCadastro { get; set; }
 
