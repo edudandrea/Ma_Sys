@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.AcademiasDto;
 using MA_SYS.Api.Dto;
@@ -13,21 +9,19 @@ namespace MA_Sys.API.Services
     {
         private readonly IAcademiaRepository _repo;
 
-        private readonly IUserRepository _userRepo;                        
+                                
 
-        public AcademiaService(IAcademiaRepository repo, IUserRepository userRepo)
+        public AcademiaService(IAcademiaRepository repo)
                                 
         {
             _repo = repo;
-            _userRepo = userRepo;
-            
+                        
         }
 
-        public List<AcademiaResponseDto> Listar(int academiaId)
+        public List<AcademiaResponseDto> List()
         {
-            var academia = _repo.GetByAcademia(academiaId);
-
-            return academia.Select(a => new AcademiaResponseDto
+            return _repo.Query()
+                .Select(a => new AcademiaResponseDto            
             {
                 Id = a.Id,
                 Nome = a.Nome,
@@ -37,9 +31,10 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public List<AcademiaResponseDto> Buscar(AcademiaFiltroDto filtro)
+        public List<AcademiaResponseDto> Get(AcademiaFiltroDto filtro, int academiaId)
         {
-            var query = _repo.Query();            
+            var query = _repo.Query()
+            .Where(a => a.Id == academiaId);         
 
             if (filtro.Id.HasValue)
                 query = query.Where(a => a.Id == filtro.Id);
@@ -57,10 +52,10 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public AcademiaDto ObterPorId(int id, int academiaId)
+        public AcademiaDto GetById(int id, int academiaId)
         {
             return _repo.Query()
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == id && a.Id == academiaId)
                 .Select(a => new AcademiaDto
                 {
                     Id = a.Id,
@@ -78,7 +73,7 @@ namespace MA_Sys.API.Services
                 .FirstOrDefault();
         }
 
-        public void Criar(AcademiaCreateDto dto)
+        public void Add(AcademiaCreateDto dto)
         {
             var academia = new Academia
             {
@@ -92,18 +87,10 @@ namespace MA_Sys.API.Services
             _repo.Add(academia);
             _repo.Save();
 
-            var user = new Users
-            {
-                UserName = dto.User,
-                Password = dto.Password,
-                AcademiaId = academia.Id
-            };
-
-            _userRepo.Add(user);
-            _userRepo.Save();
+            
         }
 
-        public void Atualizar(int id, AcademiaUpdateDto dto)
+        public void Update(int id, AcademiaUpdateDto dto)
         {
             var academia = _repo.Query()
                         .FirstOrDefault(a => a.Id == id);
@@ -122,23 +109,23 @@ namespace MA_Sys.API.Services
             _repo.Save();
         }
 
-        public void Excluir(int id, int academiaId)
-        {
-            var aluno = _repo.GetById(id, academiaId);
-
-            if (aluno == null)
-                throw new Exception("Aluno não encontrado");
-
-            _repo.Delete(aluno);
-            _repo.Save();
-        }
-
-        public void AlterarStatus(int id, int academiaId, bool ativo)
+        public void Delete(int id, int academiaId)
         {
             var academia = _repo.GetById(id, academiaId);
 
             if (academia == null)
-                throw new Exception("Aluno não encontrado");
+                throw new Exception("Academia não encontrado");
+
+            _repo.Delete(academia);
+            _repo.Save();
+        }
+
+        public void UpdateStatus(int id, int academiaId, bool ativo)
+        {
+            var academia = _repo.GetById(id, academiaId);
+
+            if (academia == null)
+                throw new Exception("Academia não encontrado");
 
             academia.Ativo = ativo;
 

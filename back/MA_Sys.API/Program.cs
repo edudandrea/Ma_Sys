@@ -14,7 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var key = Encoding.ASCII.GetBytes("SENHA");
+var key = Encoding.ASCII.GetBytes("Rv6_wy.fMyEj•••••••••••••••••••(#9dbq!-3Gji");
 builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,15 +36,23 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddAuthorization();
 
+// BASE REPOSITORY
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+//REPOSITORIES
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
-builder.Services.AddScoped<AlunoService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAcademiaRepository, AcademiaRepository>();
+builder.Services.AddScoped<IModalidadeRepository, ModalidadeRepository>();
 
+// SERVICES
+builder.Services.AddScoped<AlunoService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<AcademiaService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ModalidadeService>();
+builder.Services.AddScoped<AdminService>();
 
-void UserRepository()
-{
-    throw new NotImplementedException();
-}
 
 builder.Services.AddHttpContextAccessor();
 
@@ -52,6 +60,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
+//SWAGGER
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -59,8 +68,30 @@ builder.Services.AddSwaggerGen(c =>
         Title = "MA_Sys API",
         Version = "v1"
     });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Digite: Bearer {Token}",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            }, new string [] {}
+        }
+    });
 });
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend",
@@ -76,17 +107,15 @@ var app = builder.Build();
 
 app.UseCors("frontend");
 
-app.UseAuthentication();
-
-app.UseAuthorization();
-
 app.UseSwagger();
 
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHttpsRedirection();
 
 app.MapControllers();
 

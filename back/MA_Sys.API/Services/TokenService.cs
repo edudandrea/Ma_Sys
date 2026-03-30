@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using MA_SYS.Api.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,21 +8,16 @@ namespace MA_Sys.API.Services
 {
     public class TokenService
     {
-        private readonly IConfiguration _configuration;
-
-        public TokenService(IConfiguration configuration)
+        public string GenerateToken(Users user)
         {
-            _configuration = configuration;
-        }
-
-        public string GerarToken(Users user)
-        {
-            var key = Encoding.ASCII.GetBytes("SUA_CHAVE_SECRETA_SUPER_FORTE");
+            var key = Encoding.ASCII.GetBytes("Rv6_wy.fMyEj•••••••••••••••••••(#9dbq!-3Gji");
 
             var claims = new[]
             {
-        new Claim(ClaimTypes.Name, user.Email),
-        new Claim("AcademiaId", user.AcademiaId.ToString()) // 🔥 ESSENCIAL
+        new Claim(ClaimTypes.Name, user.Login),
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("AcademiaId", user.AcademiaId.ToString()),
+        new Claim("UserId", user.UserId.ToString())
     };
 
             var tokenDescriptor = new SecurityTokenDescriptor

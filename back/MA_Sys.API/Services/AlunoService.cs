@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.Alunos;
-using MA_SYS.Api.Data;
 using MA_SYS.Api.Dto;
 using MA_SYS.Api.Models;
-using SQLitePCL;
 
 namespace MA_Sys.API.Services
 {
@@ -21,9 +15,10 @@ namespace MA_Sys.API.Services
             _repo = repo;            
         }
 
-        public List<AlunoResponseDto> Listar(int academiaId)
+        public List<AlunoResponseDto> List(int academiaId)
         {
-           var alunos = _repo.GetByAcademia(academiaId);
+           var alunos = _repo.Query();
+           alunos = alunos.Where(a => a.AcademiaId == academiaId);
 
            return alunos.Select(a => new AlunoResponseDto
            {
@@ -35,10 +30,10 @@ namespace MA_Sys.API.Services
            }).ToList();
         }
 
-        public List<AlunoResponseDto> Buscar(AlunoFiltroDto filtro, int academiaId)
+        public List<AlunoResponseDto> Get(AlunoFiltroDto filtro, int academiaId)
         {
             var query = _repo.Query();
-            //query = query.Where(a => a.AcademiaId == academiaId);
+            query = query.Where(a => a.AcademiaId == academiaId);
 
             if (filtro.Id.HasValue)
                 query = query.Where(a => a.Id == filtro.Id);
@@ -61,7 +56,7 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public AlunoDto ObterPorId(int id, int academiaId)
+        public AlunoDto GetById(int id, int academiaId)
         {
             return _repo.Query()
             
@@ -86,7 +81,7 @@ namespace MA_Sys.API.Services
                 .FirstOrDefault();
         }
 
-        public void Criar(AlunosCreateDto dto, int academiaId)
+        public void Add(AlunosCreateDto dto, int academiaId)
         {
             var aluno = new Aluno
             {
@@ -105,11 +100,11 @@ namespace MA_Sys.API.Services
             _repo.Save();
         }
 
-        public void Atualizar(int id, AlunoUpdateDto dto, int academiaId)
+        public void Update(int id, AlunoUpdateDto dto)
         {
             var aluno = _repo.Query()
                         .FirstOrDefault(a => a.Id == id);
-
+                        
             if(aluno == null)
             throw new Exception("Aluno não encontrado");
 
@@ -124,11 +119,12 @@ namespace MA_Sys.API.Services
             aluno.ModalidadeId = dto.ModalidadeId;
             aluno.Graduacao = dto.Graduacao;
             aluno.DataNascimento = dto.DataNascimento;
+            aluno.DataCadastro = DateTime.UtcNow;
 
             _repo.Save();
         }
 
-        public void Excluir(int id, int academiaId)
+        public void Delete(int id, int academiaId)
         {
             var aluno = _repo.GetById(id, academiaId);
 
@@ -139,7 +135,7 @@ namespace MA_Sys.API.Services
             _repo.Save();
         }
 
-        public void AlterarStatus(int id, int academiaId, bool ativo)
+        public void UpdateStatus(int id, int academiaId, bool ativo)
         {
             var aluno = _repo.GetById(id, academiaId);
 

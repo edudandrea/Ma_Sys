@@ -35,6 +35,9 @@ namespace MA_SYS.Api.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Estado")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Nome")
                         .HasColumnType("TEXT");
 
@@ -242,6 +245,57 @@ namespace MA_SYS.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Professores");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcademiaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Function")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("AcademiaId");
+
+                    b.ToTable("User");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
+                        .WithMany()
+                        .HasForeignKey("AcademiaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Academia");
                 });
 #pragma warning restore 612, 618
         }

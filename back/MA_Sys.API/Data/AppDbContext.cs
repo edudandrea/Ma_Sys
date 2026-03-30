@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MA_SYS.Api.Models;
 using Microsoft.EntityFrameworkCore;
-using SQLitePCL;
-using System.Security.Claims;
 
 
 namespace MA_SYS.Api.Data
@@ -26,26 +20,11 @@ namespace MA_SYS.Api.Data
         public DbSet<Mensalidade> Mensalidades { get; set; }
         public DbSet<Professor> Professores { get; set; }
         public DbSet<Academia> Academias { get; set; }
-        public DbSet<Modalidade> Modalidades { get; internal set; }
-
-        private int GetAcademiaId()
-        {
-            var claim = _httpContextAccessor.HttpContext?.User?.FindFirst("AcademiaID");
-            return claim != null ? int.Parse(claim.Value) : -1;
-        }
+        public DbSet<Modalidade> Modalidades { get; internal set; }        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Aluno>()
-                        .HasQueryFilter(a => a.AcademiaId == GetAcademiaId() || a.AcademiaId == 0);
-
-            modelBuilder.Entity<Professor>()
-                        .HasQueryFilter(p => p.AcademiaId == GetAcademiaId());
-
-            modelBuilder.Entity<Modalidade>()
-                        .HasQueryFilter(m => m.AcademiaId == GetAcademiaId());
+            base.OnModelCreating(modelBuilder);                                 
 
         }
     }

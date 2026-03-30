@@ -1,22 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using MA_Sys.API.Dto.AcademiasDto;
 using MA_Sys.API.Services;
-using MA_SYS.Api.Data;
-using MA_SYS.Api.Dto;
-using MA_SYS.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace MA_SYS.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class AcademiasController : Controller
     {
@@ -27,45 +17,63 @@ namespace MA_SYS.Api.Controllers
             _service = service;
         }
 
-        /// <summary>
-        /// Busca academias utilizando filtros opcionais. Informe ao menos um filtro para realizar a busca.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="nomeAcademia"></param>
-        /// <param name="cidade"></param>
-        /// <param name="ativo"></param>
-        /// <returns></returns>
+        private int GetAcademiaId()
+        {
+            var claim = User.FindFirst("AcademiaId");
 
-        
+            if (claim == null)
+                throw new Exception("Token inválido");
 
-        /// <summary>
-        /// Adiciona uma nova academia. Campos obrigatórios: NomeAcademia, Cidade.
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <returns></returns>
+            return int.Parse(claim.Value);
+        }
+
+        [HttpGet]
+        public IActionResult List()
+        {
+            var academias = _service.List();
+            return Ok(academias);
+        }
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public IActionResult Get([FromBody] AcademiaFiltroDto filtro)
+        {
+            var academiaId = GetAcademiaId();
+
+            var academia = _service.Get(filtro, academiaId);
+
+            return Ok(academia);
+        }
+
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult AddAcademia([FromBody] AcademiaCreateDto dto)
+        public IActionResult Add([FromBody] AcademiaCreateDto dto)
         {
-            _service.Criar(dto);
+            _service.Add(dto);
 
             return Ok("Academia criada om sucesso");
         }
 
-        
-               
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromBody] AcademiaUpdateDto dto, int id)
+        {
+            var academiaId = GetAcademiaId();
+            Console.WriteLine($"Academia ID: {academiaId}");
 
-        /// <summary>
-        /// Atualiza uma academia existente. Campos obrigatórios: NomeAcademia, Cidade, Email.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="dto"></param>
-        /// <returns></returns>
+            _service.Update(id, dto);
 
-        
+            return Ok();
+        } 
 
-        
+        [HttpPatch("{id}/status")]
+        public IActionResult AtualizarStatus(int id, [FromBody]bool ativo)
+        {
+            var academiaId = GetAcademiaId();
+            _service.UpdateStatus(id, academiaId, ativo);
+
+            return NoContent();
+        }
 
     }
 }
