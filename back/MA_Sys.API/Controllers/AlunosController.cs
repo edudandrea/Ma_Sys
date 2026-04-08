@@ -8,7 +8,7 @@ namespace MA_Sys.API.Controllers
     [ApiController]
     [Authorize]
     [Route("api/[controller]")]
-    public class AlunosController : ControllerBase
+    public class AlunosController : BaseController
     {
         private readonly AlunoService _service;
 
@@ -30,9 +30,10 @@ namespace MA_Sys.API.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery] AlunoFiltroDto filtro)
         {
+            var role = GetUserRole();
             var academiaId = GetAcademiaId();
             Console.WriteLine($"ACADEMIA LOGADA: {academiaId}");
-            var alunos = _service.Get(filtro, academiaId);
+            var alunos = _service.Get(role, filtro, academiaId);
 
             return Ok(alunos);
         }
@@ -40,6 +41,7 @@ namespace MA_Sys.API.Controllers
         [HttpPost]        
         public async Task<IActionResult> Add([FromBody] AlunosCreateDto dto)
         {
+            
             var academiaId = GetAcademiaId();
             Console.WriteLine($"Academia ID: {academiaId}");
 
@@ -51,6 +53,7 @@ namespace MA_Sys.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] AlunoUpdateDto dto, int id)
         {
+            var role = GetUserRole();
             var academiaId = GetAcademiaId();
             Console.WriteLine($"Academia ID: {academiaId}");
 

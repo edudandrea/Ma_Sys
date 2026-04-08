@@ -2,6 +2,7 @@ using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.Alunos;
 using MA_SYS.Api.Dto;
 using MA_SYS.Api.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MA_Sys.API.Services
 {
@@ -15,10 +16,15 @@ namespace MA_Sys.API.Services
             _repo = repo;            
         }
 
-        public List<AlunoResponseDto> List(int academiaId)
+        public List<AlunoResponseDto> List(string role, int? academiaId)
         {
            var alunos = _repo.Query();
-           alunos = alunos.Where(a => a.AcademiaId == academiaId);
+
+           if (role != "Admin")
+            {
+                alunos = alunos.Where(a => a.AcademiaId == academiaId);
+            }
+           
 
            return alunos.Select(a => new AlunoResponseDto
            {
@@ -30,10 +36,15 @@ namespace MA_Sys.API.Services
            }).ToList();
         }
 
-        public List<AlunoResponseDto> Get(AlunoFiltroDto filtro, int academiaId)
+        public List<AlunoResponseDto> Get(string role, AlunoFiltroDto filtro, int? academiaId)
         {
             var query = _repo.Query();
-            query = query.Where(a => a.AcademiaId == academiaId);
+
+            if(role != "Admin")
+            {
+                query = query.Where(a => a.AcademiaId == academiaId);
+            }
+            
 
             if (filtro.Id.HasValue)
                 query = query.Where(a => a.Id == filtro.Id);
@@ -91,8 +102,9 @@ namespace MA_Sys.API.Services
                 .FirstOrDefault();
         }
 
-        public void Add(AlunosCreateDto dto, int academiaId)
+        public void Add(AlunosCreateDto dto, int? academiaId)
         {
+            
             var aluno = new Aluno
             {
                 Nome = dto.Nome,
@@ -101,7 +113,7 @@ namespace MA_Sys.API.Services
                 Telefone = dto.Telefone,
                 Email = dto.Email,
 
-                AcademiaId = academiaId,
+                AcademiaId = academiaId?? 0,
                 DataCadastro = DateTime.UtcNow,
                 Ativo = true
             };

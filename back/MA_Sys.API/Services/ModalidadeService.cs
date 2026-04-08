@@ -1,6 +1,8 @@
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.ModalidadesDto;
 using MA_SYS.Api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace MA_Sys.API.Services
 {
@@ -16,6 +18,7 @@ namespace MA_Sys.API.Services
         public List<ModalidadeResponseDto> List(int academiaId)
         {
            var modalidade = _repo.Query();
+          
            modalidade = modalidade.Where(m => m.AcademiaId == academiaId);
 
            return modalidade.Select(a => new ModalidadeResponseDto
@@ -26,12 +29,20 @@ namespace MA_Sys.API.Services
            }).ToList();
         }
 
-        public List<ModalidadeResponseDto> Get(ModalidadeFiltroDto filtro, int academiaId)
+        public List<ModalidadeResponseDto> Get(string role, ModalidadeFiltroDto filtro, int? academiaId)
         {
-            var query = _repo.Query();
-            query = query.Where(m => m.AcademiaId == academiaId);
+            var query = _repo.Query().AsNoTracking();
 
-            if (!string.IsNullOrEmpty(filtro.NomeModalidade))
+            if(!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                if(academiaId == null)
+                    throw new UnauthorizedAccessException("Usuário sem vinculo com academia não pode acessar modalidades");
+
+                    query = query.Where(m => m.AcademiaId == academiaId);
+            }
+            
+
+            if (filtro != null && !string.IsNullOrEmpty(filtro.NomeModalidade))
                 query = query.Where(m => m.NomeModalidade.Contains(filtro.NomeModalidade));                 
 
             return query.Select(m => new ModalidadeResponseDto
@@ -43,12 +54,17 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public void Add(ModalidadeCreateDto dto, int academiaId)
+        public void Add(ModalidadeCreateDto dto, int? academiaId, string role)
         {
+            if(role != "Admin")
+            {
+                if (dto.AcademiaId != academiaId)
+                    throw new Exception("Não autorizado a criar modalidade para outra academia");
+            }
             var modalidade = new Modalidade
             {                
                 NomeModalidade = dto.NomeModalidade,
-                AcademiaId = academiaId,                
+                AcademiaId = academiaId ?? 0,                
                 Ativo = true
             };
 
@@ -70,9 +86,9 @@ namespace MA_Sys.API.Services
             _repo.Save();
         }
 
-        public void UpdateStatus(int id, int academiaId, bool ativo)
+        public void UpdateStatus(int id, int? academiaId, bool ativo)
         {
-            var modalidade = _repo.GetById(id, academiaId);
+            var modalidade = _repo.GetById(id, academiaId ?? 0);
 
             if (modalidade == null)
                 throw new Exception("Modalidade não encontrado");

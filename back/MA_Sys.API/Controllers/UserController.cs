@@ -22,6 +22,24 @@ namespace MA_Sys.API.Controllers
             _service = service;
         }
 
+        [HttpGet]
+        public IActionResult List()
+        {
+            var user = _service.List();
+            return Ok(user);
+        }
+
+
+
+        [HttpGet("{id}")]
+        public IActionResult Get([FromBody] UserFiltroDto filtro)
+        {
+            
+            var user = _service.Get(filtro);
+
+            return Ok(user);
+        }
+
         [HttpPost("login")]
         [AllowAnonymous]
         public IActionResult Login([FromBody] UserLoginDto dto)
@@ -44,7 +62,8 @@ namespace MA_Sys.API.Controllers
                 {
                     id = user.UserId,
                     login = user.Login,
-                    academiaId = user.AcademiaId                                 
+                    role = user.Role,
+                    academiaId = user.AcademiaId
                 }
                    
             });
@@ -52,12 +71,25 @@ namespace MA_Sys.API.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-
         public IActionResult Add ([FromBody] UserCreateDto dto)
         {
             _service.Add(dto);
-            return Ok("Usuario criado com sucesso");
+            return NoContent();
         }
-        
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] UserUpdateDto dto)
+        {
+            _service.Update(id, dto);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int userId)
+        {
+            _service.Delete(userId, 0); 
+            return NoContent();
+        }
+
     }
 }

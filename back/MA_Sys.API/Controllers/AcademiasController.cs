@@ -21,7 +21,7 @@ namespace MA_SYS.Api.Controllers
         {
             var claim = User.FindFirst("AcademiaId");
 
-            if (claim == null)
+            if (claim == null || string.IsNullOrEmpty(claim.Value))
                 throw new Exception("Token inválido");
 
             return int.Parse(claim.Value);

@@ -14,7 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var key = Encoding.ASCII.GetBytes("Rv6_wy.fMyEj•••••••••••••••••••(#9dbq!-3Gji");
+var key = Encoding.ASCII.GetBytes("Hco?JH8I=KtBT1dwsZGs]@/h/ga)5n7E]-QcQr_XT)}");
 builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -4,5 +4,6 @@ namespace MA_Sys.API.Dto.ModalidadesDto
     {
         public string? NomeModalidade { get; set; }
         public bool Ativo { get; set; }
+        public int? AcademiaId { get; set; }
     }
 }

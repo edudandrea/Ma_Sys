@@ -12,16 +12,21 @@ namespace MA_Sys.API.Services
         {
 
             Console.WriteLine($"Gerando token para usuário: {user.Login}, AcademiaId: {user.AcademiaId}, UserId: {user.UserId}, Role: {user.Role}");
-            var key = Encoding.ASCII.GetBytes("Rv6_wy.fMyEj•••••••••••••••••••(#9dbq!-3Gji");
+            var key = Encoding.ASCII.GetBytes("Hco?JH8I=KtBT1dwsZGs]@/h/ga)5n7E]-QcQr_XT)}");
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Login ?? ""),
-                new Claim("AcademiaId", user.AcademiaId.ToString()),
                 new Claim("UserId", user.UserId.ToString()),
+                new Claim("role", user.Role ?? "Academia"),
                 new Claim(ClaimTypes.Role, user.Role ?? "Academia"),
                 
             };
+
+            if (user.AcademiaId.HasValue)
+            {
+                claims.Add(new Claim("AcademiaId", user.AcademiaId.Value.ToString()));
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
