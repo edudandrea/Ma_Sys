@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,10 @@ builder.Services.AddAuthentication(opt =>
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = false,
-            ValidateAudience = false
+            ValidateAudience = false,
+
+            RoleClaimType = "role",
+            NameClaimType = ClaimTypes.Name
         };
     }
 );
@@ -44,6 +48,8 @@ builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAcademiaRepository, AcademiaRepository>();
 builder.Services.AddScoped<IModalidadeRepository, ModalidadeRepository>();
+builder.Services.AddScoped<IProfessorRepository, ProfessorRepository>();
+builder.Services.AddScoped<IPlanosRepository, PlanosRepository>();
 
 // SERVICES
 builder.Services.AddScoped<AlunoService>();
@@ -52,6 +58,9 @@ builder.Services.AddScoped<AcademiaService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ModalidadeService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<ProfessorService>();
+builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<PlanosService>();
 
 
 builder.Services.AddHttpContextAccessor();

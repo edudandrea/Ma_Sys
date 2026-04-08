@@ -15,23 +15,12 @@ namespace MA_Sys.API.Controllers
          public AlunosController(AlunoService service)
         {
             _service = service;
-        }
-
-         private int GetAcademiaId()
-        {           
-                var claim = User.FindFirst("AcademiaId");
-
-                if (claim == null )
-                throw new Exception("Token inválido");
-
-                return int.Parse(claim.Value);            
-        }
+        }         
 
         [HttpGet]
         public IActionResult Get([FromQuery] AlunoFiltroDto filtro)
         {
-            var role = GetUserRole();
-            var academiaId = GetAcademiaId();
+            var (role, academiaId) = GetUserInfo();
             Console.WriteLine($"ACADEMIA LOGADA: {academiaId}");
             var alunos = _service.Get(role, filtro, academiaId);
 
@@ -65,7 +54,7 @@ namespace MA_Sys.API.Controllers
         [HttpPatch("{id}/status")]
         public IActionResult AtualizarStatus(int id, [FromBody]bool ativo)
         {
-            var academiaId = GetAcademiaId();
+            var (role, academiaId) = GetUserInfo();
             _service.UpdateStatus(id, academiaId, ativo);
 
             return NoContent();

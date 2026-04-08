@@ -10,6 +10,7 @@ namespace MA_SYS.Api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int AcademiaId { get; set; }
+        public int PlanoId { get; set; }
         public string? Nome { get; set; }
         public string? CPF { get; set; }
         public string? Endereco { get; set; }
@@ -26,6 +27,7 @@ namespace MA_SYS.Api.Models
         public bool Ativo { get; set; }
         public DateTime DataNascimento { get; set; }
         public DateTime DataCadastro { get; set; }
+        public string? Obs { get; set; }
 
     }
 }

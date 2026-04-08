@@ -18,7 +18,6 @@ namespace MA_Sys.API.Services
             {
                 new Claim(ClaimTypes.Name, user.Login ?? ""),
                 new Claim("UserId", user.UserId.ToString()),
-                new Claim("role", user.Role ?? "Academia"),
                 new Claim(ClaimTypes.Role, user.Role ?? "Academia"),
                 
             };

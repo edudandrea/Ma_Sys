@@ -73,6 +73,8 @@ namespace MA_Sys.API.Services
                 Telefone = a.Telefone,
                 Graduacao = a.Graduacao,
                 Ativo = a.Ativo,
+                AcademiaId = a.AcademiaId,
+                Obs = a.Obs
 
             }).ToList();
         }
@@ -97,7 +99,8 @@ namespace MA_Sys.API.Services
                     Graduacao = a.Graduacao,
                     DataCadastro = a.DataCadastro,
                     DataNascimento = a.DataNascimento,
-                    Ativo = a.Ativo
+                    Ativo = a.Ativo,
+                    Obs = a.Obs
                 })
                 .FirstOrDefault();
         }
@@ -112,7 +115,8 @@ namespace MA_Sys.API.Services
                 ModalidadeId = dto.ModalidadeId,
                 Telefone = dto.Telefone,
                 Email = dto.Email,
-
+                PlanoId = dto.PlanoId,
+                DataNascimento = dto.DataNascimento,
                 AcademiaId = academiaId?? 0,
                 DataCadastro = DateTime.UtcNow,
                 Ativo = true
@@ -141,25 +145,16 @@ namespace MA_Sys.API.Services
             aluno.Email = dto.Email;
             aluno.ModalidadeId = dto.ModalidadeId;
             aluno.Graduacao = dto.Graduacao;
-            aluno.DataNascimento = dto.DataNascimento;           
+            aluno.DataNascimento = dto.DataNascimento;
+            aluno.PlanoId = dto.PlanoId;
+            aluno.Obs = dto.Obs;
 
             _repo.Save();
-        }
+        }        
 
-        public void Delete(int id, int academiaId)
+        public void UpdateStatus(int id, int? academiaId, bool ativo)
         {
-            var aluno = _repo.GetById(id, academiaId);
-
-            if (aluno == null)
-                throw new Exception("Aluno não encontrado");
-
-            _repo.Delete(aluno);
-            _repo.Save();
-        }
-
-        public void UpdateStatus(int id, int academiaId, bool ativo)
-        {
-            var aluno = _repo.GetById(id, academiaId);
+            var aluno = _repo.GetById(id, academiaId ?? 0);
 
             if (aluno == null)
                 throw new Exception("Aluno não encontrado");

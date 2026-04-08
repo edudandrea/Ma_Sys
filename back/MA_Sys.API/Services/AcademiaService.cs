@@ -9,32 +9,39 @@ namespace MA_Sys.API.Services
     {
         private readonly IAcademiaRepository _repo;
 
-                                
+
 
         public AcademiaService(IAcademiaRepository repo)
-                                
+
         {
             _repo = repo;
-                        
+
         }
 
         public List<AcademiaResponseDto> List()
         {
             return _repo.Query()
-                .Select(a => new AcademiaResponseDto            
-            {
-                Id = a.Id,
-                Nome = a.Nome,
-                Email = a.Email,
-                Telefone = a.Telefone,
-                Ativo = a.Ativo
-            }).ToList();
+                .Select(a => new AcademiaResponseDto
+                {
+                    Id = a.Id,
+                    Nome = a.Nome,
+                    Email = a.Email,
+                    Telefone = a.Telefone,
+                    Cidade = a.Cidade,
+                    RedeSocial = a.RedeSocial,
+                    Responsavel = a.Responsavel,
+                    Ativo = a.Ativo,
+
+                    totalAlunos = a.Alunos.Count(),
+                    totalProfessores = a.Professores.Count()
+                    
+                }).ToList();
         }
 
         public List<AcademiaResponseDto> Get(AcademiaFiltroDto filtro, int academiaId)
         {
             var query = _repo.Query()
-            .Where(a => a.Id == academiaId);         
+            .Where(a => a.Id == academiaId);
 
             if (filtro.Id.HasValue)
                 query = query.Where(a => a.Id == filtro.Id);
@@ -47,7 +54,15 @@ namespace MA_Sys.API.Services
                 Id = a.Id,
                 Nome = a.Nome,
                 Telefone = a.Telefone,
+                Cidade = a.Cidade,
+                RedeSocial = a.RedeSocial,
+                Responsavel = a.Responsavel,
                 Ativo = a.Ativo,
+
+                totalAlunos = a.Alunos.Count(),
+                totalProfessores = a.Professores.Count()
+
+
 
             }).ToList();
         }
@@ -87,7 +102,7 @@ namespace MA_Sys.API.Services
             _repo.Add(academia);
             _repo.Save();
 
-            
+
         }
 
         public void Update(int id, AcademiaUpdateDto dto)

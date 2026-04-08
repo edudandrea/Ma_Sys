@@ -3,6 +3,7 @@ using System;
 using MA_SYS.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MA_SYS.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260406174649_NullAcadIdProf")]
+    partial class NullAcadIdProf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
@@ -105,9 +108,6 @@ namespace MA_SYS.Api.Migrations
 
                     b.Property<string>("Obs")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("PlanoId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("RedeSocial")
                         .HasColumnType("TEXT");
@@ -209,9 +209,6 @@ namespace MA_SYS.Api.Migrations
                     b.Property<int>("AcademiaId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("DuracaoMeses")
                         .HasColumnType("INTEGER");
 
@@ -232,7 +229,7 @@ namespace MA_SYS.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AcademiaId")
+                    b.Property<int?>("AcademiaId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Ativo")
@@ -308,9 +305,7 @@ namespace MA_SYS.Api.Migrations
                 {
                     b.HasOne("MA_SYS.Api.Models.Academia", null)
                         .WithMany("Professores")
-                        .HasForeignKey("AcademiaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AcademiaId");
                 });
 
             modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>

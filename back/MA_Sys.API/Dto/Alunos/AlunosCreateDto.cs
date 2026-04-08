@@ -7,7 +7,8 @@ namespace MA_Sys.API.Dto.Alunos
         public string? Telefone { get; set; }
         public string? Email { get; set; }
         public int ModalidadeId { get; set; }
+        public int PlanoId { get; set; }
         public string? Graduacao { get; set; }
-        public DateTime DataNescimento { get; set; }
+        public DateTime DataNascimento { get; set; }
     }
 }

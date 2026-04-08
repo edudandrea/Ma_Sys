@@ -1,37 +1,49 @@
-using MA_Sys.API.Controllers;
-using MA_Sys.API.Dto.ModalidadesDto;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using MA_Sys.API.Dto.Planos;
 using MA_Sys.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace MA_SYS.Api.Controllers
+namespace MA_Sys.API.Controllers
 {
     [ApiController]
     [Authorize]
     [Route("api/[controller]")]
-    public class ModalidadeController : BaseController
+    public class PlanosController : BaseController
     {
-        private readonly ModalidadeService _service;
-        public ModalidadeController(ModalidadeService service)
+        private readonly PlanosService _service;
+
+        public PlanosController(PlanosService service)
         {
             _service = service;
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] ModalidadeFiltroDto filtro)
+        public IActionResult List()
+        {
+            var academias = _service.List();
+            return Ok(academias);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get([FromQuery] PlanosFiltroDto filtro)
         {
             var (role, academiaId) = GetUserInfo();
-            Console.WriteLine($"Role do usuário: {role}");
-            Console.WriteLine($"Academia ID do usuário: {academiaId}");
-            Console.WriteLine($"ACADEMIA LOGADA: {academiaId}");
-            var modalidade = _service.Get(role, filtro, academiaId);
+            Console.WriteLine($"ROLE: {role}");
+            Console.WriteLine($"ACADEMIA ID: {academiaId}");
 
-            return Ok(modalidade);
+            var prof = _service.Get(role, filtro, academiaId);
+
+            return Ok(prof);
         }
 
         [HttpPost]
-
-        public async Task<IActionResult> Add([FromBody] ModalidadeCreateDto dto)
+        public async Task<IActionResult> Add([FromBody] PlanosCreateDto dto)
         {
             var (role, academiaId) = GetUserInfo();
             Console.WriteLine($"Academia ID: {academiaId}");
@@ -42,7 +54,7 @@ namespace MA_SYS.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] ModalidadeUpdateDto dto, int id)
+        public async Task<IActionResult> Update([FromBody] PlanosUpdateDto dto, int id)
         {
             var (role, academiaId) = GetUserInfo();
             Console.WriteLine($"Academia ID: {academiaId}");
@@ -61,13 +73,7 @@ namespace MA_SYS.Api.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var (role, academiaId) = GetUserInfo();
-            _service.Delete(id, academiaId);
-
-            return NoContent();
-        }
+        
+        
     }
 }

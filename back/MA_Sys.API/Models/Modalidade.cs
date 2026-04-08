@@ -11,7 +11,7 @@ namespace MA_SYS.Api.Models
         public int AcademiaId { get; set; }
         public string? NomeModalidade { get; set; }
         public bool Ativo { get; set; }
-        public int TotalAlunos { get; set; }
+         public int TotalAlunos { get; set; }
         public int TotalProf { get; set; }
     }
 }

@@ -3,6 +3,8 @@ namespace MA_Sys.API.Dto.Alunos
     public class AlunoResponseDto
     {
         public int Id { get; set; }
+        public int AcademiaId { get; set; }
+        public int PlanoId { get; set; }
         public string? Nome { get; set; }
         public string? CPF { get; set; }
         public string? Endereco { get; set; }
@@ -18,5 +20,6 @@ namespace MA_Sys.API.Dto.Alunos
         public string? Telefone { get; set; }
         public bool Ativo { get; set; }
         public string? Graduacao { get; set; }
+        public string? Obs { get; set; }
     }
 }

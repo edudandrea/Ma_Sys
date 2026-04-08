@@ -18,5 +18,7 @@ namespace MA_SYS.Api.Models
         public string? Telefone { get; set; }
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
+        public ICollection<Modalidade>? Alunos { get; set; }
+        public ICollection<Professor>? Professores { get; set; }
     }
 }

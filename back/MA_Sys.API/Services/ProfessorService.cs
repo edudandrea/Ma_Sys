@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.ProfessoresDto;
 using MA_SYS.Api.Models;
+using Microsoft.AspNetCore.Identity;
 using SQLitePCL;
 
 namespace MA_Sys.API.Services
@@ -26,6 +27,7 @@ namespace MA_Sys.API.Services
             return prof.Select(p => new ProfessorResponseDto
             {
                 Id = p.Id,
+                AcademiaId = p.AcademiaId,
                 Nome = p.Nome,
                 Email = p.Email,
                 Telefone = p.Telefone,
@@ -36,10 +38,19 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public List<ProfessorResponseDto> Get(ProfessorFiltroDto filtro, int academiaId)
+        public List<ProfessorResponseDto> Get(string role, ProfessorFiltroDto filtro, int? academiaId)
         {
             var query = _repo.Query();
-            query = query.Where(a => a.AcademiaId == academiaId);
+
+            Console.WriteLine($"ROLE RAW: '{role}'");
+            Console.WriteLine("ROLE NO SERVICE: '" + role + "'");
+
+            var isAdmin = role?.Trim().ToLower() == "admin";
+
+            if (!isAdmin && academiaId.HasValue)
+            {
+                query = query.Where(a => a.AcademiaId == academiaId);
+            }
 
             if (filtro.Id.HasValue)
                 query = query.Where(p => p.Id == filtro.Id);
@@ -53,19 +64,35 @@ namespace MA_Sys.API.Services
             return query.Select(p => new ProfessorResponseDto
             {
                 Id = p.Id,
+                AcademiaId = p.AcademiaId,
+                ModalidadeId = p.ModalidadeId,
                 Nome = p.Nome,
                 Email = p.Email,
                 Telefone = p.Telefone,
                 Graduacao = p.Graduacao,
                 Ativo = p.Ativo,
-
             }).ToList();
         }
 
-
-
-        public void Add(ProfessorCreateDto dto, int academiaId)
+        public void Add(ProfessorCreateDto dto, int? academiaId, string role)
         {
+            int academiaFinal;
+
+            if (role == "Admin")
+            {
+                if (dto.AcademiaId <= 0)
+                    throw new Exception("Admin deve informar a academia");
+
+                academiaFinal = dto.AcademiaId;
+            }
+            else
+            {
+                if (!academiaId.HasValue || academiaId <= 0)
+                    throw new Exception("Usuário sem academia válida");
+
+                academiaFinal = academiaId.Value;
+            }
+
             var prof = new Professor
             {
                 Nome = dto.Nome,
@@ -73,7 +100,7 @@ namespace MA_Sys.API.Services
                 ModalidadeId = dto.ModalidadeId,
                 Telefone = dto.Telefone,
                 Email = dto.Email,
-                AcademiaId = academiaId,
+                AcademiaId = academiaFinal,
                 Ativo = true
             };
 
