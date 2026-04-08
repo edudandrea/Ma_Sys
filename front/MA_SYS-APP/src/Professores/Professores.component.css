@@ -1,0 +1,303 @@
+/* =========================
+   PAGE
+========================= */
+.professores-page {
+  max-width: 1200px;
+}
+
+/* =========================
+   GRID
+========================= */
+.professores-page .professor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* =========================
+   CARD
+========================= */
+.professores-page .professor-card {
+  background: linear-gradient(145deg, #020617, #020617);
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  z-index: 1;
+}
+
+/* Hover SaaS */
+.professores-page .professor-card:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+  z-index: 2;
+}
+
+/* Glow */
+.professores-page .professor-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(120deg, transparent, #2563eb, transparent);
+  opacity: 0;
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+.professores-page .professor-card:hover::after {
+  opacity: 0.2;
+}
+
+/* =========================
+   HEADER CENTRAL
+========================= */
+.card-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Avatar */
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+/* Nome */
+.professores-page .professor-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+  max-width: 180px;
+}
+
+/* =========================
+   MENU
+========================= */
+.card-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+}
+
+/* =========================
+   BODY
+========================= */
+.card-body {
+  margin-top: 10px;
+}
+
+/* GRID DE INFORMAÇÕES */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* ITEM */
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.card-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* STATUS */
+.status {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.status.ativo {
+  background: #16a34a33;
+  color: #22c55e;
+}
+
+.status.inativo {
+  background: #dc262633;
+  color: #ef4444;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.empty-state i {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* =========================
+   MODAL FORM
+========================= */
+.form-grid-modal {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* LINHA FULL */
+.form-row.full {
+  margin-bottom: 20px;
+}
+
+/* INPUT GROUP */
+.modal-content .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+/* INPUT MODERNO */
+.modal-content .input-modern {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 10px;
+
+  padding: 10px 12px;
+}
+
+/* INPUT */
+.modal-content .input-modern input,
+.modal-content .input-modern select {
+  background: transparent ;
+  border: none;
+  outline: none;
+  box-shadow: none;
+
+  font-size: 14px;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  color: #e2e8f0;
+  flex: 1;           /* 🔥 usa espaço restante corretamente */
+  min-width: 0; 
+}
+
+/* REMOVE seta padrão */
+.modal-content .input-modern select::-ms-expand {
+  display: none;
+}
+
+/* DROPDOWN */
+.modal-content select option {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+/* FOCUS */
+.modal-content .input-modern:focus-within {
+  border-color: #2563eb;
+}
+
+/* ICON (CORRIGIDO) */
+.modal-content .input-modern i {
+  flex-shrink: 0;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* SETA CUSTOM (apenas para select) */
+.modal-content .input-modern::after {
+  content: '▾';
+  position: absolute;
+  right: 10px;
+  color: #64748b;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}

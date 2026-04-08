@@ -1,0 +1,68 @@
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <span class="logo-text" *ngIf="!sidebarCollapsed"> MartialArtsSys </span>
+
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+    
+    <div *ngIf="isAdmin()">
+      <nav>
+        <a routerLink="/dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span *ngIf="!sidebarCollapsed">Dashboard</span>
+        </a>
+
+        <a routerLink="/academias">
+          <i class="fa-solid fa-user"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Academias</span>
+        </a>
+
+        <a routerLink="/alunos">
+          <i class="fa-solid fa-user"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Alunos</span>
+        </a>
+
+        <a routerLink="/professores">
+          <i class="fa-solid fa-user-tie"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Professores</span>
+        </a>
+
+        <a routerLink="/modalidades">
+          <i class="fa-solid fa-hand-fist"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Modalidades</span>
+        </a>
+
+        <a routerLink="/planos">
+          <i class="fa-solid fa-money-bill"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Planos</span>
+        </a>
+
+        <a routerLink="/usuarios">
+          <i class="fa-solid fa-users"></i>
+          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Usuários</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+      <div class="topbar-title">MartialArtsSys</div>
+
+      <div class="topbar-right">
+        <i class="fa-solid fa-bell"></i>
+
+        <div class="avatar">ED</div>
+      </div>
+    </header>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

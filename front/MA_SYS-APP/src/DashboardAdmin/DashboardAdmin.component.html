@@ -1,0 +1,113 @@
+<div class="dashboard-page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p>Visão geral do sistema</p>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <i class="fa-solid fa-building"></i>
+      <div>
+        <h3>{{ dashboard?.totalAcademias }}</h3>
+        <span>Academias</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <i class="fa-solid fa-users"></i>
+      <div>
+        <h3>{{ dashboard?.totalAlunos }}</h3>
+        <span>Alunos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <i class="fa-solid fa-chalkboard-user"></i>
+      <div>
+        <h3>{{ dashboard?.totalProfessores }}</h3>
+        <span>Professores</span>
+      </div>
+    </div>
+
+    <div class="stat-card success">
+      <i class="fa-solid fa-circle-check"></i>
+      <div>
+        <h3>{{ dashboard?.academiasEmDia }}</h3>
+        <span>Pagamentos em dia</span>
+      </div>
+    </div>
+
+    <div class="stat-card danger">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <h3>{{ dashboard?.academiasAtraso }}</h3>
+        <span>Em atraso</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="dashboard-grid">
+
+    <!-- Crescimento -->
+    <div class="dashboard-card">
+      <h4>Crescimento de alunos</h4>
+      <canvas id="graficoAlunos"></canvas>
+    </div>
+
+    <!-- Planos -->
+    <div class="dashboard-card">
+      <h4>Planos mais utilizados</h4>
+      <canvas id="graficoPlanos"></canvas>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="dashboard-card">
+      <h4>Alertas</h4>
+
+      <div class="alert danger" *ngFor="let a of dashboard?.academiasAtrasadas">
+        {{ a.nome }} - {{ a.diasAtraso }} dias em atraso
+      </div>
+
+      <div class="alert warning" *ngFor="let a of dashboard?.academiasSemAlunos">
+        {{ a.nome }} sem alunos cadastrados
+      </div>
+    </div>
+
+    <!-- RANKING -->
+    <div class="dashboard-card">
+      <h4>Top Academias</h4>
+
+      <div class="list-item" *ngFor="let a of dashboard?.topAcademias">
+        <span>{{ a.nome }}</span>
+        <span>{{ a.totalAlunos }}</span>
+      </div>
+    </div>
+
+    <!-- TABELA -->
+    <div class="dashboard-card full">
+      <h4>Alunos por Academia</h4>
+
+      <div class="table">
+        <div class="table-header">
+          <span>Academia</span>
+          <span>Alunos</span>
+        </div>
+
+        <div class="table-row" *ngFor="let a of dashboard?.alunosPorAcademia">
+          <span>{{ a.nome }}</span>
+          <span>{{ a.totalAlunos }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

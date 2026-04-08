@@ -1,0 +1,307 @@
+.usuarios-page {
+  padding: 20px;
+}
+
+.surface-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.form-header h2 {
+  color: #e2e8f0;
+}
+
+.form-header p {
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.btn-save {
+  background: #2563eb;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-save:hover {
+  background: #1d4ed8;
+}
+
+.btn-cancel {
+  background: #334155;
+  color: #e2e8f0;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.usuario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.usuario-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+  transition: 0.2s;
+  position: absolute;
+  z-index: 2;
+}
+
+.usuario-card:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  color: #e2e8f0;
+}
+
+.badge-role {
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #334155;
+  font-size: 12px;
+}
+
+.badge-role.admin {
+  background: #2563eb;
+}
+
+.card-body .info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-footer {
+  position: relative;
+  z-index: 2;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  padding: 8px 14px;
+  border: none;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+.usuario-card {
+  background: linear-gradient(145deg, #020617, #020617);
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.usuario-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(120deg, transparent, #2563eb, transparent);
+  opacity: 0;
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+.usuario-card:hover::before {
+  opacity: 0.2;
+}
+
+.usuario-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+}
+
+/* AVATAR */
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+
+.user-info h3 {
+  max-width: 140px;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-text h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* BADGE */
+.badge-role {
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #1e293b;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5f5;
+}
+
+.badge-role.admin {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+}
+
+/* MENU */
+.menu button {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu button:hover {
+  color: #e2e8f0;
+}
+
+.dropdown {
+  position: absolute;
+  right: 10px;
+  top: 45px;
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.dropdown button:hover {
+  background: #1e293b;
+}
+
+.dropdown .danger {
+  color: #ef4444;
+}

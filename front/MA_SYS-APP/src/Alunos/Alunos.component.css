@@ -1,0 +1,67 @@
+.aluno-card {
+  background: linear-gradient(145deg, #020617, #020617);
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  z-index: 1;
+}
+
+/* glow igual usuário */
+.aluno-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(120deg, transparent, #2563eb, transparent);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.aluno-card:hover::before {
+  opacity: 0.2;
+}
+
+.aluno-card:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+  z-index: 2;
+}
+
+.aluno-card .form-header h2 {
+  color: #e2e8f0;
+}
+
+.aluno-card label {
+  color: #94a3b8;
+}
+
+.aluno-card .floating-actions {
+  position: static; /* remove o fixed */
+  margin-top: 30px;
+  justify-content: flex-end;
+  border-top: 1px solid #1e293b;
+  padding-top: 20px;
+}
+
+/* mantém visual bonito */
+.aluno-card .floating-save,
+.aluno-card .floating-cancel {
+  box-shadow: none;
+}
+
+.aluno-card .floating-add {
+  position: static;
+  margin-top: 20px;
+}
+
+/* opcional: alinhar à direita */
+.aluno-card .floating-add {
+  display: flex;
+  justify-content: flex-end;
+}
+

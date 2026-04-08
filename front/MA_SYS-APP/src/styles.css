@@ -1,0 +1,954 @@
+@import 'ngx-toastr/toastr';
+
+:root {
+  --text-primary: #e2e8f0;
+  --text-secondary: #c0c9d4;
+}
+
+.status-aluno {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* BADGE */
+
+.badge-status {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 6px 14px;
+
+  width: fit-content;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  border-radius: 999px;
+
+  border: 1px solid transparent;
+
+  transition: all 0.2s ease;
+}
+
+/* ATIVO */
+
+.badge-ativo {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+/* INATIVO */
+
+.badge-inativo {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* HOVER */
+
+.badge-status.clickable {
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  
+}
+
+.badge-status.clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* DESABILITADO */
+
+.badge-status.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.badge-pulse {
+  animation: pulseStatus 0.6s ease;
+}
+
+@keyframes pulseStatus {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 4px rgba(34, 197, 94, 0.4);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+/* animação quando desativa */
+
+.badge-shake {
+  animation: shakeStatus 0.45s ease;
+}
+
+@keyframes shakeStatus {
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-4px);
+  }
+
+  40% {
+    transform: translateX(4px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(3px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* ================= BASE ================= */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: var(--text-primary);
+}
+body,
+.layout,
+.content,
+.surface-card {
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* ================= LAYOUT ================= */
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 10px 20px;
+  padding-bottom: 180px;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+  width: 240px;
+  background: #020617;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  margin-bottom: 40px;
+  font-weight: 600;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar a {
+  color: #cbd5f5;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  background: #1e293b;
+}
+
+.sidebar a.active {
+  background: #2563eb;
+  color: white;
+}
+
+/* ================= HEADER ================= */
+
+.page-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 25px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #1e293b;
+}
+
+.page-title-group h1 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.page-title-group p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* ================= TABS ================= */
+
+.page-tabs {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 20px 0;
+  padding: 6px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.page-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.page-tab:hover {
+  background: #1e293b;
+  color: white;
+}
+
+.page-tab.active {
+  background: #2563eb;
+  color: white;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+/* ================= CARDS ================= */
+
+.surface-card {
+  width: 100%;
+  max-width: 1400px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 24px;
+  animation: fadeTab 0.25s ease;
+}
+
+/* ================= FORM ================= */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* layouts específicos */
+
+.endereco {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.contato {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+}
+
+.nome-cpf {
+  grid-template-columns: 2fr 1fr;
+}
+
+.dados-aluno {
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+}
+
+/* pesquisa */
+
+.pesquisa-row {
+  grid-template-columns: 120px 1fr 300px;
+  align-items: end;
+}
+
+.pesquisa-acao {
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+}
+
+/* ================= INPUTS ================= */
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-modern {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-modern i {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.input-modern input,
+.input-modern select {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #020617;
+  color: #e2e8f0;
+  transition: 0.2s;
+}
+
+.input-modern input:hover,
+.input-modern select:hover {
+  border-color: #475569;
+}
+
+.input-modern input:focus,
+.input-modern select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+/* campos desabilitados */
+
+input:disabled,
+select:disabled {
+  background: #020617;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* campo em edição */
+
+.input-editando {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+/* ================= BOTÕES ================= */
+
+.btn-save,
+.btn-cancel,
+.btn-edit,
+.floating-save,
+.floating-cancel {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 0;
+}
+
+.btn-save {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+.btn-save:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-cancel {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.btn-cancel:hover {
+  background: #475569;
+}
+
+.btn-edit {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #1d4ed8;
+}
+
+/* actions */
+
+.actions-row {
+  display:flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+/* ================= FLOATING ACTIONS ================= */
+
+.floating-actions {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.floating-cancel {
+  background: #334155;
+  color: #e2e8f0;
+  border-radius: 30px;
+  padding: 14px 20px;
+}
+
+.floating-save {
+  background: #2563eb;
+  color: white;
+  border-radius: 30px;
+  padding: 14px 22px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.floating-save:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* ================= BADGE EDIÇÃO ================= */
+
+.edit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2563eb22;
+  border: 1px solid #2563eb;
+  color: #60a5fa;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* ================= AUTOCOMPLETE ================= */
+
+.autocomplete-container {
+  position: relative;
+}
+
+.autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 6px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  z-index: 500;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+  animation: autocompleteFade 0.15s ease;
+}
+
+.autocomplete li {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.autocomplete li:hover {
+  background: #1e293b;
+}
+
+.autocomplete-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.autocomplete-nome {
+  font-weight: 500;
+}
+
+.autocomplete-cpf {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.autocomplete::-webkit-scrollbar {
+  width: 6px;
+}
+
+.autocomplete::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 6px;
+}
+
+/* ================= MODAIS ================= */
+
+.modal-backdrop {
+  background: rgba(2, 6, 23, 0.75) !important;
+  backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+  margin-top: 8vh;
+  max-width: 600px;
+}
+
+.modal-content {
+  background: #1e293b !important;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  color: #e2e8f0;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+  animation: modalEnter 0.25s ease;
+}
+
+.modal-header {
+  border-bottom: 1px solid #334155;
+  padding: 20px 24px;
+  color: #e2e8f0;
+}
+
+.modal-body {
+  padding: 24px;
+  color: #e2e8f0;
+}
+
+.modal-footer {
+  border-top: 1px solid #334155;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-body .input-modern input {
+  background: #020617;
+}
+
+/* botão fechar */
+
+.btn-close {
+  filter: invert(1);
+  opacity: 0.7;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+
+/* ================= ANIMAÇÕES ================= */
+
+@keyframes fadeTab {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes autocompleteFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= TOASTR ================= */
+
+.toast-container {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.toast-container .ngx-toastr {
+  color: #e2e8f0 !important;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  padding: 14px 16px;
+}
+
+/* ✅ SUCCESS */
+
+.toast-success {
+  background: #022c22 !important;
+  border-left: 4px solid #22c55e;
+}
+
+/* ❌ ERROR */
+
+.toast-error {
+  background: #2b0a0a !important;
+  border-left: 4px solid #ef4444;
+}
+
+/* ⚠ WARNING */
+
+.toast-warning {
+  background: #2b1f05 !important;
+  border-left: 4px solid #f59e0b;
+}
+
+/* ℹ INFO */
+
+.toast-info {
+  background: #0f172a !important;
+  border-left: 4px solid #2563eb;
+}
+
+/* TEXTO */
+
+.toast-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.toast-message {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* BOTÃO FECHAR */
+
+.toast-close-button {
+  color: #94a3b8 !important;
+}
+
+.toast-close-button:hover {
+  color: #e2e8f0 !important;
+}
+
+/* PROGRESS BAR */
+
+.toast-progress {
+  height: 3px;
+}
+
+.toast-success .toast-progress {
+  background: #22c55e !important;
+}
+
+.toast-error .toast-progress {
+  background: #ef4444 !important;
+}
+
+.toast-warning .toast-progress {
+  background: #f59e0b !important;
+}
+
+.toast-info .toast-progress {
+  background: #2563eb !important;
+}
+
+/* --------------------*/
+
+.card-info {
+  margin-top: 12px;
+}
+
+.alunos-count {
+  font-size: 13px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+/*-------------- CARD MENU ------------------*/
+
+.card-menu {
+  margin-left: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.card-footer {
+  position: relative;
+  z-index: 2;
+}
+
+
+.menu-btn {
+  background: transparent;
+
+  border: none;
+
+  color: #94a3b8;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.menu-btn:hover {
+  color: white;
+}
+
+/* dropdown */
+
+.menu-dropdown {
+  position: absolute;
+
+  right: 0;
+  top: 32px;
+
+  background: #1e293b;
+
+  border-radius: 10px;
+
+  border: 1px solid #334155;
+
+  padding: 6px;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 140px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
+}
+
+.menu-dropdown button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.menu-dropdown button:hover {
+  background: #1e293b;
+}
+
+.menu-dropdown .danger {
+  color: #ef4444;
+}
+
+/* ----------------- ANIMAÇÂO BOTÂO ------------------*/
+
+.floating-add,
+.floating-edit {
+  position: fixed;
+
+  bottom: 30px;
+  right: 30px;
+
+  height: 56px;
+
+  padding: 0 18px;
+
+  border-radius: 30px;
+
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+
+  transition: all 0.25s ease;
+
+  overflow: hidden;
+
+  z-index: 900;
+}
+
+.floating-edit {
+  background: #2563eb;
+}
+
+.floating-edit:hover {
+  background: #2563eb;
+}
+
+/* texto escondido */
+
+.fab-text {
+  max-width: 0;
+
+  opacity: 0;
+
+  white-space: nowrap;
+
+  transition: all 0.25s ease;
+}
+
+/* expansão */
+
+.floating-add:hover,
+.floating-edit:hover {
+  padding-right: 22px;
+}
+
+.floating-add:hover .fab-text,
+.floating-edit:hover .fab-text {
+  max-width: 120px;
+
+  opacity: 1;
+}
+
+.floating-edit {
+  background: #2563eb;
+}
+
+.floating-edit:hover {
+  background: #2563eb;
+}
+
+/* texto escondido */
+
+.fab-text {
+  max-width: 0;
+
+  opacity: 0;
+
+  white-space: nowrap;
+
+  transition: all 0.25s ease;
+}
+
+/* expansão */
+
+.floating-add:hover,
+.floating-edit:hover {
+  padding-right: 22px;
+}
+
+.floating-add:hover .fab-text,
+.floating-edit:hover .fab-text {
+  max-width: 120px;
+
+  opacity: 1;
+}
+
+/* rotação do ícone */
+
+.floating-add i,
+.floating-edit i {
+  transition: transform 0.60s ease;
+}
+
+/* rotação */
+
+.floating-add:hover i {
+  transform: rotate(180deg);
+}
+
+/* editar pequena rotação */
+
+.floating-edit:hover i {
+  transform: rotate(-20deg);
+}

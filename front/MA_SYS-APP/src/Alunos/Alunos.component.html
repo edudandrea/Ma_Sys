@@ -1,0 +1,456 @@
+<div class="page-header">
+  <div class="edit-badge" *ngIf="modoEdicao">
+    <i class="fa-solid fa-pen"></i>
+    Modo edição ativo
+  </div>
+
+  <div class="page-title-group">
+    <h1>Cadastro de Alunos</h1>
+    <p>Pesquisar ou editar alunos cadastrados</p>
+  </div>
+</div>
+
+<!-- TABS DINÂMICAS -->
+
+<ul class="page-tabs">
+  <li
+    *ngFor="let tab of tabs"
+    class="page-tab"
+    [class.active]="activeTab === tab.id"
+    (click)="setActiveTab(tab.id)"
+  >
+    <i [class]="tab.icon"></i>
+    <span>{{ tab.label }}</span>
+  </li>
+</ul>
+
+<!-- ================= TAB PESQUISA ================= -->
+
+<div class="surface-card aluno-card" *ngIf="activeTab === TabsCadastroAluno.Pesquisa">
+  <div class="surface-header">
+    <h2>Pesquisa de Alunos</h2>
+  </div>
+
+  <div class="form">
+    <div class="form-row pesquisa-row">
+      <!-- ID -->
+
+      <div class="input-group">
+        <label>Código</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-hashtag"></i>
+          <input type="text" [(ngModel)]="filtroAlunos.id" />
+        </div>
+      </div>
+
+      <!-- AUTOCOMPLETE NOME -->
+
+      <div class="input-group autocomplete-container">
+        <label>Nome do Aluno</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-user"></i>
+
+          <input
+            type="text"
+            [(ngModel)]="filtroAlunos.nome"
+            (input)="onInputNome($event)"
+            (focus)="abrirAutocomplete()"
+            (keydown.enter)="onPesquisarClick()"
+            autocomplete="off"
+          />
+        </div>
+
+        <ul class="autocomplete" *ngIf="mostrarListaAlunos && alunosFiltrados.length > 0">
+          <li *ngFor="let c of alunosFiltrados" (mousedown)="selecionarAlunoDaLista(c)">
+            <div class="autocomplete-item">
+              <span class="autocomplete-nome">
+                {{ c.nome }}
+              </span>
+
+              <span class="autocomplete-cpf" *ngIf="c.cpf">
+                {{ c.cpf }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CPF -->
+
+      <div class="input-group">
+        <label>CPF</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-id-card"></i>
+          <input type="text" [(ngModel)]="filtroAlunos.CPF" />
+        </div>
+      </div>
+    </div>
+
+    <!-- GRADUAÇÃO + MODALIDADE + BOTÕES -->
+
+    <div class="actions-row">
+      <button class="btn-save" (click)="onPesquisarClick()">
+        <i class="fa-solid fa-search"></i>
+        Pesquisar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TAB CADASTRO ================= -->
+
+<div class="surface-card aluno-card" *ngIf="activeTab === TabsCadastroAluno.Cadastro">
+  <form class="form">
+    <div class="input-group status-aluno">
+      <label>Status do Aluno</label>
+
+      <span
+        class="badge-status clickable"
+        [class.badge-ativo]="selectedAluno?.ativo"
+        [class.badge-inativo]="!selectedAluno?.ativo"
+        [class.badge-pulse]="animacaoStatus === 'pulse'"
+        [class.badge-shake]="animacaoStatus === 'shake'"
+        [class.disabled]="!modoEdicao"
+        (click)="modoEdicao && alterarStatusAluno()"
+      >
+        <i
+          class="fa-solid"
+          [class.fa-circle-check]="selectedAluno?.ativo"
+          [class.fa-circle-xmark]="!selectedAluno?.ativo"
+        ></i>
+
+        {{ selectedAluno?.ativo ? 'Aluno Ativo' : 'Aluno Inativo' }}
+      </span>
+
+      <span class="alunos-count">
+        <i class="fa-solid fa-building"></i>
+        {{ selectedAluno?.academiaNome || 'Sem academia' }}
+      </span>
+    </div>
+    <!-- NOME + CPF -->
+
+    <div class="form-row nome-cpf">
+      <div class="input-group">
+        <label>Nome</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-user"></i>
+
+          <input
+            [(ngModel)]="nome"
+            name="nome"
+            [disabled]="!modoEdicao"
+            [class.input-editando]="modoEdicao"
+          />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>CPF</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-id-card"></i>
+
+          <input
+            [(ngModel)]="cpf"
+            name="cpf"
+            [disabled]="!modoEdicao"
+            [class.input-editando]="modoEdicao"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDEREÇO -->
+
+    <div class="form-row endereco">
+      <div class="input-group">
+        <label>Endereço</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-location-dot"></i>
+          <input [(ngModel)]="endereco" name="endereco" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Bairro</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-city"></i>
+          <input [(ngModel)]="bairro" name="bairro" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+    </div>
+    <div class="form-row contato">
+      <div class="input-group">
+        <label>Cidade</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-city"></i>
+          <input [(ngModel)]="cidade" name="cidade" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Estado</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-map"></i>
+          <input [(ngModel)]="estado" name="estado" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>CEP</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-map-pin"></i>
+          <input [(ngModel)]="cep" name="cep" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTATO -->
+
+    <div class="form-row contato">
+      <div class="input-group">
+        <label>Email</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-envelope"></i>
+          <input [(ngModel)]="email" name="email" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Rede Social</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-globe"></i>
+          <input [(ngModel)]="redeSocial" name="redeSocial" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Telefone</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-phone"></i>
+          <input [(ngModel)]="telefone" name="telefone" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+    </div>
+
+    <!-- DADOS ALUNO -->
+
+    <div class="form-row dados-aluno">
+      <div class="input-group">
+        <label>Modalidade</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-hand-fist"></i>
+
+          <select [(ngModel)]="modalidadeId" name="modalidadeId" [disabled]="!modoEdicao">
+            <option [ngValue]="0">Selecione</option>
+
+            <option *ngFor="let modalidade of modalidades" [ngValue]="modalidade.id">
+              {{ modalidade.nomeModalidade }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Graduação</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-award"></i>
+
+          <input [(ngModel)]="graduacao" name="graduacao" [disabled]="!modoEdicao" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Data Nascimento</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-calendar"></i>
+
+          <input
+            type="date"
+            [(ngModel)]="dataNascimento"
+            name="dataNascimento"
+            [disabled]="!modoEdicao"
+          />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Data Cadastro</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-calendar"></i>
+          <input type="date" [(ngModel)]="dataCadastro" name="dataCadastro" readonly />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Observações</label>
+
+        <div class="input-modern">
+          <i class="fa-solid fa-user"></i>
+
+          <input
+            [(ngModel)]="obs"
+            name="observacoes"
+            [disabled]="!modoEdicao"
+            [class.input-editando]="modoEdicao"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÃO EDITAR -->
+
+    <div class="actions-row">
+      <button
+        class="floating-add"
+        *ngIf="activeTab === TabsCadastroAluno.Cadastro && !modoEdicao && idAluno"
+        (click)="ativarEdicao()"
+      >
+        <i class="fa-solid fa-pen"></i>
+        Editar
+      </button>
+    </div>
+
+    <!-- BOTÕES FLUTUANTES -->
+
+    <div class="floating-actions" *ngIf="modoEdicao">
+      <button class="floating-cancel" (click)="openModalCancelarEdicao(templateCancelarEdicao)">
+        <i class="fa-solid fa-xmark"></i>
+        Cancelar
+      </button>
+
+      <button class="floating-save" (click)="atualizarAluno()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Salvar alterações
+      </button>
+    </div>
+  </form>
+</div>
+
+<button
+  class="floating-add"
+  *ngIf="activeTab === TabsCadastroAluno.Pesquisa && !modoEdicao"
+  (click)="openModalNovoAluno(templateNovoAluno)"
+>
+  <i class="fa-solid fa-plus"></i>
+
+  <span class="fab-text"> Novo Aluno </span>
+</button>
+
+<!-- ================= MODAL NOVO ALUNO ================= -->
+
+<ng-template #templateNovoAluno>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Novo Aluno</h4>
+
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="input-group">
+          <label>Nome</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-user"></i>
+            <input [(ngModel)]="nome" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row contato">
+        <div class="input-group">
+          <label>CPF</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-id-card"></i>
+            <input [(ngModel)]="cpf" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-envelope"></i>
+            <input [(ngModel)]="email" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Telefone</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-phone"></i>
+            <input [(ngModel)]="telefone" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Modalidade</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-hand-fist"></i>
+
+            <select [(ngModel)]="modalidadeId">
+              <option [ngValue]="0">Selecione</option>
+
+              <option *ngFor="let modalidade of modalidades" [ngValue]="modalidade.id">
+                {{ modalidade.nomeModalidade }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+
+      <button class="btn-save" (click)="salvarNovoAluno()">Salvar Aluno</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #templateCancelarEdicao>
+  <div class="modal-content modal-surface">
+    <div class="modal-header">
+      <h5 class="modal-title">Cancelar edição</h5>
+
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-text">Deseja cancelar a edição?</p>
+
+      <small class="modal-subtext"> As alterações realizadas serão perdidas. </small>
+    </div>
+
+    <div class="modal-footer modal-actions">
+      <button type="button" class="btn-cancel" (click)="modalRef?.hide()">
+        Continuar editando
+      </button>
+
+      <button type="button" class="btn-save" (click)="confirmarCancelarEdicao()">
+        Sim, cancelar
+      </button>
+    </div>
+  </div>
+</ng-template>

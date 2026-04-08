@@ -1,0 +1,118 @@
+<div class="usuarios-page">
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h2>Usuários</h2>
+      <p>Gerencie os acessos ao sistema</p>
+    </div>
+
+    <button class="btn-primary" (click)="openModals(modalUsuario)">
+      <i class="fa-solid fa-plus"></i>
+      Novo Usuário
+    </button>
+  </div>
+
+  <!-- GRID -->
+  <div class="usuario-grid">
+    <div class="usuario-card" *ngFor="let user of usuarios">
+      <!-- HEADER -->
+      <div class="card-header">
+        <div class="user-info">
+          <div class="avatar">
+            {{ getInicial(user.userName) }}
+          </div>
+
+          <div class="user-text">
+            <h3 title="{{ user.userName }}">{{ user.userName }}</h3>
+            <span class="login">{{ user.login }}</span>
+          </div>
+        </div>
+
+        <!-- MENU -->
+        <div class="menu">
+          <button (click)="toggleMenu(user)">
+            <i class="fa-solid fa-ellipsis"></i>
+          </button>
+
+          <div class="dropdown" *ngIf="user.menuAberto">
+            <button (click)="editar(user)"><i class="fa-solid fa-pen"></i> Editar</button>
+
+            <button class="danger" (click)="deleteUsuario(user.id)">
+              <i class="fa-solid fa-trash"></i> Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body">
+        <div class="badge-role" [class.admin]="user.role === 'Admin'">
+          <i class="fa-solid fa-shield-halved"></i>
+          {{ user.role }}
+        </div>
+
+        <div class="info" *ngIf="user.academiaNome">
+          <i class="fa-solid fa-dumbbell"></i>
+          <span title="{{ user.academiaNome }}">
+            {{ user.academiaNome }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <ng-template #modalUsuario>
+    <div class="modal-header">
+      <h4>{{ editando ? 'Editar Usuário' : 'Novo Usuário' }}</h4>
+      <button class="btn-close" (click)="closeModals()"></button>
+    </div>
+
+    <div class="modal-body">
+      <form class="form-grid">
+        <div class="form-group full">
+          <label>Nome</label>
+          <input [(ngModel)]="userName" name="nome" />
+        </div>
+
+        <div class="form-group">
+          <label>Login</label>
+          <input [(ngModel)]="login" name="login" />
+        </div>
+
+        <div class="form-group">
+          <label>Perfil</label>
+          <select [(ngModel)]="role" name="role">
+            <option value="">Selecione</option>
+            <option value="Admin">Admin</option>
+            <option value="Academia">Academia</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="!editando">
+          <label>Senha</label>
+          <input type="password" [(ngModel)]="senha" name="senha" />
+        </div>
+
+        <div class="form-group" *ngIf="!editando">
+          <label>Confirmar Senha</label>
+          <input type="password" [(ngModel)]="confirmarSenha" name="confirmarSenha" />
+        </div>
+
+        <div class="form-group" *ngIf="role === 'Academia'">
+          <label>Academia</label>
+          <select [(ngModel)]="academiaId" name="academiaId">
+            <option *ngFor="let a of academias" [value]="a.id">
+              {{ a.nome }}
+            </option>
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+      <button class="btn-save" (click)="salvar()">Salvar</button>
+    </div>
+  </ng-template>
+</div>
