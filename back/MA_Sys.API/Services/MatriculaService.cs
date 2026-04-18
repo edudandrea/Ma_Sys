@@ -7,6 +7,7 @@ using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.Matriculas;
 using MA_Sys.API.Models;
 using MA_SYS.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MA_Sys.API.Services
 {
@@ -18,9 +19,9 @@ namespace MA_Sys.API.Services
         private readonly IFormaPagamentoRepository _formaPgtoRepo;
         private readonly IPagamentoRepository _pagamentoRepo;
 
-        public MatriculaService(IMatriculaRepository repo, 
-                                IAlunoRepository alunoRepo, 
-                                IPlanosRepository planoRepo, 
+        public MatriculaService(IMatriculaRepository repo,
+                                IAlunoRepository alunoRepo,
+                                IPlanosRepository planoRepo,
                                 IFormaPagamentoRepository formaPgtoRepo,
                                 IPagamentoRepository pagamentoRepo)
         {
@@ -67,39 +68,84 @@ namespace MA_Sys.API.Services
                 DataInicio = a.DataInicio,
                 DataFim = a.DataFim,
                 Status = a.Status
+
             }).ToList();
         }
 
-        public async Task<Matricula> CreateMatricula(MatriculasCreateDto dto)
+        public List<MatriculasResponseDto> Get(string role, MatriculasFiltro filtro, int? academiaId)
         {
+            Console.WriteLine($"ROLE: {role}");
+            Console.WriteLine($"ACADEMIA ID NO GET: {academiaId}");
+
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!academiaId.HasValue)
+                    throw new UnauthorizedAccessException("Usuário sem vínculo com academia");
+            }
+
+            var query = _repo.Query().AsNoTracking();
+
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(m => m.AcademiaId == academiaId);
+            }
+            
+            var result = query.Select(m => new MatriculasResponseDto
+            {
+                Id = m.Id,
+                AlunoId = m.AlunoId,
+
+                AlunoNome = _alunoRepo.Query()
+                    .Where(a => a.Id == m.AlunoId)
+                    .Select(a => a.Nome)
+                    .FirstOrDefault(),
+
+                AcademiaId = m.AcademiaId,
+                PlanoId = m.PlanoId,
+                DataInicio = m.DataInicio,
+                DataFim = m.DataFim,
+                Status = m.Status
+            });
+
+            // 🔥 FILTRO POR NOME (APÓS PROJEÇÃO)
+            if (filtro != null && !string.IsNullOrEmpty(filtro.AlunoNome))
+            {
+                result = result.Where(m => m.AlunoNome.Contains(filtro.AlunoNome));
+            }
+
+            return result.ToList();
+        }
+
+
+        public async Task<Matricula> Add(MatriculasCreateDto dto, int? academiaId, string role)
+        {
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!academiaId.HasValue)
+                    throw new UnauthorizedAccessException("Usuário sem vínculo com academia");
+            }
+
             var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId);
             if (plano == null)
                 throw new Exception("Plano não encontrado");
 
-            var formaPgto = _formaPgtoRepo.Query().FirstOrDefault(f => f.Id == dto.FormaPgtoId);
-            if (formaPgto == null)
-                throw new Exception("Forma de Pagamento não encontrada");
+            var dataInicio = dto.DataInicio ?? DateTime.Now;
 
             var matricula = new Matricula
             {
                 AlunoId = dto.AlunoId,
                 PlanoId = dto.PlanoId,
-                DataInicio = DateTime.Now,
-                DataFim = DateTime.Now.AddMonths(plano.DuracaoMeses),
+                AcademiaId = academiaId.Value, // 🔥 ESSENCIAL
+                DataInicio = dataInicio,
+                DataFim = dataInicio.AddMonths(plano.DuracaoMeses),
                 Status = "Ativa"
             };
 
             _repo.Add(matricula);
             _repo.Save();
 
-            var parcelas = GerarPagamentos(matricula, plano, formaPgto, dto.FormaPgtoId);
-
-            foreach (var p in parcelas)
-                _pagamentoRepo.Add(p);
-
-            _formaPgtoRepo.Save();
             return matricula;
-
         }
+
     }
 }

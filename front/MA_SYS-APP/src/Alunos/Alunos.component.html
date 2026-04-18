@@ -124,7 +124,6 @@
 
         {{ selectedAluno?.ativo ? 'Aluno Ativo' : 'Aluno Inativo' }}
       </span>
-      
 
       <span class="alunos-count">
         <i class="fa-solid fa-building"></i>
@@ -248,39 +247,7 @@
 
     <!-- DADOS ALUNO -->
 
-    <div class="form-row dados-aluno">
-      <div class="input-group">
-        <label>Modalidade</label>
-
-        <div class="input-modern">
-          <i class="fa-solid fa-hand-fist"></i>
-
-          <select [(ngModel)]="modalidadeId" name="modalidadeId" [disabled]="!modoEdicao">
-            <option [ngValue]="0">Selecione</option>
-
-            <option *ngFor="let modalidade of modalidades" [ngValue]="modalidade.id">
-              {{ modalidade.nomeModalidade }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Plano</label>
-
-        <div class="input-modern">
-          <i class="fa-solid fa-money-bill"></i>
-
-          <select [(ngModel)]="planoId" name="planoId" [disabled]="!modoEdicao">
-            <option [ngValue]="0">Selecione</option>
-
-            <option *ngFor="let plano of planos" [ngValue]="plano.id">
-              {{ plano.nome }}
-            </option>
-          </select>
-        </div>
-      </div>
-
+    <div class="form-row contato">
       <div class="input-group">
         <label>Graduação</label>
 
@@ -305,10 +272,16 @@
           />
         </div>
       </div>
+      <div class="input-group">
+        <label>Data Cadastro</label>
+        <div class="input-modern">
+          <i class="fa-solid fa-calendar"></i>
+          <input type="date" [(ngModel)]="dataCadastro" name="dataCadastro" readonly />
+        </div>
+      </div>
     </div>
 
-    <div class="form-row nome-cpf">
-
+    <div class="form-row">
       <div class="input-group">
         <label>Observações</label>
 
@@ -321,15 +294,6 @@
             [disabled]="!modoEdicao"
             [class.input-editando]="modoEdicao"
           />
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label>Data Cadastro</label>
-
-        <div class="input-modern">
-          <i class="fa-solid fa-calendar"></i>
-          <input type="date" [(ngModel)]="dataCadastro" name="dataCadastro" readonly />
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ namespace MA_Sys.API.Dto.Matriculas
         public int AcademiaId { get; set; }
 
         public int AlunoId { get; set; }
+        public string AlunoNome { get; set; } = string.Empty;
 
         public int PlanoId { get; set; }
 

@@ -14,7 +14,7 @@ namespace MA_Sys.API.Dto.Matriculas
 
         public int PlanoId { get; set; }
 
-        public DateTime DataInicio { get; set; }
+        public DateTime? DataInicio { get; set; }
 
         public int FormaPgtoId { get; set; }
         

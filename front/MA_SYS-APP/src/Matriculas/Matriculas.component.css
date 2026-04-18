@@ -1,0 +1,375 @@
+/* =========================
+   PAGE
+========================= */
+.matriculas-page {
+  max-width: 1200px;
+}
+
+/* =========================
+   GRID DE CARDS
+========================= */
+.matriculas-page .matricula-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.matriculas-page .matricula-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.matriculas-page .matricula-card:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+}
+
+/* Glow */
+.matriculas-page .matricula-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(120deg, transparent, #2563eb, transparent);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.matriculas-page .matricula-card:hover::after {
+  opacity: 0.2;
+}
+
+/* =========================
+   HEADER
+========================= */
+.card-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.matricula-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+}
+
+/* =========================
+   MENU
+========================= */
+.card-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* =========================
+   BODY
+========================= */
+.card-body {
+  margin-top: 10px;
+}
+
+.info-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* =========================
+   FOOTER CARD
+========================= */
+.card-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* STATUS */
+.status {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.status.ativo {
+  background: #16a34a33;
+  color: #22c55e;
+}
+
+.status.inativo {
+  background: #dc262633;
+  color: #ef4444;
+}
+
+/* =========================
+   FORM GRID (MODAL)
+========================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+/* =========================
+   MODAL ANIMAÇÃO
+========================= */
+.modal-content {
+  animation: modalFadeIn 0.3s ease;
+  transform-origin: top;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop.show {
+  animation: fadeBackdrop 0.2s ease;
+}
+
+@keyframes fadeBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+/* =========================
+   INPUT MODERNO
+========================= */
+.modal-content .input-modern {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 10px;
+
+  padding: 10px 12px;
+  transition: 0.2s;
+}
+
+.modal-content .input-modern:hover {
+  border-color: #475569;
+}
+
+.modal-content .input-modern:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+}
+
+/* remove borda azul padrão */
+.modal-content .input-modern input:focus,
+.modal-content .input-modern select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.modal-content .input-modern input,
+.modal-content .input-modern select {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-size: 14px;
+  flex: 1;
+}
+
+.modal-content .input-modern i {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* seta do select */
+.modal-content .input-modern::after {
+  content: '▾';
+  position: absolute;
+  right: 10px;
+  color: #64748b;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* =========================
+   FIX SELECT DARK MODE
+========================= */
+.modal-content select {
+  background: #020617;
+  color: #e2e8f0;
+  appearance: none;
+  cursor: pointer;
+}
+
+.modal-content select option {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+/* força modo escuro no browser */
+select {
+  color-scheme: dark;
+}
+
+/* =========================
+   DROPDOWN
+========================= */
+.dropdown-list {
+  grid-column: span 2;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 8px;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+.dropdown-item:hover {
+  background: #2563eb33;
+}
+
+/* =========================
+   INFO BOX (PLANO)
+========================= */
+.info-box {
+  grid-column: span 2;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+/* =========================
+   SELECTED INFO
+========================= */
+.selected-info {
+  font-size: 13px;
+  color: #22c55e;
+}
+
+/* =========================
+   FOOTER MODAL
+========================= */
+.modal-footer-total {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-top: 1px solid #1e293b;
+  padding: 12px 16px;
+}
+
+.total-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.total-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.empty-state i {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+/* =========================
+   DATE INPUT
+========================= */
+input[type="date"] {
+  color-scheme: dark;
+  cursor: pointer;
+}

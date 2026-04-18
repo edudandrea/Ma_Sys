@@ -94,9 +94,8 @@ export class AlunosComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.carregarPlanos();
     this.carregarAcademias();
-    this.carregarModalidades();
+    
   }
 
   setActiveTab(tab: TabsCadastroAluno) {
@@ -247,36 +246,9 @@ export class AlunosComponent implements OnInit {
 
   // Métodos para carregar dados de apoio (modalidades, academias, planos)
 
-  carregarModalidades() {
-    this.modalidadesService.getModalidades().subscribe({
-      next: (res) => {
-        this.modalidades = res;
-        if (this.selectedAluno) {
-          this.modalidadeId = this.selectedAluno.modalidadeId;
-        }
-      },
+  
 
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
-  carregarPlanos() {
-    this.planosService.getPlanos().subscribe({
-      next: (res) => {
-        console.log('Planos recebidos:', res);
-        this.planos = res;
-        if (this.selectedAluno) {
-          this.planoId = this.selectedAluno.planoId;
-        }
-      },
-
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
+  
 
   carregarAcademias() {
     this.spinner.show();
