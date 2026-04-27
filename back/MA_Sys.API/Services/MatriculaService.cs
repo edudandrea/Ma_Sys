@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MA_Sys.API.Data.Repository;
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.Matriculas;
 using MA_Sys.API.Models;
@@ -19,11 +14,12 @@ namespace MA_Sys.API.Services
         private readonly IFormaPagamentoRepository _formaPgtoRepo;
         private readonly IPagamentoRepository _pagamentoRepo;
 
-        public MatriculaService(IMatriculaRepository repo,
-                                IAlunoRepository alunoRepo,
-                                IPlanosRepository planoRepo,
-                                IFormaPagamentoRepository formaPgtoRepo,
-                                IPagamentoRepository pagamentoRepo)
+        public MatriculaService(
+            IMatriculaRepository repo,
+            IAlunoRepository alunoRepo,
+            IPlanosRepository planoRepo,
+            IFormaPagamentoRepository formaPgtoRepo,
+            IPagamentoRepository pagamentoRepo)
         {
             _repo = repo;
             _alunoRepo = alunoRepo;
@@ -37,7 +33,7 @@ namespace MA_Sys.API.Services
             var lista = new List<Pagamentos>();
             var valorParcela = plano.Valor / formaPgto.Parcelas;
 
-            for (int i = 0; i < formaPgto.Parcelas; i++)
+            for (var i = 0; i < formaPgto.Parcelas; i++)
             {
                 var vencimento = matricula.DataInicio.AddDays(formaPgto.Dias * i);
                 lista.Add(new Pagamentos
@@ -51,115 +47,101 @@ namespace MA_Sys.API.Services
                     FormaPagamentoId = formaPgtoId
                 });
             }
+
             return lista;
         }
 
         public List<MatriculasResponseDto> List(int academiaId)
         {
-            var modalidade = _repo.Query();
-
-            modalidade = modalidade.Where(m => m.AcademiaId == academiaId);
-
-            return modalidade.Select(a => new MatriculasResponseDto
-            {
-                Id = a.Id,
-                AlunoId = a.AlunoId,
-                PlanoId = a.PlanoId,
-                DataInicio = a.DataInicio,
-                DataFim = a.DataFim,
-                Status = a.Status
-
-            }).ToList();
+            return _repo.Query()
+                .AsNoTracking()
+                .Where(m => m.AcademiaId == academiaId)
+                .Select(a => new MatriculasResponseDto
+                {
+                    Id = a.Id,
+                    AlunoId = a.AlunoId,
+                    PlanoId = a.PlanoId,
+                    DataInicio = a.DataInicio,
+                    DataFim = a.DataFim,
+                    Status = a.Status
+                })
+                .ToList();
         }
 
         public List<MatriculasResponseDto> Get(string role, MatriculasFiltro filtro, int? academiaId)
         {
-            Console.WriteLine($"ROLE: {role}");
-            Console.WriteLine($"ACADEMIA ID NO GET: {academiaId}");
-
-            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) && !academiaId.HasValue)
             {
-                if (!academiaId.HasValue)
-                    throw new UnauthorizedAccessException("Usuário sem vínculo com academia");
+                throw new UnauthorizedAccessException("Usuario sem vinculo com academia.");
             }
 
-            var query = _repo.Query().AsNoTracking();
+            var query =
+                from matricula in _repo.Query().AsNoTracking()
+                join aluno in _alunoRepo.Query().AsNoTracking() on matricula.AlunoId equals aluno.Id
+                join plano in _planoRepo.Query().AsNoTracking() on matricula.PlanoId equals plano.Id
+                join formaPagamento in _formaPgtoRepo.Query().AsNoTracking() on matricula.FormaPagamentoId equals formaPagamento.Id into formaPagamentoJoin
+                from formaPagamento in formaPagamentoJoin.DefaultIfEmpty()
+                select new MatriculasResponseDto
+                {
+                    Id = matricula.Id,
+                    AlunoId = matricula.AlunoId,
+                    AcademiaId = matricula.AcademiaId,
+                    AlunoNome = aluno.Nome,
+                    Email = aluno.Email,
+                    Telefone = aluno.Telefone,
+                    PlanoId = matricula.PlanoId,
+                    PlanoNome = plano.Nome,
+                    PlanoValor = plano.Valor,
+                    FormaPagamentoNome = formaPagamento != null ? formaPagamento.Nome : string.Empty,
+                    DataInicio = matricula.DataInicio,
+                    DataFim = matricula.DataFim,
+                    Status = matricula.Status
+                };
 
             if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
             {
                 query = query.Where(m => m.AcademiaId == academiaId);
             }
-            
-            var result = query.Select(m => new MatriculasResponseDto
+
+            if (!string.IsNullOrWhiteSpace(filtro?.AlunoNome))
             {
-                Id = m.Id,
-                AlunoId = m.AlunoId,
-                AcademiaId = m.AcademiaId,
-
-                AlunoNome = _alunoRepo.Query()
-                    .Where(a => a.Id == m.AlunoId)
-                    .Select(a => a.Nome)
-                    .FirstOrDefault(),
-
-                
-                Email = _alunoRepo.Query()
-                    .Where(a => a.Id == m.AlunoId)
-                    .Select(a => a.Email)
-                    .FirstOrDefault(),
-
-                Telefone = _alunoRepo.Query()
-                    .Where(a => a.Id == m.AlunoId)
-                    .Select(a => a.Telefone)
-                    .FirstOrDefault(),
-
-                PlanoId = m.PlanoId,
-                PlanoNome = _planoRepo.Query()
-                    .Where(p => p.Id == m.PlanoId)
-                    .Select(p => p.Nome)
-                    .FirstOrDefault(),
-
-                    PlanoValor = _planoRepo.Query()
-                    .Where(p => p.Id == m.PlanoId)
-                    .Select(p => p.Valor)
-                    .FirstOrDefault(),
-                FormaPagamentoNome = _formaPgtoRepo.Query()
-                    .Where(f => f.Id == m.FormaPagamentoId)
-                    .Select(f => f.Nome)
-                    .FirstOrDefault(),
-                DataInicio = m.DataInicio,
-                DataFim = m.DataFim,
-                Status = m.Status
-            });
-
-            // 🔥 FILTRO POR NOME (APÓS PROJEÇÃO)
-            if (filtro != null && !string.IsNullOrEmpty(filtro.AlunoNome))
-            {
-                result = result.Where(m => m.AlunoNome.Contains(filtro.AlunoNome));
+                var alunoNome = filtro.AlunoNome.Trim();
+                query = query.Where(m => m.AlunoNome.Contains(alunoNome));
             }
 
-            return result.ToList();
+            if (!string.IsNullOrWhiteSpace(filtro?.Status))
+            {
+                var status = filtro.Status.Trim();
+                query = query.Where(m => m.Status == status);
+            }
+
+            return query.ToList();
         }
 
-
-        public async Task<Matricula> Add(MatriculasCreateDto dto, int? academiaId, string role)
+        public Task<Matricula> Add(MatriculasCreateDto dto, int? academiaId, string role)
         {
-            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            var academiaDestino = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase)
+                ? dto.AcademiaId
+                : academiaId ?? 0;
+
+            if (academiaDestino <= 0)
             {
-                if (!academiaId.HasValue)
-                    throw new UnauthorizedAccessException("Usuário sem vínculo com academia");
+                throw new UnauthorizedAccessException("Academia invalida para criar matricula.");
             }
 
-            var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId);
+            var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId && p.AcademiaId == academiaDestino);
             if (plano == null)
-                throw new Exception("Plano não encontrado");
+            {
+                throw new InvalidOperationException("Plano nao encontrado.");
+            }
 
-            var dataInicio = dto.DataInicio ?? DateTime.Now;
-
+            var dataInicio = dto.DataInicio ?? DateTime.UtcNow;
             var matricula = new Matricula
             {
+                AcademiaId = academiaDestino,
                 AlunoId = dto.AlunoId,
                 PlanoId = dto.PlanoId,
-                AcademiaId = academiaId.Value, // 🔥 ESSENCIAL
+                FormaPagamentoId = dto.FormaPgtoId,
                 DataInicio = dataInicio,
                 DataFim = dataInicio.AddMonths(plano.DuracaoMeses),
                 Status = "Ativa"
@@ -168,8 +150,7 @@ namespace MA_Sys.API.Services
             _repo.Add(matricula);
             _repo.Save();
 
-            return matricula;
+            return Task.FromResult(matricula);
         }
-
     }
 }

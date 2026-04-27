@@ -1,78 +1,315 @@
-<div class="cadastro-container">
-  <div class="cadastro-card">
-    <h2>Identificação</h2>
-    <p class="subtitle">Informe seus dados para continuar</p>
-
-    <!-- 🔍 BUSCA -->
-    <div class="form-group">
-      <label>CPF</label>
-      <input type="text" [(ngModel)]="cpfBusca" placeholder="000.000.000-00" />
+<div class="cadastro-shell">
+  <section class="cadastro-hero">
+    <div class="hero-brand">
+      <img src="assets/logo-marcial-prox.png" alt="Logo Marcial ProX" class="hero-logo" />
+      <span class="hero-badge">Pré-cadastro de aluno</span>
     </div>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" [(ngModel)]="emailBusca" placeholder="seu@email.com" />
+    <div class="hero-copy">
+      <h1>Confirme seus dados e conclua sua entrada no Marcial ProX.</h1>
+      <p>
+        Uma experiência mais clara para matrícula, revisão cadastral e escolha da forma de
+        pagamento.
+      </p>
     </div>
 
-    <button class="btn-buscar" (click)="pesquisarAlunos()">Buscar</button>
-
-    <!-- ❌ NÃO ENCONTRADO -->
-    <div *ngIf="mostrarCadastro" class="cadastro-section">
-      <h3>Complete seu cadastro</h3>
-
-      <div class="form-group">
-        <label>Nome</label>
-        <input type="text" [(ngModel)]="nome" />
+    <div class="hero-points">
+      <div class="hero-point">
+        <strong>Cadastro guiado</strong>
+        <span>Informações organizadas em blocos simples e objetivos.</span>
       </div>
 
-      <div class="form-group">
-        <label>Telefone</label>
-        <input type="text" [(ngModel)]="telefone" />
-      </div>
-
-      <div class="form-group">
-        <label>Plano</label>
-        <select [(ngModel)]="planoId" (change)="onPlanoChange()">
-          <option *ngFor="let plano of planos" [value]="plano.id">
-            {{ plano.nome }} - R$ {{ plano.valor }}
-          </option>
-        </select>
+      <div class="hero-point">
+        <strong>Pagamento integrado</strong>
+        <span>PIX e cartão no mesmo fluxo, respeitando o tema ativo do sistema.</span>
       </div>
     </div>
+  </section>
 
-    <!-- ✅ ENCONTRADO -->
-    <div *ngIf="alunoEncontrado" class="aluno-section">
-      <h3>Bem-vindo, {{ aluno?.nome }}</h3>
-
-      <div class="info-box">
-        <span>📋 Plano: {{ aluno?.plano }}</span>
-        <span>💰 Valor: R$ {{ aluno?.valor }}</span>
-      </div>
-
-      <!-- 💳 PAGAMENTO -->
-      <div class="form-group">
-        <label>Forma de pagamento</label>
-
-        <select [(ngModel)]="formaPagamentoId" (change)="onFormaPagamentoChange()">
-          <option value="" disabled>Selecione</option>
-          <option *ngFor="let f of formasPagamento" [value]="f.id">
-            {{ f.nome }}
-          </option>
-        </select>
-      </div>
-
-      <!-- PIX -->
-      <div *ngIf="isPix && !showQrCode" class="pix-action">
-        <button class="btn-pix" (click)="gerarPix()">Gerar QR Code PIX</button>
-      </div>
-
-      <div *ngIf="showQrCode" class="pix-qrcode">
-        <h5>Escaneie ou clique para copiar</h5>
-
-        <img [src]="qrCodePix" (click)="copiarPix()" class="qr-clickable" />
-
-        <span class="pix-valor"> Valor: R$ {{ aluno?.valor | number: '1.2-2' }} </span>
-      </div>
+  <section class="cadastro-panel">
+    <div class="panel-heading">
+      <span class="eyebrow">Identificação</span>
+      <h2>Vamos localizar seu cadastro</h2>
+      <p>Informe CPF e email para carregar seus dados e continuar.</p>
     </div>
-  </div>
+
+    <div *ngIf="!alunoEncontrado" class="search-card">
+      <div class="search-grid">
+        <div class="input-group">
+          <label>CPF</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-id-card"></i>
+            <input [(ngModel)]="cpfBusca" placeholder="000.000.000-00" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-envelope"></i>
+            <input [(ngModel)]="emailBusca" placeholder="voce@exemplo.com" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary-block" (click)="pesquisarAlunos()">Buscar cadastro</button>
+    </div>
+
+    <ng-container *ngIf="alunoEncontrado">
+      <div class="student-banner">
+        <div>
+          <span class="eyebrow">Cadastro encontrado</span>
+          <h3>{{ aluno?.nome }}</h3>
+        </div>
+
+        <div class="student-chips">
+          <span class="info-chip">
+            <i class="fa-solid fa-building"></i>
+            {{ aluno?.academiaNome || 'Sem academia vinculada' }}
+          </span>
+
+          <span class="info-chip emphasis">
+            <i class="fa-solid fa-file-signature"></i>
+            Revisão cadastral pronta para envio
+          </span>
+        </div>
+      </div>
+
+      <form class="cadastro-form" autocomplete="off">
+        <section class="form-section">
+          <div class="section-heading">
+            <h4>Dados pessoais</h4>
+            <p>Confira suas informações principais antes de seguir para o pagamento.</p>
+          </div>
+
+          <div class="form-grid cols-2">
+            <div class="input-group">
+              <label>Nome</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-user"></i>
+                <input [(ngModel)]="nome" name="nome" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>CPF</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-id-card"></i>
+                <input [(ngModel)]="cpf" name="cpf" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid cols-3">
+            <div class="input-group">
+              <label>Graduação</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-award"></i>
+                <input [(ngModel)]="graduacao" name="graduacao" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Data de nascimento</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-calendar"></i>
+                <input type="date" [(ngModel)]="dataNascimento" name="dataNascimento" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Data de cadastro</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-calendar-check"></i>
+                <input type="date" [(ngModel)]="dataCadastro" name="dataCadastro" readonly />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h4>Endereço</h4>
+            <p>Mantenha o endereço atualizado para comunicação e documentação.</p>
+          </div>
+
+          <div class="form-grid cols-2">
+            <div class="input-group">
+              <label>Endereço</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-location-dot"></i>
+                <input [(ngModel)]="endereco" name="endereco" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Bairro</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <input [(ngModel)]="bairro" name="bairro" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid cols-3">
+            <div class="input-group">
+              <label>Cidade</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-city"></i>
+                <input [(ngModel)]="cidade" name="cidade" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Estado</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-map"></i>
+                <input [(ngModel)]="estado" name="estado" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>CEP</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-map-pin"></i>
+                <input [(ngModel)]="cep" name="cep" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h4>Contato</h4>
+            <p>Esses dados ajudam no envio de avisos, recibos e confirmações.</p>
+          </div>
+
+          <div class="form-grid cols-3">
+            <div class="input-group">
+              <label>Email</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-envelope"></i>
+                <input [(ngModel)]="email" name="email" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Rede social</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-globe"></i>
+                <input [(ngModel)]="redeSocial" name="redeSocial" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Telefone</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-phone"></i>
+                <input [(ngModel)]="telefone" name="telefone" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h4>Observações</h4>
+            <p>Adicione aqui alguma informação importante para a academia.</p>
+          </div>
+
+          <div class="input-group">
+            <label>Observações</label>
+            <textarea [(ngModel)]="obs" name="observacoes" rows="4"></textarea>
+          </div>
+        </section>
+      </form>
+
+      <section class="payment-panel">
+        <div class="payment-summary">
+          <div class="summary-box">
+            <span class="summary-label">Plano</span>
+            <strong>{{ aluno?.plano || 'Não informado' }}</strong>
+          </div>
+
+          <div class="summary-box value">
+            <span class="summary-label">Valor</span>
+            <strong>R$ {{ aluno?.valor }}</strong>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Forma de pagamento</label>
+          <div class="input-modern select-shell">
+            <i class="fa-solid fa-credit-card"></i>
+            <select [(ngModel)]="formaPagamentoId" (change)="onFormaPagamentoChange()">
+              <option value="" disabled>Selecione</option>
+              <option *ngFor="let f of formasPagamento" [value]="f.id">
+                {{ f.nome }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="isPix && !showQrCode" class="payment-action">
+          <button class="btn-primary-block" (click)="gerarPix()">Gerar PIX</button>
+        </div>
+
+        <div *ngIf="showQrCode" class="qr-container">
+          <div class="qr-card">
+            <img [src]="qrCodePix" alt="QR Code PIX" />
+            <p>Escaneie o código com o aplicativo do seu banco.</p>
+          </div>
+
+          <button class="btn-secondary-block" (click)="copiarPix()">Copiar código PIX</button>
+        </div>
+
+        <div *ngIf="isCartao" class="card-section">
+          <div class="section-heading">
+            <h4>Pagamento por cartão</h4>
+            <p>Preencha os dados abaixo para concluir a cobrança.</p>
+          </div>
+
+          <div class="form-grid cols-1">
+            <div class="input-group">
+              <label>Número do cartão</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-credit-card"></i>
+                <input [(ngModel)]="cartao.numero" placeholder="0000 0000 0000 0000" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid cols-1">
+            <div class="input-group">
+              <label>Nome no cartão</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-user"></i>
+                <input [(ngModel)]="cartao.nome" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid cols-2">
+            <div class="input-group">
+              <label>Validade</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-calendar"></i>
+                <input [(ngModel)]="cartao.validade" placeholder="MM/AA" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>CVV</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-lock"></i>
+                <input [(ngModel)]="cartao.cvv" placeholder="123" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary-block" (click)="pagarCartao()">Pagar com cartão</button>
+        </div>
+      </section>
+    </ng-container>
+  </section>
 </div>

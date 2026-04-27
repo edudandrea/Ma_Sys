@@ -14,10 +14,8 @@ export class AuthGuard implements CanActivate{
     canActivate(): boolean{
         if (typeof window === 'undefined')
             return true;
-        
-        const role = localStorage.getItem('role');
 
-        if(!role){
+        if(!this.auth.isLogged()){
             this.router.navigate(['/login']);
             return false;
         }

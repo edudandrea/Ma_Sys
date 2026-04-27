@@ -8,6 +8,7 @@ using MA_Sys.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MA_Sys.API.Data.Repository.interfaces;
 
 namespace MA_Sys.API.Controllers
 {
@@ -17,10 +18,12 @@ namespace MA_Sys.API.Controllers
     public class FormaPagamentoController : BaseController
     {
         private readonly FormaPagamentoService _service;
+        private readonly IAcademiaRepository _academiaRepository;
 
-        public FormaPagamentoController(FormaPagamentoService service)
+        public FormaPagamentoController(FormaPagamentoService service, IAcademiaRepository academiaRepository)
         {
             _service = service;
+            _academiaRepository = academiaRepository;
         }
 
         [HttpGet]
@@ -55,6 +58,27 @@ namespace MA_Sys.API.Controllers
             _service.Update(id, dto);
 
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("public/{slug}")]
+        public IActionResult GetPublico(string slug)
+        {
+            var academiaId = _academiaRepository.Query()
+                .Where(a => a.Slug == slug)
+                .Select(a => a.Id)
+                .FirstOrDefault();
+
+            if (academiaId <= 0)
+            {
+                return NotFound(new { message = "Academia nao encontrada." });
+            }
+
+            var formasPagamento = _service.List(academiaId)
+                .Where(f => f.Ativo)
+                .ToList();
+
+            return Ok(formasPagamento);
         }
     }
 }

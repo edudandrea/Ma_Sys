@@ -1,9 +1,8 @@
 <div class="usuarios-page">
-  <!-- HEADER -->
   <div class="page-header">
-    <div>
-      <h2>Usuários</h2>
-      <p>Gerencie os acessos ao sistema</p>
+    <div class="page-title-group">
+      <h1>Usuários</h1>
+      <p>Gerencie acessos, perfis e vínculos administrativos do sistema.</p>
     </div>
 
     <button class="btn-primary" (click)="openModals(modalUsuario)">
@@ -12,27 +11,15 @@
     </button>
   </div>
 
-  <!-- GRID -->
   <div class="usuario-grid">
     <div class="empty-state" *ngIf="!usuarios || usuarios.length === 0">
       <i class="fa-solid fa-user-slash"></i>
       <p>Nenhum usuário cadastrado</p>
     </div>
-    <div class="usuario-card" *ngFor="let user of usuarios">
-      <!-- HEADER -->
-      <div class="card-header">
-        <div class="user-info">
-          <div class="avatar">
-            {{ getInicial(user.userName) }}
-          </div>
 
-          <div class="user-text">
-            <h3 title="{{ user.userName }}">{{ user.userName }}</h3>
-            <span class="login">{{ user.login }}</span>
-          </div>
-        </div>
-
-        <!-- MENU -->
+    <article class="usuario-card" *ngFor="let user of usuarios">
+      <div class="card-topline">
+        <span class="entity-badge">Usuário</span>
         <div class="menu">
           <button (click)="toggleMenu(user)">
             <i class="fa-solid fa-ellipsis"></i>
@@ -40,7 +27,6 @@
 
           <div class="dropdown" *ngIf="user.menuAberto">
             <button (click)="editar(user)"><i class="fa-solid fa-pen"></i> Editar</button>
-
             <button class="danger" (click)="deleteUsuario(user.id)">
               <i class="fa-solid fa-trash"></i> Excluir
             </button>
@@ -48,24 +34,38 @@
         </div>
       </div>
 
-      <!-- BODY -->
-      <div class="card-body">
+      <div class="card-header-kpi">
+        <div class="avatar">
+          {{ getInicial(user.userName) }}
+        </div>
+
+        <div class="title-block">
+          <h3 title="{{ user.userName }}">{{ user.userName }}</h3>
+          <span class="subtitle">{{ user.login }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <span class="kpi-label">Perfil</span>
+          <strong class="kpi-value kpi-text">{{ user.role }}</strong>
+        </div>
+
+        <div class="kpi-box">
+          <span class="kpi-label">Vínculo</span>
+          <strong class="kpi-value kpi-text">{{ user.academiaNome || 'Global' }}</strong>
+        </div>
+      </div>
+
+      <div class="detail-list">
         <div class="badge-role" [class.admin]="user.role === 'Admin'">
           <i class="fa-solid fa-shield-halved"></i>
           {{ user.role }}
         </div>
-
-        <div class="info" *ngIf="user.academiaNome">
-          <i class="fa-solid fa-dumbbell"></i>
-          <span title="{{ user.academiaNome }}">
-            {{ user.academiaNome }}
-          </span>
-        </div>
       </div>
-    </div>
+    </article>
   </div>
 
-  <!-- MODAL -->
   <ng-template #modalUsuario>
     <div class="modal-header">
       <h4>{{ editando ? 'Editar Usuário' : 'Novo Usuário' }}</h4>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="form-group" *ngIf="!editando">
-          <label>Confirmar Senha</label>
+          <label>Confirmar senha</label>
           <input type="password" [(ngModel)]="confirmarSenha" name="confirmarSenha" />
         </div>
 

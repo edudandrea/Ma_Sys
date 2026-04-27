@@ -1,126 +1,159 @@
-/* =========================
-   PAGE
-========================= */
 .matriculas-page {
-  max-width: 1200px;
+  max-width: 1280px;
 }
 
-/* =========================
-   GRID DE CARDS
-========================= */
-.matriculas-page .matricula-grid {
+.matricula-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 22px;
 }
 
-.matriculas-page .matricula-card {
-  background: #020617;
-  border: 1px solid #1e293b;
-  border-radius: 16px;
-  padding: 24px;
+.matricula-card {
   position: relative;
-  overflow: hidden;
-  transition: all 0.25s ease;
-}
-
-/* Hover */
-.matriculas-page .matricula-card:hover {
-  transform: translateY(-3px);
-  border-color: #2563eb;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
-}
-
-/* Glow */
-.matriculas-page .matricula-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  padding: 1px;
-  background: linear-gradient(120deg, transparent, #2563eb, transparent);
-  opacity: 0;
-  transition: 0.3s;
-}
-
-.matriculas-page .matricula-card:hover::after {
-  opacity: 0.2;
-}
-
-/* =========================
-   HEADER
-========================= */
-.card-header-center {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-strong));
+  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
+  gap: 18px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.matricula-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-border-soft);
+}
+
+.card-topline,
+.card-header-kpi,
+.detail-item,
+.footer-actions {
+  display: flex;
+}
+
+.card-topline {
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+}
+
+.entity-badge {
+  display: inline-flex;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--accent-surface);
+  border: 1px solid var(--accent-border-soft);
+  color: var(--accent-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-header-kpi {
+  align-items: center;
+  gap: 14px;
 }
 
 .avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-strong));
+  display: grid;
+  place-items: center;
   color: white;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 24px var(--accent-shadow);
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .matricula-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #e2e8f0;
-  text-align: center;
+  color: var(--text-primary);
+  font-size: 1.08rem;
+  font-weight: 700;
 }
 
-/* =========================
-   MENU
-========================= */
-.card-menu {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.subtitle,
+.detail-label,
+.total-label {
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
-/* =========================
-   BODY
-========================= */
-.card-body {
-  margin-top: 10px;
-}
-
-.info-grid {
+.kpi-grid {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.info-item {
+.kpi-box {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.kpi-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.kpi-value {
+  color: var(--text-primary);
+  font-size: 1.18rem;
+  font-weight: 700;
+}
+
+.kpi-text {
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.detail-list {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #94a3b8;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* =========================
-   FOOTER CARD
-========================= */
-.card-footer {
-  margin-top: 14px;
+.detail-item {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detail-item i {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--accent-text);
+  flex-shrink: 0;
+}
+
+.detail-item div {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 3px;
 }
 
-/* STATUS */
+.detail-item strong,
+.total-value {
+  color: var(--text-primary);
+}
+
 .status {
   font-size: 12px;
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: 20px;
 }
 
@@ -134,9 +167,6 @@
   color: #ef4444;
 }
 
-/* =========================
-   FORM GRID (MODAL)
-========================= */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -148,230 +178,88 @@
   flex-direction: column;
 }
 
-.form-group.full {
-  grid-column: span 2;
+.form-group.full,
+.full {
+  grid-column: 1 / -1;
 }
 
 .form-group label {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin-bottom: 5px;
 }
 
-/* =========================
-   MODAL ANIMAÇÃO
-========================= */
-.modal-content {
-  animation: modalFadeIn 0.3s ease;
-  transform-origin: top;
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modal-backdrop.show {
-  animation: fadeBackdrop 0.2s ease;
-}
-
-@keyframes fadeBackdrop {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.5;
-  }
-}
-
-/* =========================
-   INPUT MODERNO
-========================= */
-.modal-content .input-modern {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-
-  background: #020617;
-  border: 1px solid #334155;
-  border-radius: 10px;
-
-  padding: 10px 12px;
-  transition: 0.2s;
-}
-
-.modal-content .input-modern:hover {
-  border-color: #475569;
-}
-
-.modal-content .input-modern:focus-within {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
-}
-
-/* remove borda azul padrão */
-.modal-content .input-modern input:focus,
-.modal-content .input-modern select:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.modal-content .input-modern input,
-.modal-content .input-modern select {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #e2e8f0;
-  font-size: 14px;
-  flex: 1;
-}
-
-.modal-content .input-modern i {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-/* seta do select */
-.modal-content .input-modern::after {
-  content: '▾';
-  position: absolute;
-  right: 10px;
-  color: #64748b;
-  font-size: 12px;
-  pointer-events: none;
-}
-
-/* =========================
-   FIX SELECT DARK MODE
-========================= */
-.modal-content select {
-  background: #020617;
-  color: #e2e8f0;
-  appearance: none;
-  cursor: pointer;
-}
-
-.modal-content select option {
-  background: #020617;
-  color: #e2e8f0;
-}
-
-/* força modo escuro no browser */
-select {
-  color-scheme: dark;
-}
-
-/* =========================
-   DROPDOWN
-========================= */
 .dropdown-list {
   grid-column: span 2;
-  background: #020617;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
+  background: var(--bg-panel-strong);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   max-height: 150px;
   overflow-y: auto;
 }
 
 .dropdown-item {
-  padding: 8px;
+  padding: 10px 12px;
   cursor: pointer;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .dropdown-item:hover {
-  background: #2563eb33;
+  background: var(--accent-surface);
 }
 
-/* =========================
-   INFO BOX (PLANO)
-========================= */
 .info-box {
   grid-column: span 2;
-  background: #020617;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 14px;
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   font-size: 13px;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
-/* =========================
-   SELECTED INFO
-========================= */
 .selected-info {
   font-size: 13px;
   color: #22c55e;
 }
 
-/* =========================
-   FOOTER MODAL
-========================= */
 .modal-footer-total {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  border-top: 1px solid #1e293b;
-  padding: 12px 16px;
-}
-
-.total-label {
-  font-size: 12px;
-  color: #94a3b8;
+  border-top: 1px solid var(--border-color);
+  padding: 16px 18px;
 }
 
 .total-value {
   font-size: 18px;
-  font-weight: bold;
-  color: #22c55e;
+  font-weight: 700;
 }
 
-/* =========================
-   ACTIONS
-========================= */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
+.footer-actions {
   gap: 10px;
 }
 
-/* =========================
-   EMPTY STATE
-========================= */
 .empty-state {
   grid-column: 1 / -1;
+  padding: 48px 24px;
+  border-radius: 24px;
+  border: 1px dashed var(--border-color);
   text-align: center;
-  padding: 40px;
-  color: #64748b;
-
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .empty-state i {
   font-size: 40px;
-  opacity: 0.5;
-}
-
-/* =========================
-   DATE INPUT
-========================= */
-input[type="date"] {
-  color-scheme: dark;
-  cursor: pointer;
+  opacity: 0.6;
 }
 
 .pix-container {
@@ -381,33 +269,17 @@ input[type="date"] {
   align-items: center;
 }
 
-.full{
-  grid-column: 1 /-1;;
-}
-
-.pix-action {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .btn-pix {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #00ffcc, #00c9a7);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-strong));
   border: none;
   padding: 12px 18px;
-  border-radius: 10px;
-  color: #000;
+  border-radius: 12px;
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-pix:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px #00ffcc80;
 }
 
 .pix-qrcode {
@@ -426,31 +298,25 @@ input[type="date"] {
 }
 
 .pix-qrcode h5 {
-  color: #00ffcc;
+  color: var(--accent-text);
   margin-bottom: 10px;
 }
 
 .pix-valor {
-   margin-top: 8px;
-  color: #ccc;
+  margin-top: 8px;
+  color: var(--text-secondary);
 }
 
 .card-payment {
-  margin-top: 15px;
-  padding: 15px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  grid-column: 1 / -1; /* ocupa toda largura */
   margin-top: 10px;
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(148, 163, 184, 0.06);
+  grid-column: 1 / -1;
 }
 
 .card-payment input {
   width: 100%;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
-  padding: 10px;
-  border-radius: 8px;
 }
 
 .form-row {
@@ -461,4 +327,25 @@ input[type="date"] {
 .card-flag {
   width: 40px;
   display: block;
+}
+
+input[type='date'] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .matricula-grid,
+  .kpi-grid,
+  .form-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .modal-footer-total {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
 }

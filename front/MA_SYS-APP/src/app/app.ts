@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterModule, RouterOutlet } from "@angular/router";
+import { ThemeService } from '../Services/Theme/theme.service';
 
 
 @Component({
@@ -10,7 +11,13 @@ import { RouterModule, RouterOutlet } from "@angular/router";
   styleUrl: './app.css'
 })
 
-export class App {
-  protected readonly title = signal('MA_SYS'); 
+export class App implements OnInit {
+  constructor(private themeService: ThemeService) {}
+
+  ngOnInit(): void {
+    this.themeService.initializeTheme();
+  }
+
+  protected readonly title = signal('Marcial ProX'); 
  
 }

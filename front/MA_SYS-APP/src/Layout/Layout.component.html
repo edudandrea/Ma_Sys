@@ -1,117 +1,151 @@
-<div class="layout">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+<div class="layout-shell">
+  <aside
+    class="sidebar"
+    [class.collapsed]="sidebarCollapsed"
+    [class.is-compact]="isCompactViewport"
+  >
     <div class="sidebar-header">
-      <span class="logo-text" *ngIf="!sidebarCollapsed"> MartialArtsSys </span>
-
-      <button class="toggle-btn" (click)="toggleSidebar()">
-        <i class="fa-solid fa-bars"></i>
+      <button
+        class="brand-mark"
+        type="button"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="sidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'"
+      >
+        <span class="brand-mark-text">MA</span>
+        <i class="fa-solid fa-bars-staggered brand-mark-icon"></i>
       </button>
+
+      <div class="brand-copy" *ngIf="!sidebarCollapsed">
+        <strong>Marcial ProX</strong>
+        <span>Gestão para artes marciais</span>
+      </div>
     </div>
 
-    <nav>
-      <a routerLink="/dashboard">
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        data-label="Dashboard"
+        [attr.title]="sidebarCollapsed ? 'Dashboard' : null"
+      >
         <i class="fa-solid fa-chart-line"></i>
         <span *ngIf="!sidebarCollapsed">Dashboard</span>
       </a>
 
-      <div class="menu-item" (click)="toggleCadastro()">
-        <div class="menu-link">
-          <div class="menu-left">
-            <i class="fa-solid fa-user-gear"></i>
-            <span *ngIf="!sidebarCollapsed">Cadastros</span>
-          </div>
-
-          <!-- seta -->
-          <i
-            *ngIf="!sidebarCollapsed"
-            class="fa-solid fa-chevron-down arrow"
-            [class.open]="cadastroOpen"
-          >
-          </i>
+      <button
+        class="menu-item"
+        type="button"
+        (click)="toggleCadastro()"
+        [class.open]="cadastroOpen"
+        data-label="Cadastros"
+        [attr.title]="sidebarCollapsed ? 'Cadastros' : null"
+      >
+        <div class="menu-left">
+          <i class="fa-solid fa-user-gear"></i>
+          <span *ngIf="!sidebarCollapsed">Cadastros</span>
         </div>
-      </div>
 
-      <!-- SUBMENU -->
+        <i
+          *ngIf="!sidebarCollapsed"
+          class="fa-solid fa-chevron-down arrow"
+          [class.open]="cadastroOpen"
+        ></i>
+      </button>
+
       <div class="submenu" *ngIf="cadastroOpen && !sidebarCollapsed">
-        <a *ngIf="isAdmin()" routerLink="/academias">
-          <i class="fa-solid fa-user"></i>
-          <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Academias</span>
+        <a *ngIf="isAdmin()" routerLink="/academias" routerLinkActive="active">
+          <i class="fa-solid fa-building"></i>
+          <span>Academias</span>
         </a>
 
-        <a routerLink="/alunos">
+        <a routerLink="/alunos" routerLinkActive="active">
           <i class="fa-solid fa-circle-user"></i>
           <span>Alunos</span>
         </a>
 
-        <a routerLink="/matriculas">
+        <a routerLink="/matriculas" routerLinkActive="active">
           <i class="fa-solid fa-money-bills"></i>
-          <span>Matriculas</span>
+          <span>Matrículas</span>
         </a>
 
-        <a routerLink="/professores">
+        <a routerLink="/professores" routerLinkActive="active">
           <i class="fa-solid fa-chalkboard-user"></i>
           <span>Professores</span>
         </a>
 
-        <a routerLink="/modalidades">
+        <a routerLink="/modalidades" routerLinkActive="active">
           <i class="fa-solid fa-dumbbell"></i>
           <span>Modalidades</span>
         </a>
       </div>
 
-      <div class="menu-item" (click)="toggleFinanceiro()">
-        <div class="menu-link">
-          <i class="fa-solid fa-money-bill"></i>
-          <span *ngIf="!sidebarCollapsed">Gestão Financeira</span>
-
-          <!-- seta -->
-          <i
-            *ngIf="!sidebarCollapsed"
-            class="fa-solid fa-chevron-down arrow"
-            [class.open]="financeiroOpen"
-          >
-          </i>
+      <button
+        class="menu-item"
+        type="button"
+        (click)="toggleFinanceiro()"
+        [class.open]="financeiroOpen"
+        data-label="Financeiro"
+        [attr.title]="sidebarCollapsed ? 'Financeiro' : null"
+      >
+        <div class="menu-left">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          <span *ngIf="!sidebarCollapsed">Financeiro</span>
         </div>
-      </div>
 
-      <!-- SUBMENU -->
+        <i
+          *ngIf="!sidebarCollapsed"
+          class="fa-solid fa-chevron-down arrow"
+          [class.open]="financeiroOpen"
+        ></i>
+      </button>
+
       <div class="submenu" *ngIf="financeiroOpen && !sidebarCollapsed">
-        <a routerLink="/planos">
+        <a routerLink="/planos" routerLinkActive="active">
           <i class="fa-solid fa-layer-group"></i>
           <span>Planos</span>
         </a>
 
-        <a routerLink="/pagamentos">
+        <a routerLink="/pagamentos" routerLinkActive="active">
           <i class="fa-solid fa-credit-card"></i>
-          <span>Condições de Pagamentos</span>
-        </a>
-
-        <a routerLink="/financeiro">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>Fluxo de Caixa</span>
+          <span>Pagamentos</span>
         </a>
       </div>
 
-      <a *ngIf="isAdmin()" routerLink="/usuarios">
+      <a
+        *ngIf="isAdmin()"
+        routerLink="/usuarios"
+        routerLinkActive="active"
+        data-label="Usuários"
+        [attr.title]="sidebarCollapsed ? 'Usuários' : null"
+      >
         <i class="fa-solid fa-users"></i>
-        <span *ngIf="!sidebarCollapsed" routerLinkActive="active">Usuários</span>
+        <span *ngIf="!sidebarCollapsed">Usuários</span>
       </a>
     </nav>
+
+    <div class="sidebar-footer" *ngIf="!sidebarCollapsed">
+      <span class="sidebar-footer-label">Academia ativa</span>
+      <strong>{{ academiaNome }}</strong>
+    </div>
   </aside>
 
   <div class="main">
-    <!-- TOPBAR -->
-
     <header class="topbar">
-      <div class="topbar-title">
-        {{ academiaNome }}
+      <div class="topbar-copy">
+        <span class="eyebrow">Painel operacional</span>
+        <strong>{{ academiaNome }}</strong>
       </div>
 
       <div class="topbar-right">
-        <i class="fa-solid fa-bell"></i>
+        <label class="theme-picker" aria-label="Selecionar tema visual">
+          <i class="fa-solid fa-palette"></i>
+          <select [ngModel]="currentTheme" (ngModelChange)="changeTheme($event)">
+            <option *ngFor="let theme of themeOptions" [ngValue]="theme.value">
+              {{ theme.label }}
+            </option>
+          </select>
+        </label>
 
-        <!-- USUÁRIO -->
         <div class="user-info">
           <div class="user-text">
             <span class="user-name">{{ userName }}</span>
@@ -123,12 +157,12 @@
           </div>
         </div>
 
-        <!-- LOGOUT -->
-        <button class="btn-logout" (click)="logout()">
+        <button class="btn-logout" type="button" (click)="logout()" aria-label="Sair">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
     </header>
+
     <main class="content">
       <router-outlet></router-outlet>
     </main>

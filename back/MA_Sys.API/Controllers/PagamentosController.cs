@@ -2,6 +2,7 @@ using MA_Sys.API.Dto.Pagamentos;
 using MA_Sys.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MA_Sys.API.Data.Repository.interfaces;
 
 namespace MA_Sys.API.Controllers
 {
@@ -11,10 +12,12 @@ namespace MA_Sys.API.Controllers
     public class PagamentosController : BaseController
     {
         private readonly PagamentoService _service;
+        private readonly IAcademiaRepository _academiaRepository;
 
-        public PagamentosController(PagamentoService service)
+        public PagamentosController(PagamentoService service, IAcademiaRepository academiaRepository)
         {
             _service = service;
+            _academiaRepository = academiaRepository;
         }
 
         [HttpPost]
@@ -42,6 +45,37 @@ namespace MA_Sys.API.Controllers
         {
             _service.ProcessarWebhook(payload);
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("public/cartao")]
+        public IActionResult PagarCartaoPublico([FromBody] PagamentoCartaoPublicoDto dto)
+        {
+            try
+            {
+                var academiaId = _academiaRepository.Query()
+                    .Where(a => a.Slug == dto.Slug)
+                    .Select(a => a.Id)
+                    .FirstOrDefault();
+
+                if (academiaId <= 0)
+                {
+                    return NotFound(new { message = "Academia nao encontrada." });
+                }
+
+                var pagamento = _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+
+                return Ok(new
+                {
+                    pagamentoId = pagamento.Id,
+                    status = pagamento.Status,
+                    mensagem = "Pagamento com cartao aprovado com sucesso."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

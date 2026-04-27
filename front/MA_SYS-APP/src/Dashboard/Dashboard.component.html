@@ -1,164 +1,183 @@
 <div class="dashboard-page">
-
-  <!-- HEADER -->
-  <div class="page-header">
-    <div>
-      <h2>Dashboard</h2>
-      <p>Visão geral do sistema</p>
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <span class="page-kicker">Centro de comando</span>
+      <h1>Dashboard Marcial ProX</h1>
+      <p>Leia crescimento, retenção e alertas operacionais em um único painel.</p>
     </div>
 
-    <!-- FILTRO -->
-    <div class="filter">
-      <select (change)="onPeriodoChange($event)">
-        <option value="mes">Este mês</option>
-        <option value="ano">Este ano</option>
-      </select>
+    <div class="hero-actions">
+      <div class="hero-chip">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>{{ isAdmin ? 'Visão administrativa' : 'Visão da academia' }}</span>
+      </div>
+
+      <div class="filter">
+        <label for="periodo" class="sr-only">Selecionar período</label>
+        <select id="periodo" (change)="onPeriodoChange($event)">
+          <option value="mes">Este mês</option>
+          <option value="ano">Este ano</option>
+        </select>
+      </div>
     </div>
+  </section>
+
+  <div *ngIf="!dashboard" class="loading-state surface-card">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <span>Carregando indicadores do dashboard...</span>
   </div>
 
-  <!-- LOADING -->
-  <div *ngIf="!dashboard" class="loading">
-    Carregando dashboard...
-  </div>
+  <ng-container *ngIf="dashboard">
+    <section class="stats-grid">
+      <article class="stat-card accent-orange" *ngIf="isAdmin">
+        <i class="fa-solid fa-building"></i>
+        <div>
+          <h3>{{ dashboard?.totalAcademias }}</h3>
+          <span>Academias</span>
+        </div>
+      </article>
 
-  <!-- KPIs -->
-  <div class="stats-grid" *ngIf="dashboard">
+      <article class="stat-card accent-teal">
+        <i class="fa-solid fa-users"></i>
+        <div>
+          <h3>{{ dashboard?.totalAlunos }}</h3>
+          <span>Alunos ativos</span>
+          <small class="trend up">+{{ dashboard?.novosAlunosMes || 0 }} neste mês</small>
+        </div>
+      </article>
 
-    <!-- ADMIN -->
-    <div class="stat-card" *ngIf="isAdmin">
-      <i class="fa-solid fa-building"></i>
-      <div>
-        <h3>{{ dashboard?.totalAcademias }}</h3>
-        <span>Academias</span>
-      </div>
-    </div>
+      <article class="stat-card accent-blue">
+        <i class="fa-solid fa-chalkboard-user"></i>
+        <div>
+          <h3>{{ dashboard?.totalProfessores }}</h3>
+          <span>Professores</span>
+        </div>
+      </article>
 
-    <!-- ALUNOS -->
-    <div class="stat-card">
-      <i class="fa-solid fa-users"></i>
-      <div>
-        <h3>{{ dashboard?.totalAlunos }}</h3>
-        <span>Alunos</span>
-        <small class="trend up">+{{ dashboard?.novosAlunosMes || 0 }} este mês</small>
-      </div>
-    </div>
+      <article class="stat-card accent-amber">
+        <i class="fa-solid fa-user-clock"></i>
+        <div>
+          <h3>{{ dashboard?.alunosInativos || 0 }}</h3>
+          <span>Alunos inativos</span>
+        </div>
+      </article>
 
-    <!-- PROFESSORES -->
-    <div class="stat-card">
-      <i class="fa-solid fa-chalkboard-user"></i>
-      <div>
-        <h3>{{ dashboard?.totalProfessores }}</h3>
-        <span>Professores</span>
-      </div>
-    </div>
+      <article class="stat-card accent-green" *ngIf="isAdmin">
+        <i class="fa-solid fa-circle-check"></i>
+        <div>
+          <h3>{{ dashboard?.academiasEmDia }}</h3>
+          <span>Unidades em dia</span>
+        </div>
+      </article>
 
-    <!-- INATIVOS -->
-    <div class="stat-card warning">
-      <i class="fa-solid fa-user-clock"></i>
-      <div>
-        <h3>{{ dashboard?.alunosInativos || 0 }}</h3>
-        <span>Alunos inativos</span>
-      </div>
-    </div>
+      <article class="stat-card accent-red" *ngIf="isAdmin">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <h3>{{ dashboard?.academiasAtraso }}</h3>
+          <span>Unidades em atraso</span>
+        </div>
+      </article>
+    </section>
 
-    <!-- PAGAMENTOS -->
-    <div class="stat-card success" *ngIf="isAdmin">
-      <i class="fa-solid fa-circle-check"></i>
-      <div>
-        <h3>{{ dashboard?.academiasEmDia }}</h3>
-        <span>Pagamentos em dia</span>
-      </div>
-    </div>
+    <section class="dashboard-grid">
+      <article class="dashboard-card chart-card">
+        <div class="card-heading">
+          <div>
+            <h4>Crescimento de alunos</h4>
+            <span>Entradas recentes e ritmo de expansão</span>
+          </div>
+        </div>
+        <div class="chart-shell">
+          <canvas id="graficoAlunos"></canvas>
+        </div>
+      </article>
 
-    <div class="stat-card danger" *ngIf="isAdmin">
-      <i class="fa-solid fa-triangle-exclamation"></i>
-      <div>
-        <h3>{{ dashboard?.academiasAtraso }}</h3>
-        <span>Em atraso</span>
-      </div>
-    </div>
+      <article class="dashboard-card chart-card">
+        <div class="card-heading">
+          <div>
+            <h4>Distribuição dos planos</h4>
+            <span>Participação dos planos na base atual</span>
+          </div>
+        </div>
+        <div class="chart-shell doughnut-shell">
+          <canvas id="graficoPlanos"></canvas>
+        </div>
+      </article>
 
-  </div>
-
-  <!-- GRID -->
-  <div class="dashboard-grid" *ngIf="dashboard">
-
-    <!-- GRÁFICO ALUNOS -->
-    <div class="dashboard-card">
-      <h4>Crescimento de alunos</h4>
-      <canvas id="graficoAlunos"></canvas>
-    </div>
-
-    <!-- GRÁFICO PLANOS -->
-    <div class="dashboard-card">
-      <h4>Planos mais utilizados</h4>
-      <canvas id="graficoPlanos"></canvas>
-    </div>
-
-    <!-- ALERTAS -->
-    <div class="dashboard-card">
-      <h4>Alertas</h4>
-
-      <!-- ATRASOS -->
-      <div class="alert danger" *ngFor="let a of dashboard?.academiasAtrasadas">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span>
-          <strong>{{ a.nome }}</strong> está com 
-          <strong>{{ a.diasAtraso }} dias</strong> de atraso
-        </span>
-      </div>
-
-      <!-- SEM ALUNOS -->
-      <div class="alert warning" *ngFor="let a of dashboard?.academiasSemAlunos">
-        <i class="fa-solid fa-user-slash"></i>
-        <span>
-          <strong>{{ a.nome }}</strong> está sem alunos cadastrados
-        </span>
-      </div>
-
-      <!-- VAZIO -->
-      <div *ngIf="!dashboard?.academiasAtrasadas?.length && !dashboard?.academiasSemAlunos?.length">
-        <span>Nenhum alerta no momento 🎉</span>
-      </div>
-    </div>
-
-    <!-- ADMIN ONLY -->
-    <div class="dashboard-card" *ngIf="isAdmin">
-      <h4>Top Academias</h4>
-
-      <div class="list-item" *ngFor="let a of dashboard?.topAcademias">
-        <span>{{ a.nome }}</span>
-        <span>{{ a.totalAlunos }}</span>
-      </div>
-    </div>
-
-    <!-- ACADEMIA ONLY -->
-    <div class="dashboard-card" *ngIf="!isAdmin">
-      <h4>Seus Planos</h4>
-
-      <div class="list-item" *ngFor="let p of dashboard?.planos">
-        <span>{{ p.nome }}</span>
-        <span>{{ p.totalAlunos }} alunos</span>
-      </div>
-    </div>
-
-    <!-- TABELA ADMIN -->
-    <div class="dashboard-card full" *ngIf="isAdmin">
-      <h4>Alunos por Academia</h4>
-
-      <div class="table">
-        <div class="table-header">
-          <span>Academia</span>
-          <span>Alunos</span>
+      <article class="dashboard-card">
+        <div class="card-heading">
+          <div>
+            <h4>Alertas</h4>
+            <span>Pontos que pedem atenção imediata</span>
+          </div>
         </div>
 
-        <div class="table-row" *ngFor="let a of dashboard?.alunosPorAcademia">
+        <div class="alert danger" *ngFor="let a of dashboard?.academiasAtrasadas">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span><strong>{{ a.nome }}</strong> está com <strong>{{ a.diasAtraso }} dias</strong> de atraso</span>
+        </div>
+
+        <div class="alert warning" *ngFor="let a of dashboard?.academiasSemAlunos">
+          <i class="fa-solid fa-user-slash"></i>
+          <span><strong>{{ a.nome }}</strong> está sem alunos cadastrados</span>
+        </div>
+
+        <div
+          *ngIf="!dashboard?.academiasAtrasadas?.length && !dashboard?.academiasSemAlunos?.length"
+          class="empty-note"
+        >
+          Nenhum alerta no momento.
+        </div>
+      </article>
+
+      <article class="dashboard-card" *ngIf="isAdmin">
+        <div class="card-heading">
+          <div>
+            <h4>Top academias</h4>
+            <span>Maior base ativa no período</span>
+          </div>
+        </div>
+
+        <div class="list-item" *ngFor="let a of dashboard?.topAcademias">
           <span>{{ a.nome }}</span>
-          <span>{{ a.totalAlunos }}</span>
+          <strong>{{ a.totalAlunos }}</strong>
         </div>
-      </div>
-    </div>
+      </article>
 
-  </div>
+      <article class="dashboard-card" *ngIf="!isAdmin">
+        <div class="card-heading">
+          <div>
+            <h4>Seus planos</h4>
+            <span>Volume atual por oferta</span>
+          </div>
+        </div>
 
+        <div class="list-item" *ngFor="let p of dashboard?.planos">
+          <span>{{ p.nome }}</span>
+          <strong>{{ p.totalAlunos }} alunos</strong>
+        </div>
+      </article>
+
+      <article class="dashboard-card full" *ngIf="isAdmin">
+        <div class="card-heading">
+          <div>
+            <h4>Alunos por academia</h4>
+            <span>Comparativo geral entre unidades</span>
+          </div>
+        </div>
+
+        <div class="table">
+          <div class="table-header">
+            <span>Academia</span>
+            <span>Alunos</span>
+          </div>
+
+          <div class="table-row" *ngFor="let a of dashboard?.alunosPorAcademia">
+            <span>{{ a.nome }}</span>
+            <strong>{{ a.totalAlunos }}</strong>
+          </div>
+        </div>
+      </article>
+    </section>
+  </ng-container>
 </div>

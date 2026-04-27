@@ -1,30 +1,50 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { ThemeOption, ThemeService } from '../Services/Theme/theme.service';
 
 @Component({
   selector: 'app-Layout',
   templateUrl: './Layout.component.html',
   styleUrls: ['./Layout.component.css'],
-  imports: [CommonModule, RouterOutlet, RouterModule],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterModule],
 })
 export class LayoutComponent implements OnInit {
   sidebarCollapsed = false;
-  userName: string = '';
-  academiaNome: string = '';
-  usuario: any;
-  plataformId = inject(PLATFORM_ID);
+  isCompactViewport = false;
+  userName = '';
+  academiaNome = '';
   financeiroOpen = false;
   cadastroOpen = false;
+  currentTheme = 'system';
+  readonly themeOptions: ThemeOption[];
 
-  constructor(private router: Router) {}
+  private readonly platformId = inject(PLATFORM_ID);
+
+  constructor(
+    private router: Router,
+    private themeService: ThemeService,
+  ) {
+    this.themeOptions = this.themeService.themes;
+  }
 
   ngOnInit() {
-    if (isPlatformBrowser(this.plataformId)) {
+    if (isPlatformBrowser(this.platformId)) {
       this.getUserInfo();
+      this.currentTheme = this.themeService.getCurrentTheme();
+      this.syncViewportState(window.innerWidth, true);
     }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const target = event.target as Window;
+    this.syncViewportState(target.innerWidth);
   }
 
   toggleFinanceiro() {
@@ -39,27 +59,38 @@ export class LayoutComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
-  onLogout(): void {
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
+  isAdmin(): boolean {
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    return usuario.role === 'Admin';
   }
 
-  isAdmin(): boolean {
-    const role = localStorage.getItem('role');
-    return role === 'Admin';
+  changeTheme(theme: string) {
+    this.currentTheme = theme;
+    this.themeService.applyTheme(theme);
   }
 
   logout() {
     localStorage.clear();
-    window.location.href = '/login';
+    this.router.navigate(['/login']);
   }
 
   getUserInfo() {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    this.userName = usuario.userName || 'Usuário';
+    this.academiaNome = usuario.academiaNome || 'Marcial ProX';
+  }
 
-    this.userName = usuario.userName;
-    this.academiaNome = usuario.academiaNome;
+  private syncViewportState(width: number, firstLoad = false) {
+    const compact = width < 1024;
+    this.isCompactViewport = compact;
 
-    console.log('🧠 Usuário Logado:', usuario);
+    if (compact) {
+      this.sidebarCollapsed = true;
+      return;
+    }
+
+    if (firstLoad) {
+      this.sidebarCollapsed = false;
+    }
   }
 }

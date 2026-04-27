@@ -9,11 +9,8 @@ namespace MA_SYS.Api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
         public int AcademiaId { get; set; }
-
         public int AlunoId { get; set; }
-
         public int PlanoId { get; set; }
         public int FormaPagamentoId { get; set; }
         public DateTime DataInicio { get; set; }

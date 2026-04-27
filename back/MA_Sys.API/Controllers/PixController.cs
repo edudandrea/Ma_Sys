@@ -43,5 +43,12 @@ namespace MA_Sys.API.Controllers
             });
         }
 
+        [AllowAnonymous]
+        [HttpPost("public")]
+        public IActionResult GerarPixPublico([FromBody] PixRequestDto dto)
+        {
+            return GerarPix(dto);
+        }
+
     }
 }

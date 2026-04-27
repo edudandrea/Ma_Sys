@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using MA_Sys.API.Dto.Matriculas;
@@ -36,9 +35,7 @@ namespace MA_Sys.API.Controllers
         public async Task<IActionResult> Add([FromBody] MatriculasCreateDto dto)
         {
             var (role, academiaId) = GetUserInfo();
-            Console.WriteLine($"Academia ID: {academiaId}");
-
-            _service.Add(dto, academiaId, role);
+            await _service.Add(dto, academiaId, role);
 
             return Ok();
         }

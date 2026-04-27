@@ -41,7 +41,23 @@ namespace MA_Sys.API.Controllers
 
             return Ok(new
             {
+                alunoId = matricula.Aluno.Id,
+                matriculaId = matricula.Id,
+                planoId = matricula.PlanoId,
+                academiaId = matricula.AcademiaId,
+                formaPagamentoId = matricula.FormaPagamentoId,
                 nome = matricula.Aluno.Nome,
+                cpf = matricula.Aluno.CPF,
+                email = matricula.Aluno.Email,
+                endereco = matricula.Aluno.Endereco,
+                bairro = matricula.Aluno.Bairro,
+                cidade = matricula.Aluno.Cidade,
+                redeSocial = matricula.Aluno.RedeSocial,
+                telefone = matricula.Aluno.Telefone,
+                graduacao = matricula.Aluno.Graduacao,
+                dataNascimento = matricula.Aluno.DataNascimento.ToString("yyyy-MM-dd"),
+                dataCadastro = matricula.Aluno.DataCadastro.ToString("yyyy-MM-dd"),
+                obs = matricula.Aluno.Obs,
                 plano = matricula.Plano.Nome,
                 valor = matricula.Plano.Valor
             });

@@ -1,98 +1,21 @@
-<!-- HEADER -->
 <div class="page-header">
   <div class="page-title-group">
     <h1>Matrículas</h1>
-    <p>Gerencie as matrículas da academia</p>
+    <p>Visualize rapidamente aluno, plano, valor e status de cada matrícula.</p>
   </div>
 </div>
 
-<!-- LISTA -->
 <div class="matriculas-page">
   <div class="matricula-grid">
-    <!-- EMPTY -->
     <div class="empty-state" *ngIf="matriculas && matriculas.length === 0">
       <i class="fa-solid fa-user-slash"></i>
       <p>Nenhuma matrícula cadastrada</p>
     </div>
 
-    <!-- LISTA -->
     <ng-container *ngIf="matriculas && matriculas.length > 0">
-      <div class="matricula-card" *ngFor="let matricula of matriculas">
-        <!-- MENU -->
-        <div class="card-menu">
-          <div class="menu-dropdown" *ngIf="matricula.menuAberto">
-            <button>
-              <i class="fa-solid fa-pen"></i>
-              Editar
-            </button>
-
-            <button>
-              <i class="fa-solid fa-check"></i>
-              Salvar
-            </button>
-
-            <button class="danger">
-              <i class="fa-solid fa-trash"></i>
-              Cancelar
-            </button>
-          </div>
-        </div>
-
-        <!-- HEADER -->
-        <div class="card-header-center">
-          <div class="avatar">
-            {{ getInicial(matricula.alunoNome) }}
-          </div>
-
-          <div class="matricula-title">
-            <span>
-              {{ matricula.alunoNome || 'Aluno não encontrado' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- BODY -->
-        <div class="card-body">
-          <div class="info-grid">
-            <!-- 📞 TELEFONE -->
-            <div class="info-item">
-              <i class="fa-solid fa-phone"></i>
-              <span>{{ matricula.telefone || 'Não informado' }}</span>
-            </div>
-
-            <!-- 📧 EMAIL -->
-            <div class="info-item">
-              <i class="fa-solid fa-envelope"></i>
-              <span>{{ matricula.email || 'Não informado' }}</span>
-            </div>
-
-            <!-- 📦 PLANO -->
-            <div class="info-item">
-              <i class="fa-solid fa-layer-group"></i>
-              <span>{{ matricula.planoNome || 'Plano não informado' }}</span>
-            </div>
-
-            <!-- 💰 VALOR -->
-            <div class="info-item">
-              <i class="fa-solid fa-dollar-sign"></i>
-              <span> R$ {{ matricula.planoValor | number: '1.2-2' }} </span>
-            </div>
-
-            <!-- 💳 FORMA DE PAGAMENTO -->
-            <div class="info-item">
-              <i class="fa-solid fa-credit-card"></i>
-              <span>{{ matricula.formaPagamentoNome || 'Não informado' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="card-footer">
-          <div class="info-item">
-            <i class="fa-solid fa-calendar"></i>
-            <span>{{ matricula.dataMatricula | date: 'dd/MM/yyyy' }}</span>
-          </div>
-
+      <article class="matricula-card" *ngFor="let matricula of matriculas">
+        <div class="card-topline">
+          <span class="entity-badge">Matrícula</span>
           <div
             class="status"
             [ngClass]="{
@@ -103,30 +26,77 @@
             {{ matricula.status }}
           </div>
         </div>
-      </div>
+
+        <div class="card-header-kpi">
+          <div class="avatar">
+            {{ getInicial(matricula.alunoNome) }}
+          </div>
+
+          <div class="title-block">
+            <div class="matricula-title">
+              <span>{{ matricula.alunoNome || 'Aluno não encontrado' }}</span>
+            </div>
+
+            <span class="subtitle">{{ matricula.planoNome || 'Plano não informado' }}</span>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <span class="kpi-label">Valor</span>
+            <strong class="kpi-value">R$ {{ matricula.planoValor | number: '1.2-2' }}</strong>
+          </div>
+
+          <div class="kpi-box">
+            <span class="kpi-label">Pagamento</span>
+            <strong class="kpi-value kpi-text">{{ matricula.formaPagamentoNome || 'Não informado' }}</strong>
+          </div>
+        </div>
+
+        <div class="detail-list">
+          <div class="detail-item">
+            <i class="fa-solid fa-phone"></i>
+            <div>
+              <span class="detail-label">Telefone</span>
+              <strong>{{ matricula.telefone || 'Não informado' }}</strong>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <span class="detail-label">Email</span>
+              <strong>{{ matricula.email || 'Não informado' }}</strong>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <i class="fa-solid fa-calendar"></i>
+            <div>
+              <span class="detail-label">Data de início</span>
+              <strong>{{ matricula.dataMatricula | date: 'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
+        </div>
+      </article>
     </ng-container>
   </div>
 </div>
 
-<!-- BOTÃO FLUTUANTE -->
 <button class="floating-add" (click)="modalNovaMatricula(templateNovamatricula)">
   <i class="fa-solid fa-plus"></i>
   <span class="fab-text">Nova matrícula</span>
 </button>
 
-<!-- MODAL -->
 <ng-template #templateNovamatricula>
   <div class="modal-content">
-    <!-- HEADER -->
     <div class="modal-header">
       <h4>Nova matrícula</h4>
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
     </div>
 
-    <!-- BODY -->
     <div class="modal-body">
       <div class="form-grid">
-        <!-- 🔍 ALUNO -->
         <div class="form-group full">
           <label>Aluno</label>
 
@@ -155,13 +125,11 @@
           </div>
         </div>
 
-        <!-- 📦 PLANO -->
         <div class="form-group">
           <label>Plano</label>
 
           <div class="input-modern">
             <i class="fa-solid fa-layer-group"></i>
-
             <select [(ngModel)]="planoId" (change)="onPlanoChange()">
               <option value="" disabled>Selecione</option>
               <option *ngFor="let p of planos" [value]="p.id">
@@ -171,13 +139,11 @@
           </div>
         </div>
 
-        <!-- 💳 PAGAMENTO -->
         <div class="form-group">
           <label>Forma de pagamento</label>
 
           <div class="input-modern">
             <i class="fa-solid fa-credit-card"></i>
-
             <select [(ngModel)]="formaPagamentoId" (ngModelChange)="onFormaPagamentoChange()">
               <option value="" disabled>Selecione</option>
               <option *ngFor="let f of formasPagamento" [value]="f.id">
@@ -191,18 +157,14 @@
           *ngIf="formaPagamentoSelecionada?.nome?.toLowerCase() === 'pix'"
           class="pix-container full"
         >
-          <!-- 🔥 BOTÃO -->
           <button *ngIf="!qrCodePix" class="btn-pix" (click)="gerarPix()">
             <i class="fa-solid fa-qrcode"></i>
             Gerar QR Code PIX
           </button>
 
-          <!-- 🔥 QR CODE -->
           <div *ngIf="qrCodePix" class="pix-qrcode">
             <h5>Escaneie para pagar</h5>
-
             <img [src]="qrCodePix" alt="QR Code PIX" />
-
             <span class="pix-valor">
               Valor: R$ {{ planoSelecionado?.valor | number: '1.2-2' }}
             </span>
@@ -238,14 +200,12 @@
           </div>
         </div>
 
-        <!-- 💰 INFO -->
         <div *ngIf="planoSelecionado" class="info-box">
-          <span>💰 R$ {{ planoSelecionado.valor }}</span>
-          <span>🥋 {{ planoSelecionado.modalidadeNome }}</span>
+          <span>R$ {{ planoSelecionado.valor }}</span>
+          <span>{{ planoSelecionado.modalidadeNome }}</span>
         </div>
       </div>
 
-      <!-- DATA -->
       <div class="form-group">
         <label>Data de início</label>
 
@@ -256,16 +216,14 @@
       </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="modal-footer-total">
       <div>
         <span class="total-label">Total</span><br />
-        <span class="total-value"> R$ {{ planoSelecionado?.valor || 0 }} </span>
+        <span class="total-value">R$ {{ planoSelecionado?.valor || 0 }}</span>
       </div>
 
-      <div style="display: flex; gap: 10px">
+      <div class="footer-actions">
         <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
-
         <button class="btn-save" (click)="cadastrarMatricula()">Salvar</button>
       </div>
     </div>

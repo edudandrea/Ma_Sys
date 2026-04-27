@@ -1,295 +1,337 @@
-@media (max-width: 768px) {
-
-  .cadastro-container {
-    padding: 10px;
-    align-items: flex-start;
-  }
-
-  .cadastro-card {
-    max-width: 100%;
-    height: auto;
-    border-radius: 16px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  button {
-    width: 100%;
-  }
+.cadastro-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+  gap: 28px;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, var(--accent-glow), transparent 24%),
+    radial-gradient(circle at bottom right, var(--accent-secondary-glow), transparent 24%),
+    var(--bg-app);
 }
 
-.cadastro-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #0f172a, #020617);
-  font-family: 'Poppins', sans-serif;
+.cadastro-hero,
+.cadastro-panel {
+  border: 1px solid var(--border-color);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--bg-panel) 96%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-soft);
 }
 
-.cadastro-card {
-  width: 420px;
+.cadastro-hero {
   padding: 30px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  color: #fff;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-}
-
-.cadastro-card h2 {
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-.subtitle {
-  text-align: center;
-  font-size: 14px;
-  color: #aaa;
-  margin-bottom: 20px;
-}
-
-.form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 15px;
-  
+  justify-content: space-between;
+  gap: 24px;
 }
 
-.form-group label {
-  font-size: 13px;
-  margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group select {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  outline: none;
-}
-
-.form-group input::placeholder {
-  color: #aaa;
-}
-
-.btn-cadastrar {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #00ffcc, #00c9a7);
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: 0.2s;
-}
-
-.btn-cadastrar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 15px #00ffcc80;
-}
-
-.btn-buscar {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: 0.2s;
-  color: #ffffff;
-}
-
-.btn-buscar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 15px #00ffcc80;
-}
-
-.btn-cadastrar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 15px #00ffcc80;
-}
-
-.login-link {
-  text-align: center;
-  margin-top: 15px;
-}
-
-.login-link a {
-  color: #00ffcc;
-  text-decoration: none;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+.hero-brand {
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 999;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
-.modal-box {
-  background: #020617;
-  padding: 25px;
-  border-radius: 12px;
-  width: 320px;
-  text-align: center;
-  color: #fff;
+.hero-logo {
+  width: 84px;
+  height: auto;
+  filter: drop-shadow(0 14px 28px var(--accent-shadow));
 }
 
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.btn-primary {
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #00ffcc;
-  color: #000;
-  cursor: pointer;
-}
-
-.btn-secondary {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #00ffcc;
-  background: transparent;
-  color: #00ffcc;
-  cursor: pointer;
-}
-
-.btn-link {
-  margin-top: 10px;
-  background: none;
-  border: none;
-  color: #aaa;
-  cursor: pointer;
-}
-
-select {
-  background: #1e293b; /* fundo escuro */
-  color: #fff; /* texto branco */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-select option {
-  background: #1e293b;
-  color: #fff;
-}
-
-.input-modern select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  outline: none;
-}
-
-.input-modern select option {
-  background: #0f172a; /* azul escuro padrão */
-  color: #fff;
-}
-
-.btn-pix {
-  display: flex;
+.hero-badge,
+.eyebrow,
+.info-chip {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #00ffcc, #00c9a7);
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
-  color: #000;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border-soft);
+  background: var(--accent-surface);
+  color: var(--accent-text);
+  font-size: 0.82rem;
   font-weight: 600;
+}
+
+.hero-copy h1,
+.panel-heading h2,
+.student-banner h3,
+.section-heading h4 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.hero-copy h1 {
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.hero-copy p,
+.panel-heading p,
+.section-heading p,
+.qr-card p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.hero-copy,
+.panel-heading,
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hero-points {
+  display: grid;
+  gap: 14px;
+}
+
+.hero-point,
+.summary-box,
+.qr-card {
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-panel-strong) 92%, transparent);
+}
+
+.hero-point strong,
+.summary-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.hero-point span,
+.summary-label {
+  color: var(--text-muted);
+}
+
+.cadastro-panel {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.search-card,
+.payment-panel,
+.form-section {
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--bg-panel-strong) 92%, transparent);
+}
+
+.search-card,
+.payment-panel {
+  padding: 22px;
+}
+
+.student-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  background:
+    linear-gradient(135deg, var(--accent-surface), transparent),
+    color-mix(in srgb, var(--bg-panel-strong) 94%, transparent);
+}
+
+.student-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.info-chip.emphasis {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.22);
+  color: #86efac;
+}
+
+.cadastro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-grid,
+.search-grid,
+.payment-summary {
+  display: grid;
+  gap: 16px;
+}
+
+.cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.cols-2,
+.search-grid,
+.payment-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.btn-primary-block,
+.btn-secondary-block {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 18px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.btn-pix:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px #00ffcc80;
+.btn-primary-block {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-strong));
+  box-shadow: 0 16px 30px var(--accent-shadow);
 }
 
-.pix-qrcode {
+.btn-secondary-block {
+  color: var(--text-primary);
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--border-color);
+}
+
+.btn-primary-block:hover,
+.btn-secondary-block:hover {
+  transform: translateY(-1px);
+}
+
+.payment-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.summary-box.value strong {
+  color: var(--accent-text);
+}
+
+.select-shell select {
+  padding-left: 38px;
+}
+
+.payment-action {
+  display: flex;
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.qr-card {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  gap: 14px;
 }
 
-.pix-qrcode img {
-  width: 180px;
-  margin: 10px 0;
-  border-radius: 10px;
-  background: white;
+.qr-card img {
+  width: min(220px, 100%);
+  height: auto;
+  border-radius: 20px;
+  background: #ffffff;
   padding: 10px;
-  max-width: 200px;
-  margin: 0 auto;
-  display: block;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.16);
 }
 
-.pix-qrcode h5 {
-  color: #00ffcc;
-  margin-bottom: 10px;
-}
-
-.pix-valor {
-   margin-top: 8px;
-  color: #ccc;
-}
-
-.card-payment {
-  margin-top: 15px;
-  padding: 15px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  grid-column: 1 / -1; /* ocupa toda largura */
-  margin-top: 10px;
-}
-
-.card-payment input {
-  width: 100%;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.form-row {
+.card-section {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 8px;
 }
 
-.card-flag {
-  width: 40px;
-  display: block;
+textarea {
+  resize: vertical;
+  min-height: 110px;
 }
 
-.qr-clickable {
-  cursor: pointer;
-  transition: 0.2s;
+@media (max-width: 1180px) {
+  .cadastro-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .cadastro-hero {
+    order: 2;
+  }
+
+  .cadastro-panel {
+    order: 1;
+  }
 }
 
-.qr-clickable:hover {
-  transform: scale(1.05);
+@media (max-width: 820px) {
+  .cadastro-shell {
+    padding: 18px;
+  }
+
+  .cadastro-hero,
+  .cadastro-panel {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .student-banner,
+  .form-section,
+  .search-card,
+  .payment-panel {
+    padding: 18px;
+  }
+
+  .cols-2,
+  .cols-3,
+  .search-grid,
+  .payment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .student-banner {
+    flex-direction: column;
+  }
+
+  .student-chips {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .cadastro-shell {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .hero-logo {
+    width: 68px;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.6rem;
+  }
 }

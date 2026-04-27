@@ -1,23 +1,69 @@
-<div class="login-container">
-  <div class="login-card">
+<div class="login-shell">
+  <section class="login-hero">
+    <div class="hero-brand">
+      <span class="hero-badge">Sistema de gestão</span>
+    </div>
 
-    <h1>MA SYS</h1>
-    <p>Acesse sua academia</p>
+    <div class="hero-copy">
+      <h1>Controle sua academia com mais clareza, ritmo e presença profissional.</h1>
+      <p>
+        Cadastros, matrículas, pagamentos e operação administrativa reunidos em um único
+        ambiente.
+      </p>
+    </div>
 
-    <form (ngSubmit)="entrar()">
+    <div class="hero-highlights">
+      <div>
+        <strong>Marcial ProX</strong>
+        <span>Plataforma pensada para a rotina de academias de artes marciais.</span>
+      </div>
 
+      <div>
+        <strong>Painel centralizado</strong>
+        <span>Gestão visual com leitura rápida de indicadores e operação.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="login-card">
+    <div class="login-brand">
+      <img src="assets/logo-marcial-prox.png" alt="Logo Marcial ProX" class="login-brand-logo" />
+    </div>
+
+    <div class="login-copy">
+      <span class="eyebrow">Acesso seguro</span>
+      <h2>Entrar no Marcial ProX</h2>
+      <p>Use seu login para continuar.</p>
+    </div>
+
+    <form class="login-form" (ngSubmit)="entrar()">
       <div class="input-group">
-        <label>Usuário</label>
-        <input [(ngModel)]="login" name="login" required />
+        <label for="login">Usuário</label>
+        <div class="field-shell">
+          <i class="fa-solid fa-user"></i>
+          <input id="login" [(ngModel)]="login" name="login" autocomplete="username" required />
+        </div>
       </div>
 
       <div class="input-group">
-        <label>Senha</label>
-        <input type="password" [(ngModel)]="password" name="password" required />
+        <label for="password">Senha</label>
+        <div class="field-shell">
+          <i class="fa-solid fa-lock"></i>
+          <input
+            id="password"
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
       </div>
 
-      <button class="btn-login">Entrar</button>
-
+      <button class="btn-login" type="submit">
+        <span>Entrar no sistema</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
     </form>
-  </div>
+  </section>
 </div>

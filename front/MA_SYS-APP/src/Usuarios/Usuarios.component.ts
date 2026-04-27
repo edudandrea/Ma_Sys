@@ -65,7 +65,7 @@ export class UsuariosComponent implements OnInit {
     this.modalRef?.hide();
   }
 
-  getInicial(nome: string): string {    
+  getInicial(nome: string): string {
     return nome ? nome.charAt(0).toUpperCase() : '?';
   }
 
@@ -79,12 +79,12 @@ export class UsuariosComponent implements OnInit {
           menuAberto: false,
         }));
 
-        this.cd.markForCheck(); 
+        this.cd.markForCheck();
       },
 
       error: (err) => {
         console.error(err);
-        this.toastr.error('Erro ao carregar Academias');
+        this.toastr.error('Erro ao carregar academias.');
       },
     });
   }
@@ -93,19 +93,19 @@ export class UsuariosComponent implements OnInit {
     this.spinner.show();
     this.service.getUsuarios().subscribe({
       next: (res) => {
-        console.log('Usuarios recebidas:', res);
+        console.log('Usuários recebidos:', res);
         this.spinner.hide();
         this.usuarios = res.map((m) => ({
           ...m,
           menuAberto: false,
         }));
 
-        this.cd.markForCheck(); 
+        this.cd.markForCheck();
       },
 
       error: (err) => {
         console.error(err);
-        this.toastr.error('Erro ao carregar Usuários');
+        this.toastr.error('Erro ao carregar usuários.');
       },
     });
   }
@@ -133,7 +133,7 @@ export class UsuariosComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao criar usuário:', error);
-        this.toastr.error('Ocorreu um erro ao criar o usuário. Por favor, tente novamente.');
+        this.toastr.error('Ocorreu um erro ao criar o usuário. Tente novamente.');
       },
     });
   }
@@ -150,7 +150,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   deleteUsuario(userId: number): void {
-    if (confirm('Deseja realmente excluir esse usuário?')) {
+    if (confirm('Deseja realmente excluir este usuário?')) {
       this.spinner.show();
       this.service.deleteUsuario(userId).subscribe({
         next: () => {

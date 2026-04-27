@@ -2,24 +2,37 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MA_SYS.Api.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MA_Sys.API.Services
 {
     public class TokenService
     {
+        private readonly byte[] _key;
+        private readonly string? _issuer;
+        private readonly string? _audience;
+
+        public TokenService(IConfiguration configuration)
+        {
+            var jwtKey = configuration["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(jwtKey))
+            {
+                throw new InvalidOperationException("Jwt:Key nao configurada.");
+            }
+
+            _key = Encoding.ASCII.GetBytes(jwtKey);
+            _issuer = configuration["Jwt:Issuer"];
+            _audience = configuration["Jwt:Audience"];
+        }
+
         public string GenerateToken(Users user)
         {
-
-            Console.WriteLine($"Gerando token para usuário: {user.Login}, AcademiaId: {user.AcademiaId}, UserId: {user.UserId}, Role: {user.Role}");
-            var key = Encoding.ASCII.GetBytes("Hco?JH8I=KtBT1dwsZGs]@/h/ga)5n7E]-QcQr_XT)}");
-
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Login ?? ""),
+                new Claim(ClaimTypes.Name, user.Login ?? string.Empty),
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim(ClaimTypes.Role, user.Role ?? "Academia"),
-                
             };
 
             if (user.AcademiaId.HasValue)
@@ -31,8 +44,10 @@ namespace MA_Sys.API.Services
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(8),
+                Issuer = _issuer,
+                Audience = _audience,
                 SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(key),
+                    new SymmetricSecurityKey(_key),
                     SecurityAlgorithms.HmacSha256Signature
                 )
             };

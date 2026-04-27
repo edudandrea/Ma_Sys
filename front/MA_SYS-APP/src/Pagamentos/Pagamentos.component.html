@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-title-group">
     <h1>Pagamentos</h1>
-    <p>Gerencie as formas de pagamentos da academia</p>
+    <p>Gerencie condições de pagamento com leitura executiva de prazo, taxa e parcelamento.</p>
   </div>
 </div>
 
@@ -9,10 +9,10 @@
   <div class="pagamento-grid">
     <div class="empty-state" *ngIf="!pagamentos || pagamentos.length === 0">
       <i class="fa-solid fa-user-slash"></i>
-      <p>Nenhum pagamento cadastrado</p>
+      <p>Nenhuma forma de pagamento cadastrada</p>
     </div>
-    <div class="pagamento-card" *ngFor="let pagamento of pagamentos">
-      <!-- MENU -->
+
+    <article class="pagamento-card" *ngFor="let pagamento of pagamentos">
       <div class="card-menu">
         <button class="menu-btn" (click)="toggleMenu(pagamento, $event)">
           <i class="fa-solid fa-ellipsis"></i>
@@ -36,112 +36,92 @@
         </div>
       </div>
 
-      <!-- HEADER CENTRALIZADO -->
-      <div class="card-header-center">
+      <div class="card-topline">
+        <span class="entity-badge">Pagamento</span>
+      </div>
+
+      <div class="card-header-kpi">
         <div class="avatar">
           {{ getInicial(pagamento.nome) }}
         </div>
 
-        <div class="professor-title">
-          <span *ngIf="editarId !== pagamento.id">
-            {{ pagamento.nome }}
-          </span>
+        <div class="title-block">
+          <div class="pagamento-title">
+            <span *ngIf="editarId !== pagamento.id">{{ pagamento.nome }}</span>
+            <input *ngIf="editarId === pagamento.id" [(ngModel)]="nome" class="edit-input" />
+          </div>
 
-          <input *ngIf="editarId === pagamento.id" [(ngModel)]="nome" class="edit-input" />
+          <span class="subtitle">Configuração operacional da cobrança</span>
         </div>
       </div>
 
-      <!-- BODY -->
-      <div class="card-body">
-        <div class="info-grid">
-          <div class="info-item">
-            <i class="fa-solid fa-award"></i>
-            <div class="info-content">
-              <span class="label">Parcelas</span>
-              <span class="value" *ngIf="editarId !== pagamento.id">
-                {{ pagamento.parcelas }}
-              </span>
-              <input *ngIf="editarId === pagamento.id" [(ngModel)]="parcelas" class="edit-input" />
-            </div>
-          </div>
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <span class="kpi-label">Parcelas</span>
+          <strong class="kpi-value" *ngIf="editarId !== pagamento.id">{{ pagamento.parcelas }}</strong>
+          <input *ngIf="editarId === pagamento.id" [(ngModel)]="parcelas" class="edit-input" />
+        </div>
 
-          <div class="info-item">
-            <i class="fa-solid fa-wallet"></i>
-            <div class="info-content">
-              <span class="label">Taxa %</span>
-              <span class="value" *ngIf="editarId !== pagamento.id">
-                {{ pagamento.taxa }}
-              </span>
-              <input *ngIf="editarId === pagamento.id" [(ngModel)]="taxa" class="edit-input" />
-            </div>
-          </div>
+        <div class="kpi-box">
+          <span class="kpi-label">Taxa</span>
+          <strong class="kpi-value" *ngIf="editarId !== pagamento.id">{{ pagamento.taxa }}%</strong>
+          <input *ngIf="editarId === pagamento.id" [(ngModel)]="taxa" class="edit-input" />
+        </div>
+      </div>
 
-          <div class="info-item">
-            <i class="fa-solid fa-calendar"></i>
-            <div class="info-content">
-              <span class="label">Qtd dias</span>
-              <span class="value" *ngIf="editarId !== pagamento.id">
-                {{ pagamento.dias }}
-              </span>
-              <input *ngIf="editarId === pagamento.id" [(ngModel)]="dias" class="edit-input" />
-            </div>
+      <div class="detail-list">
+        <div class="detail-item">
+          <i class="fa-solid fa-calendar"></i>
+          <div>
+            <span class="detail-label">Dias para vencimento</span>
+            <strong *ngIf="editarId !== pagamento.id">{{ pagamento.dias }}</strong>
+            <input *ngIf="editarId === pagamento.id" [(ngModel)]="dias" class="edit-input" />
           </div>
         </div>
       </div>
-    </div>
+    </article>
   </div>
 </div>
 
-<!-- BOTÃO FLUTUANTE -->
-
 <button class="floating-add" (click)="openModalNovoPgto(templateNovaFormaPgto)">
   <i class="fa-solid fa-plus"></i>
-  <span class="fab-text">Forma de Pagamento </span>
+  <span class="fab-text">Forma de pagamento</span>
 </button>
 
 <ng-template #templateNovaFormaPgto>
   <div class="modal-content">
-    <!-- HEADER -->
     <div class="modal-header">
-      <h4>Nova Forma de Pagamento</h4>
+      <h4>Nova forma de pagamento</h4>
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
     </div>
 
-    <!-- BODY -->
     <div class="modal-body">
       <form class="form-grid">
-        <!-- NOME (FULL) -->
         <div class="form-group full">
           <label>Nome</label>
           <input [(ngModel)]="nome" name="nome" />
         </div>
 
-        <!-- GRADUAÇÃO -->
         <div class="form-group">
-          <label>Qtd parcelas</label>
+          <label>Qtd. de parcelas</label>
           <input [(ngModel)]="parcelas" name="graduacao" />
         </div>
 
-        <!-- EMAIL -->
         <div class="form-group">
           <label>Taxa %</label>
           <input [(ngModel)]="taxa" name="taxa" />
         </div>
 
-        <!-- TELEFONE -->
         <div class="form-group">
-          <label>Qtd dias</label>
+          <label>Qtd. de dias</label>
           <input [(ngModel)]="dias" name="dias" />
         </div>
       </form>
     </div>
 
-    <!-- FOOTER -->
     <div class="modal-footer form-actions">
       <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
-      <button class="btn-save" (click)="cadastrarNovaFormaPgto()">Salvar Forma de Pagamento</button>
+      <button class="btn-save" (click)="cadastrarNovaFormaPgto()">Salvar forma de pagamento</button>
     </div>
   </div>
 </ng-template>
-
-

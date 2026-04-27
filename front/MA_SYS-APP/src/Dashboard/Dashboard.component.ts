@@ -6,7 +6,6 @@ import { DashboardService } from '../Services/Dashboard/Dashboard.service';
 import Chart from 'chart.js/auto';
 import { ToastrService } from 'ngx-toastr';
 
-
 @Component({
   selector: 'app-Dashboard',
   templateUrl: './Dashboard.component.html',
@@ -15,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class DashboardComponent implements OnInit {
   dashboard: any;
-  isAdmin: boolean = false;
+  isAdmin = false;
 
   constructor(
     private spinner: NgxSpinnerService,
@@ -26,48 +25,50 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     if (typeof window !== 'undefined') {
-      const role = localStorage.getItem('role');
-      console.log('Role do usuário:', role);
-      this.isAdmin = role === 'Admin';
+      const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+      this.isAdmin = usuario.role === 'Admin';
     }
+
     this.loadDashboard();
   }
-
-  ngAfterViewInit() {}
 
   loadDashboard() {
     this.spinner.show();
     this.dashService.getDashboard().subscribe({
       next: (res) => {
-        console.log('Dashboard recebido:', res);
         this.spinner.hide();
         this.dashboard = res;
 
         setTimeout(() => {
-          this.getGraficos();
+          this.renderCharts();
         }, 100);
 
         this.cd.markForCheck();
       },
-
       error: (err) => {
+        this.spinner.hide();
         console.error(err);
-        this.toastr.error('Erro ao carregar Dashboard', 'Erro');
+        this.toastr.error('Erro ao carregar o dashboard', 'Erro');
       },
     });
   }
 
-  getGraficos() {
-    const canvasAlunos = document.getElementById('graficoAlunos') as HTMLCanvasElement;
-    const canvasPlanos = document.getElementById('graficoPlanos') as HTMLCanvasElement;
+  renderCharts() {
+    const canvasAlunos = document.getElementById('graficoAlunos') as HTMLCanvasElement | null;
+    const canvasPlanos = document.getElementById('graficoPlanos') as HTMLCanvasElement | null;
 
     if (!canvasAlunos || !canvasPlanos) {
-      console.warn('Canvas ainda não renderizado');
       return;
     }
 
     Chart.getChart(canvasAlunos)?.destroy();
     Chart.getChart(canvasPlanos)?.destroy();
+
+    const textColor = this.getCssVar('--text-secondary');
+    const gridColor = 'rgba(148, 163, 184, 0.14)';
+    const accentPrimary = this.getCssVar('--accent-primary');
+    const accentStrong = this.getCssVar('--accent-primary-strong');
+    const accentSecondary = this.getCssVar('--accent-secondary');
 
     new Chart(canvasAlunos, {
       type: 'line',
@@ -78,9 +79,36 @@ export class DashboardComponent implements OnInit {
             label: 'Alunos',
             data: this.dashboard?.alunosPorMes || [10, 20, 30, 40],
             fill: true,
-            tension: 0.4,
+            tension: 0.35,
+            borderColor: accentPrimary,
+            backgroundColor: 'rgba(37, 99, 235, 0.16)',
+            pointBackgroundColor: accentStrong,
+            pointBorderColor: '#ffffff',
+            pointRadius: 4,
           },
         ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: textColor,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: textColor },
+            grid: { color: gridColor },
+          },
+          y: {
+            ticks: { color: textColor },
+            grid: { color: gridColor },
+            beginAtZero: true,
+          },
+        },
       },
     });
 
@@ -91,14 +119,30 @@ export class DashboardComponent implements OnInit {
         datasets: [
           {
             data: this.dashboard?.planos?.map((p: any) => p.totalAlunos) || [],
+            backgroundColor: [accentPrimary, accentSecondary, '#f59e0b', '#22c55e', '#ef4444'],
+            borderWidth: 0,
           },
         ],
       },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: textColor,
+              padding: 18,
+            },
+          },
+        },
+      },
     });
   }
-  
 
-  onPeriodoChange(any: any) {
-    console.log('Período selecionado:', any);
+  onPeriodoChange(_: Event) {}
+
+  private getCssVar(name: string) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim() || '#94a3b8';
   }
 }

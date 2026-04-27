@@ -9,20 +9,18 @@ namespace MA_Sys.API.Controllers
     {
         protected string GetUserRole()
         {
-            return User.FindFirst(ClaimTypes.Role)?.Value;
+            return User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
         }
 
         protected int? GetAcademiaId()
         {
             var claim = User.FindFirst("AcademiaId");
-            if (claim == null || string.IsNullOrEmpty(claim.Value))
-
+            if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
+            {
                 return null;
-            if (int.TryParse(claim.Value, out int academiaId))
+            }
 
-                return academiaId;
-
-            return null;
+            return int.TryParse(claim.Value, out var academiaId) ? academiaId : null;
         }
 
         protected (string role, int? academiaId) GetUserInfo()
@@ -35,11 +33,18 @@ namespace MA_Sys.API.Controllers
             var academiaRepo = HttpContext.RequestServices
                 .GetService(typeof(IAcademiaRepository)) as IAcademiaRepository;
 
+            if (academiaRepo == null)
+            {
+                throw new InvalidOperationException("Repositorio de academia nao disponivel.");
+            }
+
             var academia = academiaRepo.Query()
                 .FirstOrDefault(a => a.Slug == slug);
 
             if (academia == null)
-                throw new Exception("Academia não encontrada");
+            {
+                throw new InvalidOperationException("Academia nao encontrada.");
+            }
 
             return academia.Id;
         }

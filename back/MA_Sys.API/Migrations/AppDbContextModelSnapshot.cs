@@ -167,7 +167,13 @@ namespace MA_SYS.Api.Migrations
                     b.Property<DateTime>("DataInicio")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("DataPagamento")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("FormaPagamentoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("MensalidadePaga")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("PlanoId")
@@ -233,7 +239,13 @@ namespace MA_SYS.Api.Migrations
                     b.Property<DateTime>("DataVencimento")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("FormaPagamentoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MatriculaId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("PlanoId")

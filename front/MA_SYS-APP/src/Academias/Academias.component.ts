@@ -5,7 +5,6 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { Academias, AcademiasService } from '../Services/AcademiaService/Academias.service';
-import { Modalidades } from '../Services/ModalidadeService/Modalidades.service';
 
 @Component({
   selector: 'app-Academias',
@@ -15,20 +14,21 @@ import { Modalidades } from '../Services/ModalidadeService/Modalidades.service';
 })
 export class AcademiasComponent implements OnInit {
   modalRef?: BsModalRef;
-  id: number = 0;
-  nome: string = '';
-  totalAlunos: number = 0;
-  cidade: string = '';
-  email: string = '';
-  telefone: string = '';
-  redeSocial: string = '';
-  dataCadastro: string = '';
-  ativo: boolean = true;
+  id = 0;
+  nome = '';
+  totalAlunos = 0;
+  cidade = '';
+  email = '';
+  telefone = '';
+  redeSocial = '';
+  dataCadastro = '';
+  ativo = true;
   editarId: number | null = null;
-  responsavel: string = '';
-  totalProf: number = 0
-  linkCadastro: string = '';
-  slug: string = '';
+  responsavel = '';
+  totalProf = 0;
+  linkCadastro = '';
+  slug = '';
+  publicOrigin = '';
 
   academias: (Academias & { menuAberto?: boolean })[] = [];
 
@@ -42,6 +42,7 @@ export class AcademiasComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.publicOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     this.carregarAcademias();
   }
 
@@ -49,32 +50,34 @@ export class AcademiasComponent implements OnInit {
     return nome ? nome.charAt(0).toUpperCase() : '?';
   }
 
-  
+  getCadastroLink(slug: string): string {
+    return `${this.publicOrigin}/${slug}/cadastro`;
+  }
 
   @HostListener('document:click', ['$event'])
-  fecharMenu(event: any) {
-    const clicouMenu = event.target.closest('.card-menu');
+  fecharMenu(event: Event) {
+    const target = event.target as HTMLElement;
+    const clicouMenu = target.closest('.card-menu');
 
     if (!clicouMenu) {
-      this.academias.forEach((m: any) => (m.menuAberto = false));
+      this.academias.forEach((m) => (m.menuAberto = false));
     }
   }
 
-  toggleMenu(academia: any, event: Event) {
+  toggleMenu(academia: Academias & { menuAberto?: boolean }, event: Event) {
     event.stopPropagation();
 
-    this.academias.forEach((m: any) => {
+    this.academias.forEach((m) => {
       if (m !== academia) {
         m.menuAberto = false;
       }
     });
 
     academia.menuAberto = !academia.menuAberto;
-
     this.academias = [...this.academias];
   }
 
-  toggleExpand(card: any) {
+  toggleExpand(card: { expandido?: boolean }) {
     card.expandido = !card.expandido;
   }
 
@@ -82,35 +85,34 @@ export class AcademiasComponent implements OnInit {
     this.modalRef = this.modalService.show(template, {
       class: 'modal-md modal-dialog-centered',
     });
-  }  
+  }
 
   openModalExcluir(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template, {
       class: 'modal-md modal-dialog-centered',
     });
-  }  
+  }
 
-  confirmarCancelarEdicao() {    
-      this.fecharModal();    
+  confirmarCancelarEdicao() {
+    this.fecharModal();
   }
 
   carregarAcademias() {
     this.spinner.show();
     this.acad.getAcademias().subscribe({
       next: (res) => {
-        console.log('Academias recebidas:', res);
         this.spinner.hide();
         this.academias = res.map((m) => ({
           ...m,
           menuAberto: false,
         }));
 
-        this.cd.markForCheck(); // força Angular atualizar
+        this.cd.markForCheck();
       },
-
       error: (err) => {
         console.error(err);
-        this.toastr.error('Erro ao carregar Academias');
+        this.spinner.hide();
+        this.toastr.error('Erro ao carregar academias');
       },
     });
   }
@@ -128,41 +130,36 @@ export class AcademiasComponent implements OnInit {
       dataCadastro: this.dataCadastro || new Date().toISOString(),
     };
 
-    console.group('📤 NOVO ACADEMIA');
-    console.log(JSON.stringify(academia, null, 2));
-    console.groupEnd();
-
     this.academiaService.novaAcademia(academia).subscribe({
       next: (res) => {
-        this.linkCadastro = `https://seusistema.com/${res.slug}/cadastro`;
+        this.linkCadastro = this.getCadastroLink(res.slug);
         this.spinner.hide();
-        this.toastr.success('Academia cadastrado!', 'Sucesso');
-
+        this.toastr.success('Academia cadastrada!', 'Sucesso');
         this.carregarAcademias();
         this.fecharModal();
       },
       error: (err) => {
         this.spinner.hide();
         console.error(err);
-        this.toastr.error('Erro ao salvar Academia', 'Erro');
+        this.toastr.error('Erro ao salvar academia', 'Erro');
       },
     });
   }
 
-  excluirAcademia(academiaId: number): void {    
-      this.spinner.show();
-      this.academiaService.excluirAcademia(academiaId).subscribe({
-        next: () => {
-          this.toastr.success('Academia excluída com sucesso!', 'Sucesso');
-          this.spinner.hide();
-          this.carregarAcademias();
-        },
-        error: (err) => {
-          console.error('Erro ao excluir a academia', err);
-          this.toastr.error('Erro ao excluir a academia!', 'Erro');
-          this.spinner.hide();
-        },
-      });    
+  excluirAcademia(academiaId: number): void {
+    this.spinner.show();
+    this.academiaService.excluirAcademia(academiaId).subscribe({
+      next: () => {
+        this.toastr.success('Academia excluida com sucesso!', 'Sucesso');
+        this.spinner.hide();
+        this.carregarAcademias();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir a academia', err);
+        this.toastr.error('Erro ao excluir a academia!', 'Erro');
+        this.spinner.hide();
+      },
+    });
   }
 
   toggleStatus(academia: Academias) {
@@ -171,17 +168,13 @@ export class AcademiasComponent implements OnInit {
     this.academiaService.atualizarStatus(academia.id, novoStatus).subscribe({
       next: () => {
         academia.ativo = novoStatus;
-
         this.academias = [...this.academias];
-
         this.cd.markForCheck();
         this.carregarAcademias();
-
         this.toastr.success(`Academia ${novoStatus ? 'ativada' : 'desativada'}`);
       },
-
       error: () => {
-        this.toastr.error('Erro ao atualizar a Academia');
+        this.toastr.error('Erro ao atualizar a academia');
       },
     });
   }
@@ -190,53 +183,53 @@ export class AcademiasComponent implements OnInit {
     this.modalRef?.hide();
   }
 
-  editarAcademia(academia: Academias) {
-      this.editarId = academia.id;
-      this.nome = academia.nome;
-      this.cidade = academia.cidade;
-      this.telefone = academia.telefone;
-      this.email = academia.email;
-      this.redeSocial = academia.redeSocial;
-      this.responsavel = academia.responsavel;
-      academia.menuAberto = false;
-    }
+  editarAcademia(academia: Academias & { menuAberto?: boolean }) {
+    this.editarId = academia.id;
+    this.nome = academia.nome;
+    this.cidade = academia.cidade;
+    this.telefone = academia.telefone;
+    this.email = academia.email;
+    this.redeSocial = academia.redeSocial;
+    this.responsavel = academia.responsavel;
+    academia.menuAberto = false;
+  }
 
   salvarEdicao(academia: Academias) {
-      const payload = {
-        id: academia.id,
-        nome: this.nome,
-        cidade: this.cidade,
-        telefone: this.telefone,
-        email: this.email,
-        redeSocial: this.redeSocial,
-        responsavel: this.responsavel,
-        ativo: academia.ativo,
-      };
-  
-      this.academiaService.atualizarAcademia(payload).subscribe({
-        next: () => {
-          academia.nome = this.nome;
-          academia.cidade = this.cidade;
-          academia.telefone = this.telefone;
-          academia.email = this.email;
-          academia.redeSocial = this.redeSocial;
-          academia.responsavel = this.responsavel;
+    const payload = {
+      id: academia.id,
+      nome: this.nome,
+      cidade: this.cidade,
+      telefone: this.telefone,
+      email: this.email,
+      redeSocial: this.redeSocial,
+      responsavel: this.responsavel,
+      ativo: academia.ativo,
+    };
 
-          this.editarId = null;
-
-          this.carregarAcademias();
-
-          this.toastr.success('Academia atualizada');
-        },
-      });
-    }
-
-    copiarLink(slug: string) {
-    const link = `http://localhost:4200/${slug}/cadastro`;
-    navigator.clipboard.writeText(link).then(() => {
-      this.toastr.success('Link copiado para a área de transferência!');
-    }, () => {
-      this.toastr.error('Erro ao copiar o link.');
+    this.academiaService.atualizarAcademia(payload).subscribe({
+      next: () => {
+        academia.nome = this.nome;
+        academia.cidade = this.cidade;
+        academia.telefone = this.telefone;
+        academia.email = this.email;
+        academia.redeSocial = this.redeSocial;
+        academia.responsavel = this.responsavel;
+        this.editarId = null;
+        this.carregarAcademias();
+        this.toastr.success('Academia atualizada');
+      },
     });
+  }
+
+  copiarLink(slug: string) {
+    const link = this.getCadastroLink(slug);
+    navigator.clipboard.writeText(link).then(
+      () => {
+        this.toastr.success('Link copiado para a area de transferencia!');
+      },
+      () => {
+        this.toastr.error('Erro ao copiar o link.');
+      },
+    );
   }
 }

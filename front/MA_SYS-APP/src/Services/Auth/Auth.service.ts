@@ -17,6 +17,7 @@ export class AuthService {
       tap((res) => {
         localStorage.setItem(`token`, res.token);
         localStorage.setItem(`usuario`, JSON.stringify(res.usuario));
+        localStorage.setItem(`role`, res.usuario?.role ?? '');
       }),
     );
   }
@@ -35,12 +36,16 @@ export class AuthService {
   }
   
   getRole(): string | null {
-    const token = localStorage.getItem(`token`);
+    const usuario = localStorage.getItem(`usuario`);
+    if (usuario) {
+      return JSON.parse(usuario).role ?? null;
+    }
 
+    const token = localStorage.getItem(`token`);
     if (!token) return null;
 
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.role;
+    return payload.role ?? payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? null;
   }
 
   isLogged(): boolean{
