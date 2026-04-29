@@ -6,23 +6,68 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const backendUrl = (process.env['BACKEND_URL'] || 'http://localhost:5167').replace(/\/$/, '');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+app.use('/api', async (req, res, next) => {
+  try {
+    const targetUrl = `${backendUrl}${req.originalUrl}`;
+    const headers = new Headers();
+
+    Object.entries(req.headers).forEach(([key, value]) => {
+      if (key.toLowerCase() === 'host' || typeof value === 'undefined') {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => headers.append(key, item));
+        return;
+      }
+
+      headers.set(key, value);
+    });
+
+    const init: RequestInit & { duplex?: 'half' } = {
+      method: req.method,
+      headers,
+      redirect: 'manual',
+    };
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      init.body = req as unknown as BodyInit;
+      init.duplex = 'half';
+    }
+
+    const response = await fetch(targetUrl, init);
+
+    res.status(response.status);
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() === 'transfer-encoding') {
+        return;
+      }
+
+      res.setHeader(key, value);
+    });
+
+    if (!response.body) {
+      res.end();
+      return;
+    }
+
+    Readable.fromWeb(response.body as any).pipe(res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * Serve static files from /browser

@@ -17,11 +17,13 @@ namespace MA_SYS.Api.Controllers
     {
         private readonly AcademiaService _service;
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
 
-        public AcademiasController(AcademiaService service, IUserRepository userRepository)
+        public AcademiasController(AcademiaService service, IUserRepository userRepository, IConfiguration configuration)
         {
             _service = service;
             _userRepository = userRepository;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -106,7 +108,7 @@ namespace MA_SYS.Api.Controllers
             if (file.Length > 5 * 1024 * 1024)
                 return BadRequest(new { message = "A imagem deve ter no maximo 5MB." });
 
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "academias");
+            var uploadsPath = GetAcademiaUploadsPath();
             Directory.CreateDirectory(uploadsPath);
 
             var fileName = $"{Guid.NewGuid():N}{extensao}";
@@ -129,7 +131,7 @@ namespace MA_SYS.Api.Controllers
             if (string.IsNullOrWhiteSpace(safeFileName))
                 return BadRequest(new { message = "Arquivo da logo invalido." });
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "academias", safeFileName);
+            var filePath = Path.Combine(GetAcademiaUploadsPath(), safeFileName);
             if (!System.IO.File.Exists(filePath))
                 return NotFound();
 
@@ -140,6 +142,17 @@ namespace MA_SYS.Api.Controllers
             }
 
             return PhysicalFile(filePath, contentType);
+        }
+
+        private string GetAcademiaUploadsPath()
+        {
+            var uploadsRoot = _configuration["UPLOADS_ROOT"];
+            if (!string.IsNullOrWhiteSpace(uploadsRoot))
+            {
+                return Path.Combine(uploadsRoot, "academias");
+            }
+
+            return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "academias");
         }
 
         [HttpPut("{id}")]

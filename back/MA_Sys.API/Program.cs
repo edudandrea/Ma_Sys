@@ -28,10 +28,23 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Contains("__CONFIGURE_VIA_", Str
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? ["http://localhost:4200"];
+var configuredDatabasePath = builder.Configuration["DATABASE_PATH"];
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=martialartssys.db";
+var connectionString = defaultConnection;
+
+if (!string.IsNullOrWhiteSpace(configuredDatabasePath))
+{
+    var databaseDirectory = Path.GetDirectoryName(configuredDatabasePath);
+    if (!string.IsNullOrWhiteSpace(databaseDirectory))
+    {
+        Directory.CreateDirectory(databaseDirectory);
+    }
+
+    connectionString = $"Data Source={configuredDatabasePath}";
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(connectionString));
 
 var key = Encoding.ASCII.GetBytes(jwtKey);
 builder.Services.AddAuthentication(opt =>
@@ -162,6 +175,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 
 app.Run();
