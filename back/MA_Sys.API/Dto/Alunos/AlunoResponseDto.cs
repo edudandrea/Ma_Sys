@@ -21,5 +21,8 @@ namespace MA_Sys.API.Dto.Alunos
         public bool Ativo { get; set; }
         public string? Graduacao { get; set; }
         public string? Obs { get; set; }
+        public string? MensalidadeStatus { get; set; }
+        public DateTime? DataVencimentoMensalidade { get; set; }
+        public int? DiasParaVencimento { get; set; }
     }
 }

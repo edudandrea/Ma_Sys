@@ -47,6 +47,73 @@ namespace MA_Sys.API.Controllers
             return Ok();
         }
 
+        [HttpPost("pix")]
+        public async Task<IActionResult> GerarPixMatricula([FromBody] PagamentoPixCreateDto dto)
+        {
+            try
+            {
+                if (GetAcademiaId() is not int academiaId || academiaId <= 0)
+                {
+                    return Unauthorized(new { message = "Usuario sem vinculo com academia." });
+                }
+
+                var response = await _service.GerarPagamentoPixAsync(dto, academiaId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("manual")]
+        public IActionResult RegistrarPagamentoManual([FromBody] PagamentoManualCreateDto dto)
+        {
+            try
+            {
+                if (GetAcademiaId() is not int academiaId || academiaId <= 0)
+                {
+                    return Unauthorized(new { message = "Usuario sem vinculo com academia." });
+                }
+
+                var pagamento = _service.RegistrarPagamentoManual(dto, academiaId);
+                return Ok(new
+                {
+                    pagamentoId = pagamento.Id,
+                    status = pagamento.Status
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("public/pix")]
+        public async Task<IActionResult> GerarPixPublico([FromBody] PagamentoPixPublicoDto dto)
+        {
+            try
+            {
+                var academiaId = _academiaRepository.Query()
+                    .Where(a => a.Slug == dto.Slug)
+                    .Select(a => a.Id)
+                    .FirstOrDefault();
+
+                if (academiaId <= 0)
+                {
+                    return NotFound(new { message = "Academia nao encontrada." });
+                }
+
+                var response = await _service.GerarPagamentoPixPublicoAsync(dto, academiaId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost("public/cartao")]
         public async Task<IActionResult> PagarCartaoPublico([FromBody] PagamentoCartaoPublicoDto dto)
@@ -113,6 +180,29 @@ namespace MA_Sys.API.Controllers
                     return NotFound(new { message = "Pagamento nao encontrado." });
                 }
 
+                return Ok(new
+                {
+                    pagamentoId = pagamento.Id,
+                    status = pagamento.Status
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{pagamentoId}/status-atualizado")]
+        public IActionResult ConsultarStatusAtualizado(int pagamentoId)
+        {
+            try
+            {
+                if (GetAcademiaId() is not int academiaId || academiaId <= 0)
+                {
+                    return Unauthorized(new { message = "Usuario sem vinculo com academia." });
+                }
+
+                var pagamento = _service.AtualizarStatusPagamento(pagamentoId, academiaId);
                 return Ok(new
                 {
                     pagamentoId = pagamento.Id,

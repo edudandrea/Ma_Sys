@@ -48,6 +48,9 @@ export class AlunosComponent implements OnInit {
   redeSocial: string = '';
   ativo: boolean = true;
   obs: string = '';
+  mensalidadeStatus = '';
+  dataVencimentoMensalidade = '';
+  diasParaVencimento: number | null = null;
 
   totalAlunos: number = 0;
 
@@ -212,6 +215,10 @@ export class AlunosComponent implements OnInit {
     this.dataCadastro = aluno.dataCadastro?.substring(0, 10);
     this.ativo = aluno.ativo;
     this.planoId = Number(aluno.planoId);
+    this.obs = aluno.obs ?? '';
+    this.mensalidadeStatus = aluno.mensalidadeStatus ?? 'Em dia';
+    this.dataVencimentoMensalidade = aluno.dataVencimentoMensalidade?.substring(0, 10) ?? '';
+    this.diasParaVencimento = aluno.diasParaVencimento ?? null;
   }
 
   pesquisarAlunos(filtro: any): void {
@@ -403,6 +410,7 @@ export class AlunosComponent implements OnInit {
       dataNascimento: this.dataNascimento,
       ativo: this.ativo,
       planoId: this.planoId ?? undefined,
+      obs: this.obs ?? undefined,
     };
 
     console.group('📤 ATUALIZAR ALUNO');
@@ -471,5 +479,14 @@ export class AlunosComponent implements OnInit {
 
   private resetNovoAlunoForm() {
     this.novoAlunoForm = this.createNovoAlunoForm();
+  }
+
+  get mensalidadeStatusClasse(): string {
+    const status = (this.mensalidadeStatus || '').toLowerCase();
+
+    if (status === 'pago') return 'mensalidade-paga';
+    if (status === 'pendente') return 'mensalidade-pendente';
+    if (status === 'em atraso') return 'mensalidade-atraso';
+    return 'mensalidade-em-dia';
   }
 }

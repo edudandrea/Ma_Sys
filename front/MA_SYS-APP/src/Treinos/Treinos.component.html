@@ -1,0 +1,222 @@
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>Treinos e Exercicios</h1>
+    <p>Cadastre exercicios e monte treinos personalizados para cada aluno.</p>
+  </div>
+</div>
+
+<ul class="page-tabs">
+  <li class="page-tab" [class.active]="aba === 'exercicios'" (click)="aba = 'exercicios'">
+    <i class="fa-solid fa-dumbbell"></i>
+    <span>Exercicios</span>
+  </li>
+  <li class="page-tab" [class.active]="aba === 'treinos'" (click)="aba = 'treinos'">
+    <i class="fa-solid fa-list-check"></i>
+    <span>Treinos</span>
+  </li>
+</ul>
+
+<div class="surface-card" *ngIf="aba === 'exercicios'">
+  <div class="surface-header">
+    <h2>Exercicios cadastrados</h2>
+  </div>
+
+  <div class="grid-cards" *ngIf="exercicios.length; else semExercicios">
+    <article class="item-card" *ngFor="let exercicio of exercicios">
+      <strong>{{ exercicio.nome }}</strong>
+      <span>{{ exercicio.grupoMuscular || 'Grupo nao informado' }}</span>
+      <p>{{ exercicio.descricao || 'Sem descricao.' }}</p>
+      <div class="card-actions">
+        <button class="btn-save small" (click)="abrirModalExercicio(templateExercicio, exercicio)">Editar</button>
+        <button class="btn-cancel btn-danger small" (click)="abrirModalExclusaoExercicio(templateExcluirExercicio, exercicio)">Excluir</button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<div class="surface-card" *ngIf="aba === 'treinos'">
+  <div class="surface-header">
+    <h2>Treinos personalizados</h2>
+  </div>
+
+  <div class="grid-cards" *ngIf="treinos.length; else semTreinos">
+    <article class="item-card" *ngFor="let treino of treinos">
+      <strong>{{ treino.nome }}</strong>
+      <span>{{ treino.alunoNome }}</span>
+      <p>{{ treino.objetivo || 'Sem objetivo informado.' }}</p>
+      <div class="chip-row">
+        <span class="chip" *ngFor="let exercicio of treino.exercicios">
+          {{ exercicio.exercicioNome }} · {{ exercicio.series }}x{{ exercicio.repeticoes }}
+        </span>
+      </div>
+      <div class="card-actions">
+        <button class="btn-save small" (click)="abrirModalTreino(templateTreino, treino)">Editar</button>
+        <button class="btn-cancel small" (click)="imprimirTreino(treino)">Imprimir</button>
+        <button class="btn-cancel btn-danger small" (click)="abrirModalExclusaoTreino(templateExcluirTreino, treino)">Excluir</button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<ng-template #semExercicios>
+  <div class="empty-state">
+    <i class="fa-solid fa-dumbbell"></i>
+    <p>Nenhum exercicio cadastrado</p>
+  </div>
+</ng-template>
+
+<ng-template #templateExcluirExercicio>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Excluir exercicio</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <span class="modal-icon-badge danger">
+        <i class="fa-solid fa-trash-can"></i>
+      </span>
+
+      <div class="modal-warning-box">
+        <strong>{{ exercicioParaExcluir?.nome || 'Exercicio selecionado' }}</strong>
+        <p>
+          Este exercicio sera removido do cadastro. Caso ele esteja vinculado a algum treino, o sistema impedira a exclusao.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save btn-danger" (click)="excluirExercicio()">Confirmar exclusao</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #templateExcluirTreino>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Excluir treino</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <span class="modal-icon-badge danger">
+        <i class="fa-solid fa-trash-can"></i>
+      </span>
+
+      <div class="modal-warning-box">
+        <strong>{{ treinoParaExcluir?.nome || 'Treino selecionado' }}</strong>
+        <p>
+          Esta acao removera o treino completo, incluindo sua lista de exercicios e configuracoes vinculadas.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save btn-danger" (click)="excluirTreino()">Confirmar exclusao</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #semTreinos>
+  <div class="empty-state">
+    <i class="fa-solid fa-list-check"></i>
+    <p>Nenhum treino cadastrado</p>
+  </div>
+</ng-template>
+
+<button class="floating-add" *ngIf="aba === 'exercicios'" (click)="abrirModalExercicio(templateExercicio)">
+  <i class="fa-solid fa-plus"></i>
+  <span class="fab-text">Novo exercicio</span>
+</button>
+
+<button class="floating-add" *ngIf="aba === 'treinos'" (click)="abrirModalTreino(templateTreino)">
+  <i class="fa-solid fa-plus"></i>
+  <span class="fab-text">Novo treino</span>
+</button>
+
+<ng-template #templateExercicio>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>{{ editandoExercicioId ? 'Editar exercicio' : 'Novo exercicio' }}</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body form-grid">
+      <div class="form-group full">
+        <label>Nome</label>
+        <input [(ngModel)]="exercicioForm.nome" />
+      </div>
+      <div class="form-group full">
+        <label>Grupo muscular</label>
+        <input [(ngModel)]="exercicioForm.grupoMuscular" />
+      </div>
+      <div class="form-group full">
+        <label>Descricao</label>
+        <textarea rows="3" [(ngModel)]="exercicioForm.descricao"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save" (click)="salvarExercicio()">Salvar</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #templateTreino>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>{{ editandoTreinoId ? 'Editar treino' : 'Novo treino' }}</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body form-grid">
+      <div class="form-group full">
+        <label>Aluno</label>
+        <select [(ngModel)]="treinoForm.alunoId">
+          <option [ngValue]="0">Selecione</option>
+          <option *ngFor="let aluno of alunos" [ngValue]="aluno.id">{{ aluno.nome }}</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Nome do treino</label>
+        <input [(ngModel)]="treinoForm.nome" />
+      </div>
+
+      <div class="form-group full">
+        <label>Objetivo</label>
+        <input [(ngModel)]="treinoForm.objetivo" />
+      </div>
+
+      <div class="form-group full">
+        <label>Observacoes</label>
+        <textarea rows="3" [(ngModel)]="treinoForm.observacoes"></textarea>
+      </div>
+
+      <div class="form-group full">
+        <div class="exercicio-header">
+          <label>Exercicios do treino</label>
+          <button type="button" class="btn-save small-inline" (click)="adicionarExercicioTreino()">Adicionar</button>
+        </div>
+
+        <div class="exercicio-item" *ngFor="let item of treinoForm.exercicios; let i = index">
+          <select [(ngModel)]="item.exercicioId">
+            <option [ngValue]="0">Exercicio</option>
+            <option *ngFor="let exercicio of exercicios" [ngValue]="exercicio.id">{{ exercicio.nome }}</option>
+          </select>
+          <input type="number" [(ngModel)]="item.series" placeholder="Series" />
+          <input type="number" [(ngModel)]="item.repeticoes" placeholder="Repeticoes" />
+          <input [(ngModel)]="item.descanso" placeholder="Descanso" />
+          <input [(ngModel)]="item.observacoes" placeholder="Observacoes" />
+          <button type="button" class="btn-cancel small-inline" (click)="removerExercicioTreino(i)">Remover</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save" (click)="salvarTreino()">Salvar</button>
+    </div>
+  </div>
+</ng-template>

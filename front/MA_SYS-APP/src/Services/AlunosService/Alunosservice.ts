@@ -24,6 +24,10 @@ export interface Alunos {
   academiaId: number;
   academiaNome?: string;
   planoId: number;
+  obs?: string;
+  mensalidadeStatus?: string;
+  dataVencimentoMensalidade?: string;
+  diasParaVencimento?: number;
 }
 
 @Injectable({

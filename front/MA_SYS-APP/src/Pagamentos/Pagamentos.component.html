@@ -13,29 +13,6 @@
     </div>
 
     <article class="pagamento-card" *ngFor="let pagamento of pagamentos">
-      <div class="card-menu">
-        <button class="menu-btn" (click)="toggleMenu(pagamento, $event)">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-
-        <div class="menu-dropdown" *ngIf="pagamento.menuAberto">
-          <button *ngIf="editarId !== pagamento.id" (click)="editarFormaPagamento(pagamento)">
-            <i class="fa-solid fa-pen"></i>
-            Editar
-          </button>
-
-          <button *ngIf="editarId === pagamento.id" (click)="salvarEdicao(pagamento)">
-            <i class="fa-solid fa-check"></i>
-            Salvar
-          </button>
-
-          <button *ngIf="editarId === pagamento.id" class="danger" (click)="cancelarEdicao()">
-            <i class="fa-solid fa-ban"></i>
-            Cancelar
-          </button>
-        </div>
-      </div>
-
       <div class="card-topline">
         <span class="entity-badge">Pagamento</span>
       </div>
@@ -78,6 +55,12 @@
             <input *ngIf="editarId === pagamento.id" [(ngModel)]="dias" class="edit-input" />
           </div>
         </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" *ngIf="editarId !== pagamento.id" (click)="editarFormaPagamento(pagamento)">Editar</button>
+        <button class="btn-save" *ngIf="editarId === pagamento.id" (click)="salvarEdicao(pagamento)">Salvar</button>
+        <button class="btn-cancel" *ngIf="editarId === pagamento.id" (click)="cancelarEdicao()">Cancelar</button>
       </div>
     </article>
   </div>

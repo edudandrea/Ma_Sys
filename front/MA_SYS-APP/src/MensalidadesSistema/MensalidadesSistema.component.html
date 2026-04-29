@@ -1,0 +1,120 @@
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>{{ tituloPagina }}</h1>
+    <p>Cadastre os valores cobrados das academias, definindo prazo de pagamento e quantidade de meses liberados para uso.</p>
+  </div>
+</div>
+
+<div class="mensalidades-page">
+  <div class="mensalidade-grid">
+    <div class="empty-state" *ngIf="!mensalidades || mensalidades.length === 0">
+      <i class="fa-solid fa-file-invoice-dollar"></i>
+      <p>Nenhuma mensalidade do sistema cadastrada</p>
+    </div>
+
+    <article class="mensalidade-card" *ngFor="let mensalidade of mensalidades">
+      <div class="card-topline">
+        <span class="entity-badge">Mensalidade</span>
+        <span
+          class="status clickable"
+          [class.ativo]="mensalidade.ativo"
+          [class.inativo]="!mensalidade.ativo"
+          (click)="toggleStatus(mensalidade)"
+        >
+          {{ mensalidade.ativo ? 'Ativa' : 'Inativa' }}
+        </span>
+      </div>
+
+      <div class="card-header-kpi">
+        <div class="avatar">
+          {{ mensalidade.mesesUso }}
+        </div>
+
+        <div class="title-block">
+          <div class="mensalidade-title">
+            <span *ngIf="editarId !== mensalidade.id">{{ mensalidade.mesesUso }} {{ mensalidade.mesesUso === 1 ? 'mes' : 'meses' }} de uso</span>
+            <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="mesesUso" class="edit-input" />
+          </div>
+
+          <span class="subtitle">
+            {{ mensalidade.descricao || 'Configuracao padrao da cobranca do sistema' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box price-box">
+          <span class="kpi-label">Valor</span>
+          <strong class="kpi-value" *ngIf="editarId !== mensalidade.id">{{ formatarValor(mensalidade.valor) }}</strong>
+          <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="valor" class="edit-input" />
+        </div>
+
+        <div class="kpi-box">
+          <span class="kpi-label">Prazo pagamento</span>
+          <strong class="kpi-value" *ngIf="editarId !== mensalidade.id">{{ mensalidade.prazoPagamentoDias }} dias</strong>
+          <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="prazoPagamentoDias" class="edit-input" />
+        </div>
+      </div>
+
+      <div class="detail-list">
+        <div class="detail-item">
+          <i class="fa-solid fa-note-sticky"></i>
+          <div>
+            <span class="detail-label">Descricao</span>
+            <strong *ngIf="editarId !== mensalidade.id">{{ mensalidade.descricao || 'Sem descricao adicional' }}</strong>
+            <input *ngIf="editarId === mensalidade.id" [(ngModel)]="descricao" class="edit-input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" *ngIf="editarId !== mensalidade.id" (click)="editarMensalidade(mensalidade)">Editar</button>
+        <button class="btn-save" *ngIf="editarId === mensalidade.id" (click)="salvarEdicao(mensalidade)">Salvar</button>
+        <button class="btn-cancel" *ngIf="editarId === mensalidade.id" (click)="cancelarEdicao()">Cancelar</button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<button class="floating-add" (click)="openModalNovaMensalidade(templateNovaMensalidade)">
+  <i class="fa-solid fa-plus"></i>
+  <span class="fab-text">Nova Mensalidade</span>
+</button>
+
+<ng-template #templateNovaMensalidade>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Nova mensalidade do sistema</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <form class="form-grid">
+        <div class="form-group">
+          <label>Valor</label>
+          <input type="number" [(ngModel)]="valor" name="valorMensalidadeSistema" />
+        </div>
+
+        <div class="form-group">
+          <label>Prazo de pagamento (dias)</label>
+          <input type="number" [(ngModel)]="prazoPagamentoDias" name="prazoPagamentoDiasMensalidadeSistema" />
+        </div>
+
+        <div class="form-group">
+          <label>Meses de uso</label>
+          <input type="number" [(ngModel)]="mesesUso" name="mesesUsoMensalidadeSistema" />
+        </div>
+
+        <div class="form-group full">
+          <label>Descricao</label>
+          <input [(ngModel)]="descricao" name="descricaoMensalidadeSistema" />
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer form-actions">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save" (click)="criarMensalidade()">Salvar mensalidade</button>
+    </div>
+  </div>
+</ng-template>

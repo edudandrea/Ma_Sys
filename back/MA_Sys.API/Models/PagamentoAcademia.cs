@@ -16,6 +16,10 @@ namespace MA_Sys.API.Models
         public DateTime? DataPagamento { get; set; }
         public string Status { get; set; } = "Pendente";
         public string? Descricao { get; set; }
+        public string? ExternalId { get; set; }
+        public string? FormaPagamentoNome { get; set; }
+        public int? MensalidadeSistemaId { get; set; }
         public Academia? Academia { get; set; }
+        public MensalidadeSistema? MensalidadeSistema { get; set; }
     }
 }

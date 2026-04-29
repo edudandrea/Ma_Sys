@@ -13,34 +13,6 @@
     </div>
 
     <article class="academia-card" *ngFor="let academia of academias">
-      <div class="card-menu">
-        <button class="menu-btn" (click)="toggleMenu(academia, $event)">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-
-        <div class="menu-dropdown" *ngIf="academia.menuAberto">
-          <button *ngIf="editarId !== academia.id" (click)="editarAcademia(academia)">
-            <i class="fa-solid fa-pen"></i>
-            Editar
-          </button>
-
-          <button *ngIf="editarId === academia.id" (click)="salvarEdicao(academia)">
-            <i class="fa-solid fa-check"></i>
-            Salvar
-          </button>
-
-          <button class="danger" (click)="excluirAcademia(academia.id)">
-            <i class="fa-solid fa-trash"></i>
-            Excluir
-          </button>
-
-          <button (click)="openModalCobrancas(templateCobrancasAcademia, academia)">
-            <i class="fa-solid fa-receipt"></i>
-            Cobrancas do sistema
-          </button>
-        </div>
-      </div>
-
       <div class="card-topline">
         <span class="entity-badge">Academia</span>
         <span
@@ -66,8 +38,7 @@
 
         <div class="title-block">
           <div class="academia-title">
-            <span *ngIf="editarId !== academia.id">{{ academia.nome }}</span>
-            <input *ngIf="editarId === academia.id" [(ngModel)]="nome" class="edit-input" />
+            <span>{{ academia.nome }}</span>
           </div>
 
           <span class="subtitle">{{ academia.cidade || 'Cidade não informada' }}</span>
@@ -120,6 +91,11 @@
 
         <button class="link-action" (click)="copiarLink(academia.slug)">Copiar</button>
       </div>
+
+      <div class="card-actions">
+        <button class="btn-save" (click)="editarAcademia(templateNovaAcademia, academia)">Editar</button>
+        <button class="btn-cancel" (click)="openModalCobrancas(templateCobrancasAcademia, academia)">Cobrancas</button>
+      </div>
     </article>
   </div>
 </div>
@@ -132,8 +108,8 @@
 <ng-template #templateNovaAcademia>
   <div class="modal-content">
     <div class="modal-header">
-      <h4>Nova Academia</h4>
-      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+      <h4>{{ editarId ? 'Editar Academia' : 'Nova Academia' }}</h4>
+      <button type="button" class="btn-close" (click)="fecharModal()"></button>
     </div>
 
     <div class="modal-body">
@@ -265,8 +241,10 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
-      <button class="btn-save" (click)="salvarNovaAcademia()">Salvar</button>
+      <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+      <button class="btn-save" (click)="editarId ? salvarEdicao() : salvarNovaAcademia()">
+        {{ editarId ? 'Salvar alteracoes' : 'Salvar' }}
+      </button>
     </div>
   </div>
 </ng-template>
@@ -280,6 +258,19 @@
 
     <div class="modal-body">
       <div class="cobranca-form">
+        <div class="input-group">
+          <label>Mensalidade do sistema</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-layer-group"></i>
+            <select [(ngModel)]="mensalidadeSistemaSelecionadaId" (change)="onMensalidadeSistemaChange()">
+              <option [ngValue]="null">Selecionar mensalidade</option>
+              <option *ngFor="let mensalidade of mensalidadesSistema" [ngValue]="mensalidade.id">
+                {{ mensalidade.mesesUso }} {{ mensalidade.mesesUso === 1 ? 'mes' : 'meses' }} - {{ mensalidade.valor | currency:'BRL' }} - {{ mensalidade.prazoPagamentoDias }} dia(s)
+              </option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-row">
           <div class="input-group">
             <label>Valor</label>
@@ -317,6 +308,7 @@
           <div>
             <strong>R$ {{ c.valor }}</strong>
             <small>{{ c.dataVencimento | date:'dd/MM/yyyy' }} - {{ c.status }}</small>
+            <small *ngIf="c.formaPagamentoNome">Forma de pagamento: {{ c.formaPagamentoNome }}</small>
             <p>{{ c.descricao || 'Sem descricao' }}</p>
           </div>
           <button class="btn-save" *ngIf="c.status !== 'Pago'" (click)="baixarCobranca(c.id)">Baixar (Pago)</button>

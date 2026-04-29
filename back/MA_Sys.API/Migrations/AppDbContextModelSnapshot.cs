@@ -166,6 +166,33 @@ namespace MA_SYS.Api.Migrations
                     b.ToTable("Aulas");
                 });
 
+            modelBuilder.Entity("MA_SYS.Api.Models.Exercicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcademiaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GrupoMuscular")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Exercicios");
+                });
+
             modelBuilder.Entity("MA_SYS.Api.Models.Matricula", b =>
                 {
                     b.Property<int>("Id")
@@ -354,6 +381,121 @@ namespace MA_SYS.Api.Migrations
                     b.ToTable("Professores");
                 });
 
+            modelBuilder.Entity("MA_SYS.Api.Models.Treino", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcademiaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AlunoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Objetivo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Treinos");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.TreinoExercicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descanso")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ExercicioId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Repeticoes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Series")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TreinoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExercicioId");
+
+                    b.HasIndex("TreinoId");
+
+                    b.ToTable("TreinosExercicios");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.Turma", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AcademiaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DiasSemana")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Turmas");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.TurmaAluno", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AlunoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TurmaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlunoId");
+
+                    b.HasIndex("TurmaId");
+
+                    b.ToTable("TurmasAlunos");
+                });
+
             modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>
                 {
                     b.Property<int>("UserId")
@@ -493,6 +635,40 @@ namespace MA_SYS.Api.Migrations
                     b.ToTable("FormaPagamentos");
                 });
 
+            modelBuilder.Entity("MA_Sys.API.Models.MensalidadeSistema", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MesesUso")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PrazoPagamentoDias")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.ToTable("MensalidadesSistema");
+                });
+
             modelBuilder.Entity("MA_Sys.API.Models.PagamentoAcademia", b =>
                 {
                     b.Property<int>("Id")
@@ -514,6 +690,15 @@ namespace MA_SYS.Api.Migrations
                     b.Property<string>("Descricao")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FormaPagamentoNome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("MensalidadeSistemaId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -524,6 +709,8 @@ namespace MA_SYS.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AcademiaId");
+
+                    b.HasIndex("MensalidadeSistemaId");
 
                     b.ToTable("PagamentosAcademias");
                 });
@@ -613,6 +800,44 @@ namespace MA_SYS.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MA_SYS.Api.Models.TreinoExercicio", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Exercicio", "Exercicio")
+                        .WithMany()
+                        .HasForeignKey("ExercicioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MA_SYS.Api.Models.Treino", "Treino")
+                        .WithMany("Exercicios")
+                        .HasForeignKey("TreinoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercicio");
+
+                    b.Navigation("Treino");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.TurmaAluno", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Aluno", "Aluno")
+                        .WithMany()
+                        .HasForeignKey("AlunoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MA_SYS.Api.Models.Turma", "Turma")
+                        .WithMany("Alunos")
+                        .HasForeignKey("TurmaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Aluno");
+
+                    b.Navigation("Turma");
+                });
+
             modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>
                 {
                     b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
@@ -638,6 +863,16 @@ namespace MA_SYS.Api.Migrations
                     b.Navigation("FormaPagamento");
                 });
 
+            modelBuilder.Entity("MA_Sys.API.Models.MensalidadeSistema", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("OwnerUser");
+                });
+
             modelBuilder.Entity("MA_Sys.API.Models.PagamentoAcademia", b =>
                 {
                     b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
@@ -646,7 +881,14 @@ namespace MA_SYS.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MA_Sys.API.Models.MensalidadeSistema", "MensalidadeSistema")
+                        .WithMany()
+                        .HasForeignKey("MensalidadeSistemaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Academia");
+
+                    b.Navigation("MensalidadeSistema");
                 });
 
             modelBuilder.Entity("MA_SYS.Api.Models.Academia", b =>
@@ -654,6 +896,16 @@ namespace MA_SYS.Api.Migrations
                     b.Navigation("Alunos");
 
                     b.Navigation("Professores");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.Treino", b =>
+                {
+                    b.Navigation("Exercicios");
+                });
+
+            modelBuilder.Entity("MA_SYS.Api.Models.Turma", b =>
+                {
+                    b.Navigation("Alunos");
                 });
 
             modelBuilder.Entity("MA_SYS.Api.Models.Users", b =>

@@ -25,6 +25,16 @@ export interface PagamentoStatusResponse {
   status: string;
 }
 
+export interface PagamentoPixResponse {
+  pagamentoId: number;
+  status: string;
+  payload?: string;
+  qrCodeBase64?: string;
+  externalId?: string;
+  verificacaoAutomaticaDisponivel: boolean;
+  mensagem: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -63,6 +73,10 @@ export class PagamentosService {
     return this.http.post<PixResponse>(`${this.apiUrlPix}/public`, { slug, valor, nome, cidade });
   }
 
+  gerarPagamentoPixPublico(payload: any): Observable<PagamentoPixResponse> {
+    return this.http.post<PagamentoPixResponse>(`${this.apiUrl}/public/pix`, payload);
+  }
+
   pagarCartaoPublico(payload: any): Observable<PagamentoCartaoResponse> {
     return this.http.post<PagamentoCartaoResponse>(`${this.apiUrl}/public/cartao`, payload);
   }
@@ -71,5 +85,17 @@ export class PagamentosService {
     return this.http.get<PagamentoStatusResponse>(`${this.apiUrl}/public/${pagamentoId}/status`, {
       params: { slug },
     });
+  }
+
+  gerarPagamentoPix(payload: any): Observable<PagamentoPixResponse> {
+    return this.http.post<PagamentoPixResponse>(`${this.apiUrl}/pix`, payload);
+  }
+
+  consultarStatusPagamentoAtualizado(pagamentoId: number): Observable<PagamentoStatusResponse> {
+    return this.http.get<PagamentoStatusResponse>(`${this.apiUrl}/${pagamentoId}/status-atualizado`);
+  }
+
+  registrarPagamentoManual(payload: any): Observable<PagamentoStatusResponse> {
+    return this.http.post<PagamentoStatusResponse>(`${this.apiUrl}/manual`, payload);
   }
 }

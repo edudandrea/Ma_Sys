@@ -7,6 +7,7 @@ namespace MA_Sys.API.Services
 {
     public class FluxoCaixaService
     {
+        private const string FormaPagamentoMarker = " [Forma pagamento: ";
         private readonly IFinanceiroRepository _financeiroRepo;
         private readonly IPagamentoRepository _pagamentoRepo;
         private readonly IPagamentoAcademiaRepository _pagamentoAcademiaRepo;
@@ -102,11 +103,12 @@ namespace MA_Sys.API.Services
                 Tipo = RoleScope.IsAcademia(role) ? "Saida" : "Entrada",
                 Origem = "Sistema",
                 Categoria = "Mensalidade da academia",
-                Descricao = x.Pagamento.Descricao ?? "Mensalidade do sistema",
+                Descricao = SanitizarDescricao(x.Pagamento.Descricao) ?? "Mensalidade do sistema",
                 AcademiaNome = x.AcademiaNome,
                 Valor = x.Pagamento.Valor,
                 Data = x.Pagamento.DataPagamento ?? x.Pagamento.DataCriacao,
-                Status = x.Pagamento.Status
+                Status = x.Pagamento.Status,
+                FormaPagamentoNome = ExtrairFormaPagamentoNome(x.Pagamento.Descricao),
             }));
 
             movimentos = movimentos
@@ -199,6 +201,35 @@ namespace MA_Sys.API.Services
                 throw new UnauthorizedAccessException("Usuario sem academia valida.");
 
             return query.Where(a => a.Id == academiaId.Value);
+        }
+
+        private static string? SanitizarDescricao(string? descricao)
+        {
+            if (string.IsNullOrWhiteSpace(descricao))
+                return descricao;
+
+            var markerIndex = descricao.IndexOf(FormaPagamentoMarker, StringComparison.Ordinal);
+            if (markerIndex < 0)
+                return descricao;
+
+            return descricao[..markerIndex].TrimEnd();
+        }
+
+        private static string? ExtrairFormaPagamentoNome(string? descricao)
+        {
+            if (string.IsNullOrWhiteSpace(descricao))
+                return null;
+
+            var markerIndex = descricao.IndexOf(FormaPagamentoMarker, StringComparison.Ordinal);
+            if (markerIndex < 0)
+                return null;
+
+            var inicio = markerIndex + FormaPagamentoMarker.Length;
+            var fim = descricao.IndexOf(']', inicio);
+            if (fim < 0)
+                return null;
+
+            return descricao[inicio..fim].Trim();
         }
     }
 }

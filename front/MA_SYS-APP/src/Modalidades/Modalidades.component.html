@@ -13,29 +13,6 @@
     </div>
 
     <article class="modalidade-card" *ngFor="let modalidade of modalidades">
-      <div class="card-menu">
-        <button class="menu-btn" (click)="toggleMenu(modalidade, $event)">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-
-        <div class="menu-dropdown" *ngIf="modalidade.menuAberto">
-          <button *ngIf="editarId !== modalidade.id" (click)="editarModalidade(modalidade)">
-            <i class="fa-solid fa-pen"></i>
-            Editar
-          </button>
-
-          <button *ngIf="editarId === modalidade.id" (click)="salvarEdicao(modalidade)">
-            <i class="fa-solid fa-check"></i>
-            Salvar
-          </button>
-
-          <button class="danger" (click)="excluirModalidade(modalidade.id)">
-            <i class="fa-solid fa-trash"></i>
-            Excluir
-          </button>
-        </div>
-      </div>
-
       <div class="card-topline">
         <span class="entity-badge">Modalidade</span>
         <span
@@ -73,6 +50,13 @@
           <span class="kpi-label">Professores</span>
           <strong class="kpi-value">{{ modalidade.totalProf || 0 }}</strong>
         </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" *ngIf="editarId !== modalidade.id" (click)="editarModalidade(modalidade)">Editar</button>
+        <button class="btn-save" *ngIf="editarId === modalidade.id" (click)="salvarEdicao(modalidade)">Salvar</button>
+        <button class="btn-cancel" *ngIf="editarId === modalidade.id" (click)="cancelarEdicao()">Cancelar</button>
+        <button class="btn-cancel" *ngIf="editarId !== modalidade.id" (click)="excluirModalidade(modalidade.id)">Excluir</button>
       </div>
     </article>
   </div>

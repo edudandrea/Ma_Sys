@@ -7,6 +7,10 @@ import { ToastrService } from 'ngx-toastr';
 import { Academias, AcademiasService } from '../Services/AcademiaService/Academias.service';
 import { PagamentosAcademiasService } from '../Services/PagamentosAcademias/PagamentosAcademias.service';
 import { PagamentoAcademia } from '../Services/PagamentosAcademias/PagamentosAcademias.service';
+import {
+  MensalidadeSistema,
+  MensalidadesSistemaService,
+} from '../Services/MensalidadesSistema/MensalidadesSistema.service';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../app/environments/environment';
@@ -19,6 +23,7 @@ import { environment } from '../app/environments/environment';
 })
 export class AcademiasComponent implements OnInit {
   modalRef?: BsModalRef;
+  academiaEmEdicao: Academias | null = null;
   id = 0;
   nome = '';
   totalAlunos = 0;
@@ -42,6 +47,8 @@ export class AcademiasComponent implements OnInit {
   publicOrigin = '';
   academiaCobrancaSelecionada: Academias | null = null;
   cobrancasAcademia: PagamentoAcademia[] = [];
+  mensalidadesSistema: MensalidadeSistema[] = [];
+  mensalidadeSistemaSelecionadaId: number | null = null;
   cobrancaValor = 199.9;
   cobrancaDataVencimento = new Date().toISOString().slice(0, 10);
   cobrancaDescricao = '';
@@ -56,11 +63,13 @@ export class AcademiasComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private academiaService: AcademiasService,
     private pagamentosAcademiasService: PagamentosAcademiasService,
+    private mensalidadesSistemaService: MensalidadesSistemaService,
   ) {}
 
   ngOnInit() {
     this.publicOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     this.carregarAcademias();
+    this.carregarMensalidadesSistema();
   }
 
   getInicial(nome: string): string {
@@ -100,6 +109,7 @@ export class AcademiasComponent implements OnInit {
 
   openModalNovaAcademia(template: TemplateRef<any>) {
     this.resetForm();
+    this.academiaEmEdicao = null;
     this.modalRef = this.modalService.show(template, {
       class: 'modal-xl modal-dialog-centered',
     });
@@ -114,6 +124,7 @@ export class AcademiasComponent implements OnInit {
   openModalCobrancas(template: TemplateRef<any>, academia: Academias & { menuAberto?: boolean }) {
     academia.menuAberto = false;
     this.academiaCobrancaSelecionada = academia;
+    this.mensalidadeSistemaSelecionadaId = null;
     this.cobrancaDescricao = `Mensalidade do sistema - ${academia.nome}`;
     this.cobrancaDataVencimento = new Date().toISOString().slice(0, 10);
     this.cobrancaValor = 199.9;
@@ -217,8 +228,9 @@ export class AcademiasComponent implements OnInit {
     this.resetForm();
   }
 
-  editarAcademia(academia: Academias & { menuAberto?: boolean }) {
+  editarAcademia(template: TemplateRef<any>, academia: Academias & { menuAberto?: boolean }) {
     this.resetForm();
+    this.academiaEmEdicao = academia;
     this.editarId = academia.id;
     this.nome = academia.nome;
     this.cidade = academia.cidade;
@@ -232,9 +244,24 @@ export class AcademiasComponent implements OnInit {
     this.mercadoPagoPublicKey = academia.mercadoPagoPublicKey || '';
     this.mercadoPagoAccessToken = academia.mercadoPagoAccessToken || '';
     academia.menuAberto = false;
+    this.modalRef = this.modalService.show(template, {
+      class: 'modal-xl modal-dialog-centered',
+    });
   }
 
-  salvarEdicao(academia: Academias) {
+  cancelarEdicao() {
+    this.academiaEmEdicao = null;
+    this.editarId = null;
+    this.resetForm();
+  }
+
+  salvarEdicao() {
+    if (!this.academiaEmEdicao) {
+      this.toastr.error('Nenhuma academia selecionada para edicao');
+      return;
+    }
+
+    const academia = this.academiaEmEdicao;
     this.spinner.show();
     this.uploadLogoSeNecessario().pipe(
       switchMap((logoUrl) => this.academiaService.atualizarAcademia({
@@ -275,7 +302,9 @@ export class AcademiasComponent implements OnInit {
         }
 
         this.editarId = null;
+        this.academiaEmEdicao = null;
         this.carregarAcademias();
+        this.fecharModal();
         this.toastr.success('Academia atualizada');
       },
       error: () => {
@@ -307,6 +336,7 @@ export class AcademiasComponent implements OnInit {
 
     this.pagamentosAcademiasService.criarCobranca({
       academiaId: academia.id,
+      mensalidadeSistemaId: this.mensalidadeSistemaSelecionadaId,
       valor,
       dataVencimento: this.cobrancaDataVencimento,
       descricao: this.cobrancaDescricao || `Mensalidade do sistema - ${academia.nome}`,
@@ -317,6 +347,22 @@ export class AcademiasComponent implements OnInit {
       },
       error: () => this.toastr.error('Nao foi possivel criar a cobranca.'),
     });
+  }
+
+  onMensalidadeSistemaChange() {
+    const mensalidade = this.mensalidadesSistema.find((item) => item.id === this.mensalidadeSistemaSelecionadaId);
+    if (!mensalidade || !this.academiaCobrancaSelecionada) {
+      return;
+    }
+
+    this.cobrancaValor = Number(mensalidade.valor);
+    this.cobrancaDescricao = mensalidade.descricao?.trim()
+      ? mensalidade.descricao
+      : `Mensalidade do sistema - ${this.academiaCobrancaSelecionada.nome} (${mensalidade.mesesUso} ${mensalidade.mesesUso === 1 ? 'mes' : 'meses'})`;
+
+    const dataBase = new Date();
+    dataBase.setDate(dataBase.getDate() + Number(mensalidade.prazoPagamentoDias || 0));
+    this.cobrancaDataVencimento = dataBase.toISOString().slice(0, 10);
   }
 
   carregarCobrancasAcademia() {
@@ -410,6 +456,17 @@ export class AcademiasComponent implements OnInit {
     return logoUrl;
   }
 
+  private carregarMensalidadesSistema() {
+    this.mensalidadesSistemaService.listar().subscribe({
+      next: (res) => {
+        this.mensalidadesSistema = (res ?? []).filter((item) => item.ativo);
+      },
+      error: () => {
+        this.mensalidadesSistema = [];
+      },
+    });
+  }
+
   private resetForm() {
     if (this.logoPreviewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(this.logoPreviewUrl);
@@ -428,6 +485,7 @@ export class AcademiasComponent implements OnInit {
     this.dataCadastro = '';
     this.ativo = true;
     this.editarId = null;
+    this.academiaEmEdicao = null;
     this.responsavel = '';
     this.totalProf = 0;
     this.linkCadastro = '';

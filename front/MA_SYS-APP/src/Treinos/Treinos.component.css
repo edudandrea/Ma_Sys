@@ -1,0 +1,121 @@
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px;
+}
+
+.item-card {
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-panel-strong) 92%, transparent);
+  color: var(--text-primary);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+}
+
+.surface-header h2,
+.item-card strong,
+.empty-state i,
+.empty-state p {
+  color: var(--text-primary);
+}
+
+.item-card span,
+.item-card p {
+  color: var(--text-secondary);
+}
+
+.item-card > strong,
+.item-card > span,
+.item-card > p,
+.chip-row,
+.card-actions {
+  grid-column: 1 / -1;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-surface) 88%, transparent);
+  color: var(--text-primary);
+  font-size: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent-border-soft) 78%, transparent);
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-group.full {
+  display: grid;
+  gap: 8px;
+}
+
+.exercicio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.exercicio-item {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, 1fr) auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.small,
+.small-inline {
+  width: auto;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.card-actions .small {
+  flex: 1 1 120px;
+  text-align: center;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.modal-body .modal-icon-badge {
+  align-self: flex-start;
+}
+
+body[data-theme='blue-light'] .btn-danger,
+body[data-theme='yellow-white'] .btn-danger,
+body[data-theme='purple-white'] .btn-danger,
+body[data-theme='windows'] .btn-danger {
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.24);
+}
+
+@media (max-width: 900px) {
+  .grid-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .item-card {
+    grid-template-columns: 1fr;
+  }
+}

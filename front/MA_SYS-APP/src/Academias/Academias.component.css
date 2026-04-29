@@ -1,10 +1,10 @@
 .academias-page {
-  max-width: 1280px;
+  max-width: 1480px;
 }
 
 .academia-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
   gap: 22px;
 }
 
@@ -16,8 +16,8 @@
   background:
     linear-gradient(180deg, var(--bg-panel), var(--bg-panel-strong));
   box-shadow: var(--shadow-soft);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
   gap: 18px;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
@@ -32,6 +32,15 @@
 .detail-item,
 .link-panel {
   display: flex;
+}
+
+.card-topline,
+.card-header-kpi,
+.kpi-grid,
+.detail-list,
+.link-panel,
+.card-actions {
+  grid-column: 1 / -1;
 }
 
 .card-topline {
@@ -135,8 +144,8 @@
 }
 
 .detail-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -253,6 +262,17 @@
   .link-panel {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 1100px) {
+  .academia-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .academia-card,
+  .detail-list {
+    grid-template-columns: 1fr;
   }
 }
 

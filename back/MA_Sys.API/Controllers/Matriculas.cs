@@ -42,9 +42,20 @@ namespace MA_Sys.API.Controllers
                 return Forbid();
 
             var (role, academiaId, _) = GetUserInfo();
-            await _service.Add(dto, academiaId, role);
+            var matricula = await _service.Add(dto, academiaId, role);
 
-            return Ok();
+            return Ok(matricula);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] MatriculasUpdateDto dto)
+        {
+            if (RoleScope.IsAdmin(GetUserRole()))
+                return Forbid();
+
+            var (role, academiaId, _) = GetUserInfo();
+            var matricula = _service.Update(id, dto, academiaId, role);
+            return Ok(matricula);
         }
 
     }

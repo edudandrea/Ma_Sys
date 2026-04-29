@@ -19,6 +19,7 @@ export interface FluxoCaixaMovimento {
   valor: number;
   data: string;
   status: string;
+  formaPagamentoNome?: string;
 }
 
 export interface FluxoCaixaResponse {

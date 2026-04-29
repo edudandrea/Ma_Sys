@@ -1,97 +1,110 @@
 <div class="page-header">
   <div class="page-title-group">
-    <h1>Matrículas</h1>
-    <p>Visualize rapidamente aluno, plano, valor e status de cada matrícula.</p>
+    <h1>Matriculas</h1>
+    <p>Visualize, edite e acompanhe o status financeiro de cada matricula.</p>
   </div>
 </div>
 
 <div class="matriculas-page">
   <div class="matricula-grid">
-    <div class="empty-state" *ngIf="matriculas && matriculas.length === 0">
+    <div class="empty-state" *ngIf="matriculas.length === 0">
       <i class="fa-solid fa-user-slash"></i>
-      <p>Nenhuma matrícula cadastrada</p>
+      <p>Nenhuma matricula cadastrada</p>
     </div>
 
-    <ng-container *ngIf="matriculas && matriculas.length > 0">
-      <article class="matricula-card" *ngFor="let matricula of matriculas">
-        <div class="card-topline">
-          <span class="entity-badge">Matrícula</span>
-          <div
-            class="status"
-            [ngClass]="{
-              ativo: matricula.status === 'Ativa',
-              inativo: matricula.status !== 'Ativa',
-            }"
-          >
-            {{ matricula.status }}
+    <article class="matricula-card" *ngFor="let matricula of matriculas">
+      <div class="card-topline">
+        <span class="entity-badge">Matricula</span>
+        <div
+          class="status"
+          [ngClass]="{
+            ativo: matricula.status === 'Ativa',
+            inativo: matricula.status !== 'Ativa'
+          }"
+        >
+          {{ matricula.status }}
+        </div>
+      </div>
+
+      <div class="card-header-kpi">
+        <div class="avatar">
+          {{ getInicial(matricula.alunoNome) }}
+        </div>
+
+        <div class="title-block">
+          <div class="matricula-title">
+            <span>{{ matricula.alunoNome || 'Aluno nao encontrado' }}</span>
+          </div>
+          <span class="subtitle">{{ matricula.planoNome || 'Plano nao informado' }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <span class="kpi-label">Valor</span>
+          <strong class="kpi-value">R$ {{ matricula.planoValor | number: '1.2-2' }}</strong>
+        </div>
+
+        <div class="kpi-box">
+          <span class="kpi-label">Pagamento</span>
+          <strong class="kpi-value kpi-text">{{ matricula.formaPagamentoNome || 'Nao informado' }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <span class="kpi-label">Mensalidade</span>
+          <strong class="kpi-value kpi-text">{{ matricula.mensalidadeStatus || 'Em dia' }}</strong>
+        </div>
+
+        <div class="kpi-box">
+          <span class="kpi-label">Vencimento</span>
+          <strong class="kpi-value kpi-text">
+            {{ matricula.dataVencimentoMensalidade | date: 'dd/MM/yyyy' }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="detail-list">
+        <div class="detail-item">
+          <i class="fa-solid fa-phone"></i>
+          <div>
+            <span class="detail-label">Telefone</span>
+            <strong>{{ matricula.telefone || 'Nao informado' }}</strong>
           </div>
         </div>
 
-        <div class="card-header-kpi">
-          <div class="avatar">
-            {{ getInicial(matricula.alunoNome) }}
-          </div>
-
-          <div class="title-block">
-            <div class="matricula-title">
-              <span>{{ matricula.alunoNome || 'Aluno não encontrado' }}</span>
-            </div>
-
-            <span class="subtitle">{{ matricula.planoNome || 'Plano não informado' }}</span>
+        <div class="detail-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <span class="detail-label">Email</span>
+            <strong>{{ matricula.email || 'Nao informado' }}</strong>
           </div>
         </div>
 
-        <div class="kpi-grid">
-          <div class="kpi-box">
-            <span class="kpi-label">Valor</span>
-            <strong class="kpi-value">R$ {{ matricula.planoValor | number: '1.2-2' }}</strong>
-          </div>
-
-          <div class="kpi-box">
-            <span class="kpi-label">Pagamento</span>
-            <strong class="kpi-value kpi-text">{{ matricula.formaPagamentoNome || 'Não informado' }}</strong>
+        <div class="detail-item">
+          <i class="fa-solid fa-calendar"></i>
+          <div>
+            <span class="detail-label">Data de inicio</span>
+            <strong>{{ matricula.dataInicio | date: 'dd/MM/yyyy' }}</strong>
           </div>
         </div>
+      </div>
 
-        <div class="detail-list">
-          <div class="detail-item">
-            <i class="fa-solid fa-phone"></i>
-            <div>
-              <span class="detail-label">Telefone</span>
-              <strong>{{ matricula.telefone || 'Não informado' }}</strong>
-            </div>
-          </div>
-
-          <div class="detail-item">
-            <i class="fa-solid fa-envelope"></i>
-            <div>
-              <span class="detail-label">Email</span>
-              <strong>{{ matricula.email || 'Não informado' }}</strong>
-            </div>
-          </div>
-
-          <div class="detail-item">
-            <i class="fa-solid fa-calendar"></i>
-            <div>
-              <span class="detail-label">Data de início</span>
-              <strong>{{ matricula.dataMatricula | date: 'dd/MM/yyyy' }}</strong>
-            </div>
-          </div>
-        </div>
-      </article>
-    </ng-container>
+      <button class="btn-save small" (click)="editarMatricula(templateNovamatricula, matricula)">Editar</button>
+    </article>
   </div>
 </div>
 
 <button class="floating-add" (click)="modalNovaMatricula(templateNovamatricula)">
   <i class="fa-solid fa-plus"></i>
-  <span class="fab-text">Nova matrícula</span>
+  <span class="fab-text">Nova matricula</span>
 </button>
 
 <ng-template #templateNovamatricula>
   <div class="modal-content">
     <div class="modal-header">
-      <h4>Nova matrícula</h4>
+      <h4>{{ modoEdicao ? 'Editar matricula' : 'Nova matricula' }}</h4>
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
     </div>
 
@@ -111,12 +124,8 @@
           </div>
 
           <div class="dropdown-list" *ngIf="alunosFiltrados.length">
-            <div
-              class="dropdown-item"
-              *ngFor="let a of alunosFiltrados"
-              (click)="selecionarAluno(a)"
-            >
-              {{ a.nome }}
+            <div class="dropdown-item" *ngFor="let aluno of alunosFiltrados" (click)="selecionarAluno(aluno)">
+              {{ aluno.nome }}
             </div>
           </div>
 
@@ -127,13 +136,12 @@
 
         <div class="form-group">
           <label>Plano</label>
-
           <div class="input-modern">
             <i class="fa-solid fa-layer-group"></i>
             <select [(ngModel)]="planoId" (change)="onPlanoChange()">
-              <option value="" disabled>Selecione</option>
-              <option *ngFor="let p of planos" [value]="p.id">
-                {{ p.nome }}
+              <option [ngValue]="0">Selecione</option>
+              <option *ngFor="let plano of planos" [ngValue]="plano.id">
+                {{ plano.nome }}
               </option>
             </select>
           </div>
@@ -141,49 +149,77 @@
 
         <div class="form-group">
           <label>Forma de pagamento</label>
-
           <div class="input-modern">
             <i class="fa-solid fa-credit-card"></i>
             <select [(ngModel)]="formaPagamentoId" (ngModelChange)="onFormaPagamentoChange()">
-              <option value="" disabled>Selecione</option>
-              <option *ngFor="let f of formasPagamento" [value]="f.id">
-                {{ f.nome }}
+              <option [ngValue]="0">Selecione</option>
+              <option *ngFor="let forma of formasPagamento" [ngValue]="forma.id">
+                {{ forma.nome }}
               </option>
             </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Data de inicio</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-calendar"></i>
+            <input type="date" [(ngModel)]="dataMatricula" />
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="modoEdicao">
+          <label>Status</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-flag"></i>
+            <select [(ngModel)]="status">
+              <option value="Ativa">Ativa</option>
+              <option value="Inativa">Inativa</option>
+              <option value="Cancelada">Cancelada</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label class="check-line">
+            <input type="checkbox" [(ngModel)]="marcarComoPagoManual" />
+            <span>Marcar mensalidade como paga manualmente</span>
+          </label>
         </div>
 
         <div
           *ngIf="formaPagamentoSelecionada?.nome?.toLowerCase() === 'pix'"
           class="pix-container full"
         >
-          <button *ngIf="!qrCodePix" class="btn-pix" (click)="gerarPix()">
+          <button *ngIf="editarId && !qrCodePix" class="btn-pix" (click)="gerarPix()">
             <i class="fa-solid fa-qrcode"></i>
             Gerar QR Code PIX
           </button>
 
+          <p class="pix-message" *ngIf="mensagemPix">{{ mensagemPix }}</p>
+
           <div *ngIf="qrCodePix" class="pix-qrcode">
             <h5>Escaneie para pagar</h5>
             <img [src]="qrCodePix" alt="QR Code PIX" />
-            <span class="pix-valor">
-              Valor: R$ {{ planoSelecionado?.valor | number: '1.2-2' }}
-            </span>
+            <span class="pix-valor">Valor: R$ {{ planoSelecionado?.valor | number: '1.2-2' }}</span>
+            <button
+              *ngIf="verificacaoAutomaticaPix && pagamentoPixId"
+              class="btn-save small"
+              (click)="verificarPagamentoPix()"
+            >
+              Verificar pagamento
+            </button>
           </div>
         </div>
 
         <div *ngIf="isCartao" class="card-payment">
           <div class="form-group">
-            <label>Número do cartão</label>
+            <label>Numero do cartao</label>
             <input
               type="text"
               [(ngModel)]="numeroCartao"
               (input)="onCartaoInput($event)"
               placeholder="0000 0000 0000 0000"
-            />
-            <img
-              *ngIf="bandeiraCartao"
-              [src]="'assets/cards/' + bandeiraCartao.toLowerCase() + '.png'"
-              class="card-flag"
             />
           </div>
 
@@ -203,15 +239,6 @@
         <div *ngIf="planoSelecionado" class="info-box">
           <span>R$ {{ planoSelecionado.valor }}</span>
           <span>{{ planoSelecionado.modalidadeNome }}</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Data de início</label>
-
-        <div class="input-modern">
-          <i class="fa-solid fa-calendar"></i>
-          <input type="date" [(ngModel)]="dataMatricula" />
         </div>
       </div>
     </div>

@@ -1,11 +1,17 @@
 <router-outlet></router-outlet>
 <ngx-spinner
   bdColor="rgba(2, 6, 23, 0.45)"
-  size="medium"
-  color="#2563eb"
-  type="ball-clip-rotate-pulse"
   [fullScreen]="true"
 >
+  <div class="app-spinner-shell" role="status" aria-live="polite">
+    <div class="app-spinner-dumbbell" aria-hidden="true">
+      <span class="plate plate-left outer"></span>
+      <span class="plate plate-left inner"></span>
+      <span class="grip"></span>
+      <span class="plate plate-right inner"></span>
+      <span class="plate plate-right outer"></span>
+    </div>
+    <strong>Carregando</strong>
+    <p>Preparando os dados do sistema.</p>
+  </div>
 </ngx-spinner>
-
-

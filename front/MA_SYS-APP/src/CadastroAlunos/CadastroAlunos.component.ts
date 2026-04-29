@@ -58,6 +58,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   showQrCode: boolean = false;
   qrCodePix: string = '';
   pixPayload: string = '';
+  verificacaoAutomaticaPix = false;
 
   aluno: any = null;
   alunoEncontrado: boolean = false;
@@ -104,6 +105,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.context.slug = this.obterSlugDaRota();
     this.carregarConfiguracaoPagamentoAcademia();
+    this.carregarFormaPgtos();
   }
 
   ngOnDestroy() {
@@ -176,6 +178,8 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
         this.diasParaVencimento = Number(res.diasParaVencimento ?? 0);
         this.alertaVencimento = !!res.alertaVencimento;
         this.alunoEncontrado = true;
+        this.formaPagamentoId = 0;
+        this.formaPagamentoSelecionada = null;
         this.carregarFormaPgtos();
         this.cd.detectChanges();
       },
@@ -233,11 +237,59 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   }
 
   gerarPix() {
+    if (!this.aluno?.alunoId || !this.aluno?.matriculaId || !this.aluno?.planoId) {
+      this.toastr.error('Nao foi possivel identificar a matricula para gerar o PIX.');
+      return;
+    }
+
+    if (!this.formaPagamentoId) {
+      this.toastr.warning('Selecione a forma de pagamento.');
+      return;
+    }
+
     const valor = this.aluno?.valor || 0;
 
-    this.pgService.gerarPixPublico(this.context.slug, valor, this.nome || 'Aluno', this.cidade || 'Cidade').subscribe((res) => {
-      this.pixPayload = res.payload;
-      this.gerarCodePix(res.payload);
+    this.spinner.show();
+    this.pagamentoStatus = '';
+    this.pagamentoMensagem = '';
+    this.pagamentoId = null;
+    this.pararPollingStatus();
+
+    this.pgService.gerarPagamentoPixPublico({
+      slug: this.context.slug,
+      alunoId: this.aluno.alunoId,
+      matriculaId: this.aluno.matriculaId,
+      planoId: this.aluno.planoId,
+      formaPagamentoId: Number(this.formaPagamentoId),
+      valor,
+      nome: this.nome || 'Aluno',
+      email: this.email || this.emailBusca || '',
+      cidade: this.cidade || 'Cidade',
+    }).subscribe((res) => {
+      this.spinner.hide();
+      this.pagamentoId = res.pagamentoId;
+      this.pagamentoStatus = res.status;
+      this.pagamentoMensagem = res.mensagem;
+      this.verificacaoAutomaticaPix = res.verificacaoAutomaticaDisponivel;
+      this.pixPayload = res.payload || '';
+
+      if (res.qrCodeBase64) {
+        this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
+        this.showQrCode = true;
+      } else if (res.payload) {
+        this.gerarCodePix(res.payload);
+      }
+
+      if (res.status === 'Pago') {
+        this.toastr.success('Pagamento PIX confirmado com sucesso.');
+      } else {
+        this.toastr.info(res.mensagem);
+        this.iniciarPollingStatus();
+      }
+    }, (err) => {
+      this.spinner.hide();
+      const message = err?.error?.message || 'Nao foi possivel gerar o pagamento PIX.';
+      this.toastr.error(message);
     });
   }
 
@@ -261,6 +313,10 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   }
 
   carregarFormaPgtos() {
+    if (!this.context.slug) {
+      return;
+    }
+
     this.spinner.show();
 
     this.pgService.getFormaPagamentosPublico(this.context.slug).subscribe({
@@ -270,6 +326,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
           ...p,
           menuAberto: false,
         }));
+        this.cd.markForCheck();
       },
       error: () => {
         this.spinner.hide();
@@ -387,6 +444,36 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
         },
       });
     }, 5000);
+  }
+
+  verificarPagamentoPix() {
+    if (!this.pagamentoId) {
+      this.toastr.warning('Nenhum pagamento PIX em acompanhamento.');
+      return;
+    }
+
+    this.pgService.consultarStatusPagamentoPublico(this.pagamentoId, this.context.slug).subscribe({
+      next: (res) => {
+        this.pagamentoStatus = res.status;
+
+        if (res.status === 'Pago') {
+          this.pagamentoMensagem = 'Pagamento aprovado com sucesso.';
+          this.toastr.success('Pagamento aprovado.');
+          this.pararPollingStatus();
+        } else if (res.status === 'Recusado') {
+          this.pagamentoMensagem = 'Pagamento recusado pelo emissor.';
+          this.toastr.error('Pagamento recusado.');
+          this.pararPollingStatus();
+        } else if (res.status === 'EmAnalise') {
+          this.pagamentoMensagem = 'Pagamento em analise. Aguarde confirmacao.';
+        } else {
+          this.pagamentoMensagem = 'Pagamento pendente. Aguardando confirmacao.';
+        }
+      },
+      error: () => {
+        this.toastr.error('Nao foi possivel consultar o status do PIX.');
+      },
+    });
   }
 
   private pararPollingStatus() {

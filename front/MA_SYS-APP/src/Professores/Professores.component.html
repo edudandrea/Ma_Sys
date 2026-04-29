@@ -13,34 +13,6 @@
     </div>
 
     <article class="professor-card" *ngFor="let professor of professores">
-      <div class="card-menu">
-        <button class="menu-btn" (click)="toggleMenu(professor, $event)">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-
-        <div class="menu-dropdown" *ngIf="professor.menuAberto">
-          <button *ngIf="editarId !== professor.id" (click)="editarProfessor(professor)">
-            <i class="fa-solid fa-pen"></i>
-            Editar
-          </button>
-
-          <button *ngIf="editarId === professor.id" (click)="salvarEdicao(professor)">
-            <i class="fa-solid fa-check"></i>
-            Salvar
-          </button>
-
-          <button *ngIf="editarId === professor.id" class="danger" (click)="cancelarEdicao()">
-            <i class="fa-solid fa-ban"></i>
-            Cancelar
-          </button>
-
-          <button *ngIf="!editarId" class="danger" (click)="excluirProfessor(professor.id)">
-            <i class="fa-solid fa-trash"></i>
-            Excluir
-          </button>
-        </div>
-      </div>
-
       <div class="card-topline">
         <span class="entity-badge">Professor</span>
         <span
@@ -109,6 +81,13 @@
             <input *ngIf="editarId === professor.id" [(ngModel)]="email" class="edit-input" />
           </div>
         </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" *ngIf="editarId !== professor.id" (click)="editarProfessor(professor)">Editar</button>
+        <button class="btn-save" *ngIf="editarId === professor.id" (click)="salvarEdicao(professor)">Salvar</button>
+        <button class="btn-cancel" *ngIf="editarId === professor.id" (click)="cancelarEdicao()">Cancelar</button>
+        <button class="btn-cancel" *ngIf="editarId !== professor.id" (click)="excluirProfessor(professor.id)">Excluir</button>
       </div>
     </article>
   </div>

@@ -57,6 +57,7 @@
       </div>
 
       <h3>{{ movimento.descricao }}</h3>
+      <p *ngIf="movimento.formaPagamentoNome">Forma de pagamento: {{ movimento.formaPagamentoNome }}</p>
       <p>{{ movimento.academiaNome }} • {{ movimento.categoria }} • {{ movimento.origem }}</p>
 
       <div class="movimento-meta">

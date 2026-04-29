@@ -59,8 +59,14 @@ namespace MA_Sys.API.Controllers
                 : vencimentoAtual;
 
             var diasParaVencimento = (dataReferencia.Date - hoje).Days;
-            var mensalidadeStatus = diasParaVencimento < 0 ? "Vencida" : "Em dia";
-            var alertaVencimento = diasParaVencimento <= 10;
+            var mensalidadeStatus = pagamentoAtual?.Status == "Pago" && pagamentoAtual.DataVencimento.Date >= vencimentoAtual
+                ? "Pago"
+                : diasParaVencimento < 0
+                    ? "Em atraso"
+                    : diasParaVencimento <= 5
+                        ? "Pendente"
+                        : "Em dia";
+            var alertaVencimento = diasParaVencimento <= 5;
 
             return Ok(new
             {
@@ -95,9 +101,8 @@ namespace MA_Sys.API.Controllers
                 return Forbid();
 
             var academiaId = GetAcademiaId();
-            _service.Add(dto, academiaId);
-
-            return Ok();
+            var aluno = _service.Add(dto, academiaId);
+            return Ok(aluno);
         }
 
         [HttpPost("{slug}")]
@@ -105,13 +110,8 @@ namespace MA_Sys.API.Controllers
         {
             var academiaId = ObterAcademiaIdPeloSlug(slug);
 
-            _service.Add(dto, academiaId);
-
-            return Ok(new
-            {
-                sucesso = true,
-                mensagem = "Aluno cadastrado com sucesso"
-            });
+            var aluno = _service.Add(dto, academiaId);
+            return Ok(aluno);
         }
 
         [HttpPut("{id}")]
@@ -123,9 +123,8 @@ namespace MA_Sys.API.Controllers
             var role = GetUserRole();
             var academiaId = GetAcademiaId();
 
-            _service.Update(id, dto, role, academiaId);
-
-            return Ok();
+            var aluno = _service.Update(id, dto, role, academiaId);
+            return Ok(aluno);
         }
 
         [HttpPatch("{id}/status")]

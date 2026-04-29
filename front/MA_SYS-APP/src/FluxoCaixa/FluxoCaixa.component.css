@@ -86,7 +86,20 @@
 
 .movimentos-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+}
+
+.movimento-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+}
+
+.movimento-topline,
+.movimento-card h3,
+.movimento-card p,
+.movimento-meta {
+  grid-column: 1 / -1;
 }
 
 .badge {
@@ -120,5 +133,9 @@ select {
   .header-actions,
   .form-grid {
     display: grid;
+  }
+
+  .movimentos-list {
+    grid-template-columns: 1fr;
   }
 }

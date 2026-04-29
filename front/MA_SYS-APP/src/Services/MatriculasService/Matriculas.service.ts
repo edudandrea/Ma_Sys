@@ -6,14 +6,21 @@ import { Observable } from 'rxjs/internal/Observable';
 export interface Matriculas {
   id: number;
   alunoId: number;
-  modalidadeId: number;
-  dataMatricula: string;
-  nome: string;
+  academiaId?: number;
+  planoId: number;
+  formaPagamentoId: number;
+  dataInicio: string;
+  dataFim?: string;
   status: string;
   alunoNome?: string;
-  modalidadeNome?: string;
-  valor: number;
-  planiId: number;
+  email?: string;
+  telefone?: string;
+  planoNome?: string;
+  planoValor?: number;
+  formaPagamentoNome?: string;
+  mensalidadeStatus?: string;
+  dataVencimentoMensalidade?: string;
+  diasParaVencimento?: number;
 }
 
 @Injectable({
@@ -24,11 +31,15 @@ export class MatriculasService {
 
   constructor(private http: HttpClient) {}
 
-  getMatriculas(){
-    return this.http.get<any[]>(this.apiUrl);
+  getMatriculas(): Observable<Matriculas[]> {
+    return this.http.get<Matriculas[]>(this.apiUrl);
   }
 
   novaMatricula(matricula: Partial<Matriculas>): Observable<Matriculas> {
     return this.http.post<Matriculas>(this.apiUrl, matricula);
+  }
+
+  atualizarMatricula(id: number, matricula: Partial<Matriculas>): Observable<Matriculas> {
+    return this.http.put<Matriculas>(`${this.apiUrl}/${id}`, matricula);
   }
 }

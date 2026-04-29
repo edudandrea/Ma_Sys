@@ -13,19 +13,22 @@ namespace MA_Sys.API.Services
         private readonly IPlanosRepository _planoRepo;
         private readonly IFormaPagamentoRepository _formaPgtoRepo;
         private readonly IPagamentoRepository _pagamentoRepo;
+        private readonly MensalidadeStatusService _mensalidadeStatusService;
 
         public MatriculaService(
             IMatriculaRepository repo,
             IAlunoRepository alunoRepo,
             IPlanosRepository planoRepo,
             IFormaPagamentoRepository formaPgtoRepo,
-            IPagamentoRepository pagamentoRepo)
+            IPagamentoRepository pagamentoRepo,
+            MensalidadeStatusService mensalidadeStatusService)
         {
             _repo = repo;
             _alunoRepo = alunoRepo;
             _planoRepo = planoRepo;
             _formaPgtoRepo = formaPgtoRepo;
             _pagamentoRepo = pagamentoRepo;
+            _mensalidadeStatusService = mensalidadeStatusService;
         }
 
         private List<Pagamentos> GerarPagamentos(Matricula matricula, Plano plano, FormaPagamento formaPgto, int formaPgtoId)
@@ -53,19 +56,7 @@ namespace MA_Sys.API.Services
 
         public List<MatriculasResponseDto> List(int academiaId)
         {
-            return _repo.Query()
-                .AsNoTracking()
-                .Where(m => m.AcademiaId == academiaId)
-                .Select(a => new MatriculasResponseDto
-                {
-                    Id = a.Id,
-                    AlunoId = a.AlunoId,
-                    PlanoId = a.PlanoId,
-                    DataInicio = a.DataInicio,
-                    DataFim = a.DataFim,
-                    Status = a.Status
-                })
-                .ToList();
+            return Get("Professor", new MatriculasFiltro(), academiaId);
         }
 
         public List<MatriculasResponseDto> Get(string role, MatriculasFiltro filtro, int? academiaId)
@@ -92,6 +83,7 @@ namespace MA_Sys.API.Services
                     PlanoId = matricula.PlanoId,
                     PlanoNome = plano.Nome,
                     PlanoValor = plano.Valor,
+                    FormaPagamentoId = matricula.FormaPagamentoId,
                     FormaPagamentoNome = formaPagamento != null ? formaPagamento.Nome : string.Empty,
                     DataInicio = matricula.DataInicio,
                     DataFim = matricula.DataFim,
@@ -115,10 +107,42 @@ namespace MA_Sys.API.Services
                 query = query.Where(m => m.Status == status);
             }
 
-            return query.ToList();
+            var matriculas = query.ToList();
+            var pagamentosPorMatricula = _pagamentoRepo.Query()
+                .Where(p => matriculas.Select(m => m.Id).Contains(p.MatriculaId))
+                .AsEnumerable()
+                .GroupBy(p => p.MatriculaId)
+                .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
+            foreach (var matricula in matriculas)
+            {
+                var entity = new Matricula
+                {
+                    Id = matricula.Id,
+                    AcademiaId = matricula.AcademiaId,
+                    AlunoId = matricula.AlunoId,
+                    PlanoId = matricula.PlanoId,
+                    FormaPagamentoId = matricula.FormaPagamentoId,
+                    DataInicio = matricula.DataInicio,
+                    DataFim = matricula.DataFim,
+                    Status = matricula.Status
+                };
+
+                var mensalidade = _mensalidadeStatusService.Calcular(
+                    entity,
+                    pagamentosPorMatricula.TryGetValue(matricula.Id, out var pagamentos)
+                        ? pagamentos
+                        : []);
+
+                matricula.MensalidadeStatus = mensalidade.Status;
+                matricula.DataVencimentoMensalidade = mensalidade.DataVencimento;
+                matricula.DiasParaVencimento = mensalidade.DiasParaVencimento;
+            }
+
+            return matriculas;
         }
 
-        public Task<Matricula> Add(MatriculasCreateDto dto, int? academiaId, string role)
+        public Task<MatriculasResponseDto> Add(MatriculasCreateDto dto, int? academiaId, string role)
         {
             var academiaDestino = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase)
                 ? dto.AcademiaId
@@ -150,7 +174,43 @@ namespace MA_Sys.API.Services
             _repo.Add(matricula);
             _repo.Save();
 
-            return Task.FromResult(matricula);
+            return Task.FromResult(Get(role, new MatriculasFiltro(), academiaDestino).First(m => m.Id == matricula.Id));
+        }
+
+        public MatriculasResponseDto Update(int id, MatriculasUpdateDto dto, int? academiaId, string role)
+        {
+            var matricula = _repo.Query().FirstOrDefault(m => m.Id == id);
+            if (matricula == null)
+            {
+                throw new InvalidOperationException("Matricula nao encontrada.");
+            }
+
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) && matricula.AcademiaId != academiaId)
+            {
+                throw new UnauthorizedAccessException("Usuario sem permissao para editar esta matricula.");
+            }
+
+            var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId && p.AcademiaId == matricula.AcademiaId);
+            if (plano == null)
+            {
+                throw new InvalidOperationException("Plano nao encontrado.");
+            }
+
+            var forma = _formaPgtoRepo.Query().FirstOrDefault(f => f.Id == dto.FormaPagamentoId && f.AcademiaId == matricula.AcademiaId);
+            if (forma == null)
+            {
+                throw new InvalidOperationException("Forma de pagamento nao encontrada.");
+            }
+
+            matricula.AlunoId = dto.AlunoId;
+            matricula.PlanoId = dto.PlanoId;
+            matricula.FormaPagamentoId = dto.FormaPagamentoId;
+            matricula.DataInicio = dto.DataInicio;
+            matricula.DataFim = dto.DataInicio.AddMonths(plano.DuracaoMeses);
+            matricula.Status = string.IsNullOrWhiteSpace(dto.Status) ? matricula.Status : dto.Status.Trim();
+
+            _repo.Save();
+            return Get(role, new MatriculasFiltro(), matricula.AcademiaId).First(m => m.Id == matricula.Id);
         }
     }
 }

@@ -79,6 +79,16 @@
           <i class="fa-solid fa-dumbbell"></i>
           <span>Modalidades</span>
         </a>
+
+        <a *ngIf="canViewCadastrosAcademia()" routerLink="/turmas" routerLinkActive="active">
+          <i class="fa-solid fa-calendar-week"></i>
+          <span>Turmas</span>
+        </a>
+
+        <a *ngIf="canViewCadastrosAcademia()" routerLink="/treinos" routerLinkActive="active">
+          <i class="fa-solid fa-dumbbell"></i>
+          <span>Treinos</span>
+        </a>
       </div>
 
       <button
@@ -110,6 +120,11 @@
         <a *ngIf="canViewFinanceiroAcademia() || canViewFinanceiroSistema()" routerLink="/pagamentos" routerLinkActive="active">
           <i class="fa-solid fa-credit-card"></i>
           <span>Pagamentos</span>
+        </a>
+
+        <a *ngIf="canViewFinanceiroSistema()" routerLink="/mensalidades-sistema" routerLinkActive="active">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>Mensalidades Sistema</span>
         </a>
 
         <a routerLink="/fluxo-caixa" routerLinkActive="active">

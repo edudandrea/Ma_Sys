@@ -88,6 +88,7 @@ builder.Services.AddScoped<IPagamentoAcademiaRepository, PagamentoAcademiaReposi
 builder.Services.AddScoped<IFinanceiroRepository, FinanceiroRepository>();
 builder.Services.AddScoped<IFormaPagamentoRepository, FormaPagamentoRepository>();
 builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
+builder.Services.AddScoped<IMensalidadeSistemaRepository, MensalidadeSistemaRepository>();
 
 // SERVICES
 builder.Services.AddScoped<AlunoService>();
@@ -105,6 +106,11 @@ builder.Services.AddScoped<FormaPagamentoService>();
 builder.Services.AddScoped<MatriculaService>();
 builder.Services.AddScoped<FluxoCaixaService>();
 builder.Services.AddScoped<PixService>();
+builder.Services.AddScoped<MensalidadeStatusService>();
+builder.Services.AddScoped<MensalidadeSistemaService>();
+builder.Services.AddScoped<TurmaService>();
+builder.Services.AddScoped<ExercicioService>();
+builder.Services.AddScoped<TreinoService>();
 builder.Services.AddHttpClient<MercadoPagoGatewayService>();
 
 

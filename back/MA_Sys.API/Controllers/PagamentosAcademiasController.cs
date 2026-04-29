@@ -44,5 +44,58 @@ namespace MA_Sys.API.Controllers
             _service.BaixarPagamento(id, GetUserRole(), GetUserId());
             return NoContent();
         }
+
+        [HttpPost("{id}/pix")]
+        public async Task<IActionResult> GerarPix(int id)
+        {
+            try
+            {
+                var (role, academiaIdUsuario, userId) = GetUserInfo();
+                var cobranca = await _service.GerarPagamentoPixAsync(id, role, academiaIdUsuario, userId);
+                return Ok(cobranca);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/cartao")]
+        public async Task<IActionResult> PagarComCartao(int id, [FromBody] PagamentoAcademiaCartaoDto dto)
+        {
+            try
+            {
+                var (role, academiaIdUsuario, userId) = GetUserInfo();
+                var cobranca = await _service.PagarComCartaoAsync(id, dto, role, academiaIdUsuario, userId);
+                return Ok(cobranca);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}/status-atualizado")]
+        public IActionResult ConsultarStatusAtualizado(int id)
+        {
+            try
+            {
+                var (role, academiaIdUsuario, userId) = GetUserInfo();
+                var cobranca = _service.AtualizarStatusPagamento(id, role, academiaIdUsuario, userId);
+                return Ok(cobranca);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("{id}/pagar")]
+        public async Task<IActionResult> PagarLegado(int id, [FromBody] PagamentoAcademiaCartaoDto dto)
+        {
+            var (role, academiaIdUsuario, userId) = GetUserInfo();
+            var cobranca = await _service.PagarComCartaoAsync(id, dto, role, academiaIdUsuario, userId);
+            return Ok(cobranca);
+        }
     }
 }

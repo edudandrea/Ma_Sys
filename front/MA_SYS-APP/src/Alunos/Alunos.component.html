@@ -130,6 +130,25 @@
         {{ selectedAluno?.academiaNome || 'Sem academia' }}
       </span>
     </div>
+
+    <div class="input-group status-aluno" *ngIf="idAluno">
+      <label>Status da Mensalidade</label>
+
+      <span class="badge-status" [ngClass]="mensalidadeStatusClasse">
+        <i class="fa-solid fa-wallet"></i>
+        {{ mensalidadeStatus || 'Em dia' }}
+      </span>
+
+      <span class="alunos-count" *ngIf="dataVencimentoMensalidade">
+        <i class="fa-solid fa-calendar-day"></i>
+        Vence em {{ dataVencimentoMensalidade | date: 'dd/MM/yyyy' }}
+      </span>
+
+      <span class="alunos-count" *ngIf="diasParaVencimento !== null">
+        <i class="fa-solid fa-hourglass-half"></i>
+        {{ diasParaVencimento }} dia(s)
+      </span>
+    </div>
     <!-- NOME + CPF -->
 
     <div class="form-row nome-cpf">

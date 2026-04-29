@@ -109,6 +109,14 @@
           <span>Mensalidades vencidas</span>
         </div>
       </article>
+
+      <article class="stat-card accent-red" *ngIf="isAcademia">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <div>
+          <h3>{{ totalCobrancasPendentesAcademia }}</h3>
+          <span>Cobranças do sistema pendentes</span>
+        </div>
+      </article>
     </section>
 
     <section class="dashboard-grid">
@@ -194,6 +202,36 @@
         </div>
       </article>
 
+      <article class="dashboard-card" *ngIf="isAcademia">
+        <div class="card-heading">
+          <div>
+            <h4>Cobranças do sistema</h4>
+            <span>Visualize pendências e pague por PIX ou cartão com confirmação antes da baixa.</span>
+          </div>
+        </div>
+
+        <div class="billing-row" *ngFor="let c of cobrancasAcademia">
+          <div class="billing-copy">
+            <strong>{{ c.descricao || 'Mensalidade do sistema' }}</strong>
+            <span>Vencimento: {{ c.dataVencimento | date: 'dd/MM/yyyy' }}</span>
+            <span>Valor: {{ c.valor | currency: 'BRL' }}</span>
+            <span *ngIf="c.formaPagamentoNome">Pago via {{ c.formaPagamentoNome }}</span>
+          </div>
+
+          <div class="billing-actions" *ngIf="c.status !== 'Pago'; else cobrancaPaga">
+            <button class="btn-save small-action" (click)="openPagamentoModal(templatePagamentoCobranca, c)">Pagar agora</button>
+          </div>
+
+          <ng-template #cobrancaPaga>
+            <span class="status-pill paid">Pago</span>
+          </ng-template>
+        </div>
+
+        <div *ngIf="!cobrancasAcademia.length" class="empty-note">
+          Nenhuma cobrança registrada para esta academia.
+        </div>
+      </article>
+
       <article class="dashboard-card" *ngIf="isAdmin || isSuperAdmin">
         <div class="card-heading">
           <div>
@@ -236,7 +274,130 @@
         </div>
       </article>
 
+      <article class="dashboard-card full" *ngIf="isAdmin || isSuperAdmin">
+        <div class="card-heading">
+          <div>
+            <h4>Cobranças das academias</h4>
+            <span>Histórico mais recente com status e forma de pagamento.</span>
+          </div>
+        </div>
+
+        <div class="billing-row" *ngFor="let c of cobrancasRecentesAdmin">
+          <div class="billing-copy">
+            <strong>{{ c.nomeAcademia }}</strong>
+            <span>{{ c.descricao || 'Mensalidade do sistema' }}</span>
+            <span>Vencimento: {{ c.dataVencimento | date: 'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="billing-summary">
+            <strong>{{ c.valor | currency: 'BRL' }}</strong>
+            <span>{{ c.status }}</span>
+            <span *ngIf="c.formaPagamentoNome">{{ c.formaPagamentoNome }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!cobrancasRecentesAdmin.length" class="empty-note">
+          Nenhuma cobrança de academia registrada até o momento.
+        </div>
+      </article>
+
       
     </section>
   </ng-container>
 </div>
+
+<ng-template #templatePagamentoCobranca>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Pagar cobrança do sistema</h4>
+      <button type="button" class="btn-close" (click)="fecharModalPagamento()"></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="payment-summary" *ngIf="cobrancaSelecionada">
+        <strong>{{ cobrancaSelecionada.descricao || 'Mensalidade do sistema' }}</strong>
+        <span>Valor: {{ cobrancaSelecionada.valor | currency:'BRL' }}</span>
+        <span>Vencimento: {{ cobrancaSelecionada.dataVencimento | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div class="payment-method-grid">
+        <button
+          type="button"
+          class="payment-method-btn"
+          [class.active]="metodoPagamentoSelecionado === 'pix'"
+          (click)="selecionarMetodoPagamento('pix')"
+        >
+          <i class="fa-solid fa-qrcode"></i>
+          PIX
+        </button>
+
+        <button
+          type="button"
+          class="payment-method-btn"
+          [class.active]="metodoPagamentoSelecionado === 'cartao'"
+          (click)="selecionarMetodoPagamento('cartao')"
+        >
+          <i class="fa-solid fa-credit-card"></i>
+          Cartão
+        </button>
+      </div>
+
+      <div *ngIf="metodoPagamentoSelecionado === 'pix'" class="payment-pane">
+        <button type="button" class="btn-save small-action" (click)="pagarCobrancaPix()">Gerar PIX</button>
+
+        <p class="payment-message" *ngIf="pagamentoMensagem">{{ pagamentoMensagem }}</p>
+
+        <div *ngIf="qrCodePix" class="pix-qrcode">
+          <img [src]="qrCodePix" alt="QR Code PIX" />
+          <div class="pix-actions">
+            <button type="button" class="btn-cancel small-action" (click)="copiarPix()">Copiar código PIX</button>
+            <button
+              type="button"
+              class="btn-save small-action"
+              *ngIf="pagamentoVerificacaoAutomatica"
+              (click)="verificarStatusCobranca()"
+            >
+              Verificar pagamento
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="metodoPagamentoSelecionado === 'cartao'" class="payment-pane">
+        <div class="card-form-grid">
+          <div class="form-group full">
+            <label>Número do cartão</label>
+            <input [(ngModel)]="cartao.numero" placeholder="0000 0000 0000 0000" />
+          </div>
+
+          <div class="form-group full">
+            <label>Nome no cartão</label>
+            <input [(ngModel)]="cartao.nome" />
+          </div>
+
+          <div class="form-group">
+            <label>CPF do titular</label>
+            <input [(ngModel)]="cartao.cpf" placeholder="00000000000" />
+          </div>
+
+          <div class="form-group">
+            <label>Validade</label>
+            <input [(ngModel)]="cartao.validade" placeholder="MM/AA" />
+          </div>
+
+          <div class="form-group">
+            <label>CVV</label>
+            <input [(ngModel)]="cartao.cvv" placeholder="123" />
+          </div>
+        </div>
+
+        <button type="button" class="btn-save small-action" (click)="pagarCobrancaCartao()">Pagar com cartão</button>
+        <p class="payment-message" *ngIf="pagamentoMensagem">{{ pagamentoMensagem }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModalPagamento()">Fechar</button>
+    </div>
+  </div>
+</ng-template>

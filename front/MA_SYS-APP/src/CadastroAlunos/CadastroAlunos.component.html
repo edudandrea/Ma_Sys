@@ -238,8 +238,8 @@
         </div>
 
         <div class="mensalidade-status" [ngClass]="{
-          'status-ok': diasParaVencimento > 10,
-          'status-alerta': diasParaVencimento >= 0 && diasParaVencimento <= 10,
+          'status-ok': diasParaVencimento > 5,
+          'status-alerta': diasParaVencimento >= 0 && diasParaVencimento <= 5,
           'status-vencida': diasParaVencimento < 0
         }">
           <div class="status-line">
@@ -250,8 +250,8 @@
             <small>Validade até {{ dataVencimentoMensalidade || '--/--/----' }}</small>
             <small>{{ diasParaVencimento }} dia(s)</small>
           </div>
-          <p *ngIf="diasParaVencimento >= 0 && diasParaVencimento <= 10">
-            Alerta: sua mensalidade vence em até 10 dias.
+          <p *ngIf="diasParaVencimento >= 0 && diasParaVencimento <= 5">
+            Alerta: sua mensalidade vence em até 5 dias.
           </p>
           <p *ngIf="diasParaVencimento < 0">
             Mensalidade vencida. Regularize o pagamento para manter o plano ativo.
@@ -264,7 +264,7 @@
             <i class="fa-solid fa-credit-card"></i>
             <select [(ngModel)]="formaPagamentoId" (change)="onFormaPagamentoChange()">
               <option value="" disabled>Selecione</option>
-              <option *ngFor="let f of formasPagamento" [value]="f.id">
+              <option *ngFor="let f of formasPagamento" [ngValue]="f.id">
                 {{ f.nome }}
               </option>
             </select>
@@ -282,6 +282,27 @@
           </div>
 
           <button type="button" class="btn-secondary-block" (click)="copiarPix()">Copiar codigo PIX</button>
+          <button
+            type="button"
+            class="btn-primary-block"
+            *ngIf="verificacaoAutomaticaPix && pagamentoId"
+            (click)="verificarPagamentoPix()"
+          >
+            Verificar pagamento PIX
+          </button>
+        </div>
+
+        <div *ngIf="isPix && pagamentoStatus" class="payment-status" [ngClass]="{
+          'status-paid': pagamentoStatus === 'Pago',
+          'status-pending': pagamentoStatus === 'Pendente' || pagamentoStatus === 'EmAnalise',
+          'status-failed': pagamentoStatus === 'Recusado' || pagamentoStatus === 'Erro'
+        }">
+          <div class="status-head">
+            <strong>Status do pagamento:</strong>
+            <span>{{ pagamentoStatus }}</span>
+          </div>
+          <p>{{ pagamentoMensagem }}</p>
+          <small *ngIf="pagamentoId">ID: {{ pagamentoId }}</small>
         </div>
 
         <div *ngIf="isCartao" class="card-section">

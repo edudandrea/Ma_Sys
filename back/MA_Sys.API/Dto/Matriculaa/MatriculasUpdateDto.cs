@@ -14,11 +14,8 @@ namespace MA_Sys.API.Dto.Matriculas
 
         public int PlanoId { get; set; }
 
+        public int FormaPagamentoId { get; set; }
         public DateTime DataInicio { get; set; }
-
-        public DateTime DataFim { get; set; }
         public string Status { get; set; } = string.Empty;
-        public Aluno Aluno { get; set; } = null!;
-        public Plano Plano { get; set; } = null!;
     }
 }

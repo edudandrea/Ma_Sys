@@ -4,6 +4,7 @@
   grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
   gap: 28px;
   padding: 28px;
+  color: var(--text-primary);
   background:
     radial-gradient(circle at top left, var(--accent-glow), transparent 24%),
     radial-gradient(circle at bottom right, var(--accent-secondary-glow), transparent 24%),
@@ -109,6 +110,40 @@
 .hero-point span,
 .summary-label {
   color: var(--text-muted);
+}
+
+.cadastro-panel,
+.cadastro-panel p,
+.cadastro-panel strong,
+.cadastro-panel span,
+.cadastro-panel small,
+.cadastro-panel label,
+.cadastro-form,
+.payment-panel,
+.search-card,
+.student-banner,
+.form-section {
+  color: var(--text-primary);
+}
+
+.cadastro-shell .input-modern i {
+  color: color-mix(in srgb, var(--text-secondary) 78%, #ffffff 22%);
+}
+
+.cadastro-shell .input-modern input::placeholder,
+.cadastro-shell .input-modern textarea::placeholder,
+.cadastro-shell input::placeholder,
+.cadastro-shell textarea::placeholder {
+  color: color-mix(in srgb, var(--text-muted) 72%, #ffffff 28%);
+  opacity: 1;
+}
+
+.cadastro-shell .input-modern input,
+.cadastro-shell .input-modern select,
+.cadastro-shell textarea,
+.cadastro-shell input,
+.cadastro-shell select {
+  color: var(--text-primary);
 }
 
 .cadastro-panel {
@@ -232,6 +267,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  color: var(--text-primary);
 }
 
 .status-line {
@@ -244,6 +280,13 @@
 .mensalidade-status p {
   margin: 0;
   font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.mensalidade-status strong,
+.mensalidade-status span,
+.mensalidade-status small {
+  color: var(--text-primary);
 }
 
 .status-ok {
@@ -251,9 +294,23 @@
   background: rgba(34, 197, 94, 0.1);
 }
 
+.status-ok strong,
+.status-ok span,
+.status-ok small,
+.status-ok p {
+  color: color-mix(in srgb, var(--text-primary) 88%, #86efac);
+}
+
 .status-alerta {
   border-color: rgba(245, 158, 11, 0.35);
   background: rgba(245, 158, 11, 0.1);
+}
+
+.status-alerta strong,
+.status-alerta span,
+.status-alerta small,
+.status-alerta p {
+  color: color-mix(in srgb, var(--text-primary) 80%, #fbbf24);
 }
 
 .status-vencida {
@@ -261,8 +318,34 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.status-vencida strong,
+.status-vencida span,
+.status-vencida small,
+.status-vencida p {
+  color: color-mix(in srgb, var(--text-primary) 78%, #f87171);
+}
+
 .summary-box.value strong {
   color: var(--accent-text);
+}
+
+.summary-box,
+.summary-box strong,
+.summary-box span,
+.payment-panel label,
+.payment-panel p,
+.payment-panel small,
+.payment-panel strong,
+.payment-panel h4,
+.payment-panel select,
+.payment-panel input,
+.payment-panel textarea {
+  color: var(--text-primary);
+}
+
+.payment-panel select option {
+  color: var(--text-primary);
+  background: var(--bg-panel-strong);
 }
 
 .select-shell select {

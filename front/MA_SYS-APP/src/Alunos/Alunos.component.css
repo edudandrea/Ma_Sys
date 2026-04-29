@@ -136,3 +136,22 @@
     grid-template-columns: 1fr;
   }
 }
+.mensalidade-paga {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.mensalidade-pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.mensalidade-atraso {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.mensalidade-em-dia {
+  background: #dbeafe;
+  color: #1d4ed8;
+}

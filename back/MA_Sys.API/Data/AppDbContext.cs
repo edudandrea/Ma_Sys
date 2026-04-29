@@ -27,6 +27,12 @@ namespace MA_SYS.Api.Data
         public DbSet<PagamentoAcademia> PagamentosAcademias { get; set; }
         public DbSet<Financeiro> Financeiros { get; set; }
         public DbSet<CategoriaTransacao> CategoriasTransacao { get; set; }
+        public DbSet<MensalidadeSistema> MensalidadesSistema { get; set; }
+        public DbSet<Turma> Turmas { get; set; }
+        public DbSet<TurmaAluno> TurmasAlunos { get; set; }
+        public DbSet<Exercicio> Exercicios { get; set; }
+        public DbSet<Treino> Treinos { get; set; }
+        public DbSet<TreinoExercicio> TreinosExercicios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +48,42 @@ namespace MA_SYS.Api.Data
                 .HasOne(a => a.OwnerUser)
                 .WithMany()
                 .HasForeignKey(a => a.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MensalidadeSistema>()
+                .HasOne(m => m.OwnerUser)
+                .WithMany()
+                .HasForeignKey(m => m.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PagamentoAcademia>()
+                .HasOne(p => p.MensalidadeSistema)
+                .WithMany()
+                .HasForeignKey(p => p.MensalidadeSistemaId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<TurmaAluno>()
+                .HasOne(ta => ta.Turma)
+                .WithMany(t => t.Alunos)
+                .HasForeignKey(ta => ta.TurmaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TurmaAluno>()
+                .HasOne(ta => ta.Aluno)
+                .WithMany()
+                .HasForeignKey(ta => ta.AlunoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreinoExercicio>()
+                .HasOne(te => te.Treino)
+                .WithMany(t => t.Exercicios)
+                .HasForeignKey(te => te.TreinoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TreinoExercicio>()
+                .HasOne(te => te.Exercicio)
+                .WithMany()
+                .HasForeignKey(te => te.ExercicioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         }

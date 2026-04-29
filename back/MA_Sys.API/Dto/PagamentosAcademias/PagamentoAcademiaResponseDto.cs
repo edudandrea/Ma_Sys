@@ -11,5 +11,7 @@ namespace MA_Sys.API.Dto.PagamentosAcademias
         public DateTime? DataPagamento { get; set; }
         public string Status { get; set; } = string.Empty;
         public string? Descricao { get; set; }
+        public string? FormaPagamentoNome { get; set; }
+        public int? MensalidadeSistemaId { get; set; }
     }
 }

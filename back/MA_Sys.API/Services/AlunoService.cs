@@ -10,11 +10,16 @@ namespace MA_Sys.API.Services
     {
         private readonly IAlunoRepository _repo;
         private readonly IMatriculaRepository _matriculaRepo;
+        private readonly MensalidadeStatusService _mensalidadeStatusService;
 
-        public AlunoService(IAlunoRepository repo, IMatriculaRepository matriculaRepo)
+        public AlunoService(
+            IAlunoRepository repo,
+            IMatriculaRepository matriculaRepo,
+            MensalidadeStatusService mensalidadeStatusService)
         {
             _repo = repo;
             _matriculaRepo = matriculaRepo;
+            _mensalidadeStatusService = mensalidadeStatusService;
         }
 
         public List<AlunoResponseDto> List(string role, int? academiaId)
@@ -54,7 +59,7 @@ namespace MA_Sys.API.Services
             if (!string.IsNullOrEmpty(filtro.CPF))
                 query = query.Where(a => a.CPF.Contains(filtro.CPF));
 
-            return query.Select(a => new AlunoResponseDto
+            var alunos = query.Select(a => new AlunoResponseDto
             {
                 Id = a.Id,
                 Nome = a.Nome,
@@ -76,6 +81,16 @@ namespace MA_Sys.API.Services
                 PlanoId = a.PlanoId,
                 Obs = a.Obs
             }).ToList();
+
+            foreach (var aluno in alunos)
+            {
+                var mensalidade = _mensalidadeStatusService.CalcularPorAluno(aluno.Id);
+                aluno.MensalidadeStatus = mensalidade.Status;
+                aluno.DataVencimentoMensalidade = mensalidade.DataVencimento;
+                aluno.DiasParaVencimento = mensalidade.DiasParaVencimento;
+            }
+
+            return alunos;
         }
 
         public AlunoDto? GetById(int id, int academiaId)
@@ -153,7 +168,7 @@ namespace MA_Sys.API.Services
             }).ToList();
         }
 
-        public void Add(AlunosCreateDto dto, int? academiaId)
+        public AlunoResponseDto Add(AlunosCreateDto dto, int? academiaId)
         {
             var aluno = new Aluno
             {
@@ -171,9 +186,10 @@ namespace MA_Sys.API.Services
 
             _repo.Add(aluno);
             _repo.Save();
+            return Get(role: "Professor", new AlunoFiltroDto { Id = aluno.Id }, academiaId).First();
         }
 
-        public void Update(int id, AlunoUpdateDto dto, string role, int? academiaId)
+        public AlunoResponseDto Update(int id, AlunoUpdateDto dto, string role, int? academiaId)
         {
             var query = _repo.Query().Where(a => a.Id == id);
 
@@ -203,6 +219,7 @@ namespace MA_Sys.API.Services
             aluno.Obs = dto.Obs;
 
             _repo.Save();
+            return Get(role, new AlunoFiltroDto { Id = aluno.Id }, academiaId).First();
         }
 
         public void UpdateStatus(int id, int? academiaId, bool ativo)

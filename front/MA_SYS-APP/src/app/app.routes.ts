@@ -14,6 +14,9 @@ import { PagamentosComponent } from '../Pagamentos/Pagamentos.component';
 import { MatriculasComponent } from '../Matriculas/Matriculas.component';
 import { CadastroAlunosComponent } from '../CadastroAlunos/CadastroAlunos.component';
 import { FluxoCaixaComponent } from '../FluxoCaixa/FluxoCaixa.component';
+import { TurmasComponent } from '../Turmas/Turmas.component';
+import { TreinosComponent } from '../Treinos/Treinos.component';
+import { MensalidadesSistemaComponent } from '../MensalidadesSistema/MensalidadesSistema.component';
 
 
 export const routes: Routes = [
@@ -36,6 +39,9 @@ export const routes: Routes = [
             { path: 'professores', component: ProfessoresComponent },
             { path: 'planos', component: PlanosComponent },
             { path: 'pagamentos', component: PagamentosComponent },
+            { path: 'mensalidades-sistema', component: MensalidadesSistemaComponent },
+            { path: 'turmas', component: TurmasComponent },
+            { path: 'treinos', component: TreinosComponent },
             { path: 'fluxo-caixa', component: FluxoCaixaComponent },
             { path: 'usuarios', component: UsuariosComponent },
             { path: 'matriculas', component: MatriculasComponent },

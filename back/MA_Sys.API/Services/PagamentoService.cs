@@ -12,6 +12,7 @@ namespace MA_Sys.API.Services
         private readonly IFormaPagamentoRepository _formaPagamentoRepo;
         private readonly IAcademiaRepository _academiaRepo;
         private readonly MercadoPagoGatewayService _mercadoPagoGateway;
+        private readonly MensalidadeStatusService _mensalidadeStatusService;
 
         public PagamentoService(
             IPlanosRepository planoRepo,
@@ -19,7 +20,8 @@ namespace MA_Sys.API.Services
             IMatriculaRepository matriculaRepo,
             IFormaPagamentoRepository formaPagamentoRepo,
             IAcademiaRepository academiaRepo,
-            MercadoPagoGatewayService mercadoPagoGateway)
+            MercadoPagoGatewayService mercadoPagoGateway,
+            MensalidadeStatusService mensalidadeStatusService)
         {
             _planoRepo = planoRepo;
             _pagRepo = pagRepo;
@@ -27,6 +29,7 @@ namespace MA_Sys.API.Services
             _formaPagamentoRepo = formaPagamentoRepo;
             _academiaRepo = academiaRepo;
             _mercadoPagoGateway = mercadoPagoGateway;
+            _mensalidadeStatusService = mensalidadeStatusService;
         }
 
         public List<Pagamentos> GetPagamentosAlunos(int alunoId)
@@ -55,12 +58,171 @@ namespace MA_Sys.API.Services
                 Valor = dto.Valor,
                 DataPagamento = dataPagamento,
                 DataVencimento = dataVencimento,
-                Status = "Pg",
+                Status = "Pago",
                 AcademiaId = dto.AcademiaId
             };
 
             _pagRepo.Add(pagamento);
+            _pagRepo.Save();
             return Task.FromResult(pagamento);
+        }
+
+        public Pagamentos RegistrarPagamentoManual(PagamentoManualCreateDto dto, int academiaId)
+        {
+            var matricula = _matriculaRepo.Query()
+                .FirstOrDefault(m =>
+                    m.Id == dto.MatriculaId &&
+                    m.AlunoId == dto.AlunoId &&
+                    m.PlanoId == dto.PlanoId &&
+                    m.AcademiaId == academiaId);
+
+            if (matricula == null)
+            {
+                throw new InvalidOperationException("Matricula nao encontrada para baixa manual.");
+            }
+
+            var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId && p.AcademiaId == academiaId);
+            if (plano == null)
+            {
+                throw new InvalidOperationException("Plano nao encontrado.");
+            }
+
+            var pagamento = new Pagamentos
+            {
+                AcademiaId = academiaId,
+                AlunoId = dto.AlunoId,
+                MatriculaId = dto.MatriculaId,
+                PlanoId = dto.PlanoId,
+                FormaPagamentoId = dto.FormaPagamentoId,
+                Valor = dto.Valor,
+                DataPagamento = dto.DataPagamento ?? DateTime.UtcNow,
+                DataVencimento = (dto.DataPagamento ?? DateTime.UtcNow).AddMonths(plano.DuracaoMeses),
+                Status = "Pago"
+            };
+
+            _pagRepo.Add(pagamento);
+            _pagRepo.Save();
+            _mensalidadeStatusService.AtualizarMatriculaComoPaga(dto.MatriculaId, dto.FormaPagamentoId);
+
+            return pagamento;
+        }
+
+        public async Task<PagamentoPixResponseDto> GerarPagamentoPixAsync(PagamentoPixCreateDto dto, int academiaId)
+        {
+            return await GerarPagamentoPixInternoAsync(
+                academiaId,
+                dto.AlunoId,
+                dto.MatriculaId,
+                dto.PlanoId,
+                dto.FormaPagamentoId,
+                dto.Valor,
+                dto.Nome,
+                dto.Email,
+                dto.Cidade);
+        }
+
+        public async Task<PagamentoPixResponseDto> GerarPagamentoPixPublicoAsync(PagamentoPixPublicoDto dto, int academiaId)
+        {
+            return await GerarPagamentoPixInternoAsync(
+                academiaId,
+                dto.AlunoId,
+                dto.MatriculaId,
+                dto.PlanoId,
+                dto.FormaPagamentoId,
+                dto.Valor,
+                dto.Nome,
+                dto.Email,
+                dto.Cidade);
+        }
+
+        private async Task<PagamentoPixResponseDto> GerarPagamentoPixInternoAsync(
+            int academiaId,
+            int alunoId,
+            int matriculaId,
+            int planoId,
+            int formaPagamentoId,
+            decimal valor,
+            string? nome,
+            string? email,
+            string? cidade)
+        {
+            var matricula = _matriculaRepo.Query()
+                .FirstOrDefault(m =>
+                    m.Id == matriculaId &&
+                    m.AlunoId == alunoId &&
+                    m.PlanoId == planoId &&
+                    m.AcademiaId == academiaId);
+
+            if (matricula == null)
+            {
+                throw new InvalidOperationException("Matricula nao encontrada para gerar PIX.");
+            }
+
+            var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == planoId && p.AcademiaId == academiaId);
+            if (plano == null)
+            {
+                throw new InvalidOperationException("Plano nao encontrado.");
+            }
+
+            var forma = _formaPagamentoRepo.Query()
+                .FirstOrDefault(f => f.Id == formaPagamentoId && f.AcademiaId == academiaId);
+
+            if (forma == null)
+            {
+                throw new InvalidOperationException("Forma de pagamento nao encontrada.");
+            }
+
+            var academia = _academiaRepo.Query().FirstOrDefault(a => a.Id == academiaId);
+            if (academia == null)
+            {
+                throw new InvalidOperationException("Academia nao encontrada.");
+            }
+
+            var pagamento = new Pagamentos
+            {
+                AcademiaId = academiaId,
+                AlunoId = alunoId,
+                MatriculaId = matriculaId,
+                PlanoId = planoId,
+                FormaPagamentoId = formaPagamentoId,
+                Valor = valor,
+                DataPagamento = DateTime.UtcNow,
+                DataVencimento = matricula.DataInicio.AddMonths(plano.DuracaoMeses),
+                Status = "Pendente"
+            };
+
+            if (string.IsNullOrWhiteSpace(academia.MercadoPagoAccessToken))
+            {
+                throw new InvalidOperationException("A academia ainda nao configurou o token do Mercado Pago para PIX.");
+            }
+
+            var descricao = $"Mensalidade {plano.Nome} - Aluno {alunoId}";
+            var gatewayResult = await _mercadoPagoGateway.CriarPagamentoPixAsync(
+                valor,
+                descricao,
+                string.IsNullOrWhiteSpace(email) ? "pagador@aluno.local" : email!,
+                academia.MercadoPagoAccessToken);
+
+            pagamento.ExternalId = gatewayResult.ExternalId;
+            pagamento.Status = MapearStatusGateway(gatewayResult.Status);
+            _pagRepo.Add(pagamento);
+            _pagRepo.Save();
+
+            if (pagamento.Status == "Pago")
+            {
+                _mensalidadeStatusService.AtualizarMatriculaComoPaga(matriculaId, formaPagamentoId);
+            }
+
+            return new PagamentoPixResponseDto
+            {
+                PagamentoId = pagamento.Id,
+                Status = pagamento.Status,
+                Payload = gatewayResult.Payload,
+                QrCodeBase64 = gatewayResult.QrCodeBase64,
+                ExternalId = gatewayResult.ExternalId,
+                VerificacaoAutomaticaDisponivel = true,
+                Mensagem = "Cobranca PIX gerada com verificacao automatica habilitada."
+            };
         }
 
         public async Task<Pagamentos> ProcessarPagamentoCartaoPublico(PagamentoCartaoPublicoDto dto, int academiaId)
@@ -200,15 +362,7 @@ namespace MA_Sys.API.Services
             if (status == "approved")
             {
                 pagamento.Status = "Pago";
-
-                var matricula = _matriculaRepo.Query()
-                    .FirstOrDefault(m => m.Id == pagamento.MatriculaId);
-
-                if (matricula != null)
-                {
-                    matricula.MensalidadePaga = true;
-                    matricula.DataPagamento = DateTime.UtcNow;
-                }
+                _mensalidadeStatusService.AtualizarMatriculaComoPaga(pagamento.MatriculaId, pagamento.FormaPagamentoId);
 
                 _pagRepo.Save();
             }
@@ -218,6 +372,57 @@ namespace MA_Sys.API.Services
         {
             return _pagRepo.Query()
                 .FirstOrDefault(p => p.Id == pagamentoId && p.AcademiaId == academiaId);
+        }
+
+        public Pagamentos AtualizarStatusPagamento(int pagamentoId, int academiaId)
+        {
+            var pagamento = _pagRepo.Query()
+                .FirstOrDefault(p => p.Id == pagamentoId && p.AcademiaId == academiaId);
+
+            if (pagamento == null)
+            {
+                throw new InvalidOperationException("Pagamento nao encontrado.");
+            }
+
+            if (string.IsNullOrWhiteSpace(pagamento.ExternalId))
+            {
+                return pagamento;
+            }
+
+            var accessToken = _academiaRepo.Query()
+                .Where(a => a.Id == academiaId)
+                .Select(a => a.MercadoPagoAccessToken)
+                .FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                return pagamento;
+            }
+
+            var gatewayResult = _mercadoPagoGateway.ConsultarPagamentoAsync(pagamento.ExternalId, accessToken)
+                .GetAwaiter()
+                .GetResult();
+
+            pagamento.Status = MapearStatusGateway(gatewayResult.Status);
+
+            if (pagamento.Status == "Pago")
+            {
+                _mensalidadeStatusService.AtualizarMatriculaComoPaga(pagamento.MatriculaId, pagamento.FormaPagamentoId);
+            }
+
+            _pagRepo.Save();
+            return pagamento;
+        }
+
+        private static string MapearStatusGateway(string status)
+        {
+            return status.ToLowerInvariant() switch
+            {
+                "approved" => "Pago",
+                "pending" => "Pendente",
+                "in_process" => "EmAnalise",
+                _ => "Recusado"
+            };
         }
 
     }
