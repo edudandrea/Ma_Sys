@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -31,6 +31,8 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private userService: UserService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -121,20 +123,17 @@ export class LoginComponent implements OnInit {
     this.clearBootstrapCheckTimeout();
 
     this.bootstrapCheckTimeoutId = setTimeout(() => {
-      this.requiresBootstrap = false;
-      this.checkingBootstrap = false;
+      this.updateBootstrapState(false, false);
     }, 4000);
 
     this.userService.getBootstrapStatus().subscribe({
       next: (response) => {
         this.clearBootstrapCheckTimeout();
-        this.requiresBootstrap = !!response?.requiresBootstrap;
-        this.checkingBootstrap = false;
+        this.updateBootstrapState(!!response?.requiresBootstrap, false);
       },
       error: () => {
         this.clearBootstrapCheckTimeout();
-        this.requiresBootstrap = false;
-        this.checkingBootstrap = false;
+        this.updateBootstrapState(false, false);
       },
     });
   }
@@ -144,6 +143,14 @@ export class LoginComponent implements OnInit {
       clearTimeout(this.bootstrapCheckTimeoutId);
       this.bootstrapCheckTimeoutId = null;
     }
+  }
+
+  private updateBootstrapState(requiresBootstrap: boolean, checkingBootstrap: boolean) {
+    this.ngZone.run(() => {
+      this.requiresBootstrap = requiresBootstrap;
+      this.checkingBootstrap = checkingBootstrap;
+      this.cdr.detectChanges();
+    });
   }
 
   private resetBootstrapForm() {
