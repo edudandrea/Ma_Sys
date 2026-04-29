@@ -128,7 +128,7 @@ export class LoginComponent implements OnInit {
     this.userService.getBootstrapStatus().subscribe({
       next: (response) => {
         this.clearBootstrapCheckTimeout();
-        this.requiresBootstrap = !!response.requiresBootstrap;
+        this.requiresBootstrap = !!response?.requiresBootstrap;
         this.checkingBootstrap = false;
       },
       error: () => {
