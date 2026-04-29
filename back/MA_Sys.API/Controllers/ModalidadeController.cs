@@ -22,9 +22,6 @@ namespace MA_SYS.Api.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery] ModalidadeFiltroDto filtro)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
-                return Forbid();
-
             var (role, academiaId, _) = GetUserInfo();
             var modalidade = _service.Get(role, filtro, academiaId);
 

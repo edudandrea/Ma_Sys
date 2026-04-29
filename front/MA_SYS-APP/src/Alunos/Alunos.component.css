@@ -109,3 +109,30 @@
   transform: translateY(0);
   filter: brightness(0.97);
 }
+
+.aluno-modal .modal-header {
+  align-items: flex-start;
+}
+
+.aluno-modal .modal-header h4 {
+  margin: 0;
+}
+
+.aluno-modal-body {
+  gap: 18px;
+}
+
+.aluno-modal-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.aluno-modal-grid--single {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 640px) {
+  .aluno-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

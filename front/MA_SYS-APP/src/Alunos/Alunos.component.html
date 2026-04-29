@@ -340,32 +340,35 @@
 <!-- ================= MODAL NOVO ALUNO ================= -->
 
 <ng-template #templateNovoAluno>
-  <div class="modal-content">
+  <div class="modal-content modal-surface aluno-modal">
     <div class="modal-header">
-      <h4>Novo Aluno</h4>
+      <div>
+        <h4>Novo Aluno</h4>
+        <p class="modal-subtext">Preencha os dados essenciais para iniciar o cadastro.</p>
+      </div>
 
       <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
     </div>
 
-    <div class="modal-body">
-      <div class="form-row">
+    <div class="modal-body aluno-modal-body">
+      <div class="form-row aluno-modal-grid aluno-modal-grid--single">
         <div class="input-group">
           <label>Nome</label>
 
           <div class="input-modern">
             <i class="fa-solid fa-user"></i>
-            <input [(ngModel)]="filtroAlunos.nome" />
+            <input #inputNomeModal [(ngModel)]="novoAlunoForm.nome" />
           </div>
         </div>
       </div>
 
-      <div class="form-row contato">
+      <div class="form-row aluno-modal-grid">
         <div class="input-group">
           <label>CPF</label>
 
           <div class="input-modern">
             <i class="fa-solid fa-id-card"></i>
-            <input [(ngModel)]="filtroAlunos.CPF" />
+            <input [(ngModel)]="novoAlunoForm.cpf" />
           </div>
         </div>
 
@@ -374,16 +377,19 @@
 
           <div class="input-modern">
             <i class="fa-solid fa-envelope"></i>
-            <input [(ngModel)]="filtroAlunos.email" />
+            <input [(ngModel)]="novoAlunoForm.email" />
           </div>
         </div>
+      </div>
+
+      <div class="form-row aluno-modal-grid">
 
         <div class="input-group">
           <label>Telefone</label>
 
           <div class="input-modern">
             <i class="fa-solid fa-phone"></i>
-            <input [(ngModel)]="filtroAlunos.telefone" />
+            <input [(ngModel)]="novoAlunoForm.telefone" />
           </div>
         </div>
 
@@ -393,7 +399,7 @@
           <div class="input-modern">
             <i class="fa-solid fa-hand-fist"></i>
 
-            <select [(ngModel)]="filtroAlunos.modalidadeId">
+            <select [(ngModel)]="novoAlunoForm.modalidadeId">
               <option [ngValue]="0">Selecione</option>
 
               <option *ngFor="let modalidade of modalidades" [ngValue]="modalidade.id">
@@ -403,9 +409,29 @@
           </div>
         </div>
       </div>
+
+      <div class="form-row aluno-modal-grid">
+        <div class="input-group">
+          <label>Graduação</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-award"></i>
+            <input [(ngModel)]="novoAlunoForm.graduacao" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Rede Social</label>
+
+          <div class="input-modern">
+            <i class="fa-solid fa-globe"></i>
+            <input [(ngModel)]="novoAlunoForm.redeSocial" />
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="actions-row">
+    <div class="modal-footer modal-actions">
       <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
 
       <button class="btn-save" (click)="cadastroNovoAluno()">Salvar Aluno</button>

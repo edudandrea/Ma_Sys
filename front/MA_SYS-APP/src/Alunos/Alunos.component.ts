@@ -54,6 +54,7 @@ export class AlunosComponent implements OnInit {
   TabsCadastroAluno = TabsCadastroAluno;
 
   filtroAlunos = { }as any;
+  novoAlunoForm = this.createNovoAlunoForm();
 
   tabs = [
     {
@@ -95,7 +96,7 @@ export class AlunosComponent implements OnInit {
 
   ngOnInit() {
     this.carregarAcademias();
-    
+    this.carregarModalidades();
   }
 
   setActiveTab(tab: TabsCadastroAluno) {
@@ -250,6 +251,20 @@ export class AlunosComponent implements OnInit {
 
   
 
+  carregarModalidades() {
+    this.modalidadesService.getModalidades().subscribe({
+      next: (res) => {
+        this.modalidades = (res ?? []).filter((modalidade) => modalidade.ativo !== false);
+        this.cd.markForCheck();
+      },
+      error: (err) => {
+        console.error(err);
+        this.modalidades = [];
+        this.toastr.error('Erro ao carregar modalidades');
+      },
+    });
+  }
+
   carregarAcademias() {
     this.spinner.show();
     this.acad.getAcademias().subscribe({
@@ -272,27 +287,32 @@ export class AlunosComponent implements OnInit {
   }
 
   cadastroNovoAluno() {
+    if (!this.novoAlunoForm.nome?.trim()) {
+      this.toastr.warning('Informe o nome do aluno');
+      return;
+    }
+
+    if (this.novoAlunoForm.modalidadeId <= 0) {
+      this.toastr.warning('Selecione uma modalidade');
+      return;
+    }
+
     this.spinner.show();
 
     const aluno = {
-      nome: this.nome,
-      cpf: this.cpf,
-      graduacao: this.graduacao,
-      modalidadeId: this.modalidadeId,
-      telefone: this.telefone,
-      email: this.email,
-      redeSocial: this.redeSocial,
+      nome: this.novoAlunoForm.nome,
+      cpf: this.novoAlunoForm.cpf,
+      graduacao: this.novoAlunoForm.graduacao,
+      modalidadeId: this.novoAlunoForm.modalidadeId,
+      telefone: this.novoAlunoForm.telefone,
+      email: this.novoAlunoForm.email,
+      redeSocial: this.novoAlunoForm.redeSocial,
       dataCadastro: this.dataCadastro || new Date().toISOString(),
     };
 
     console.group('📤 NOVO ALUNO');
     console.log(JSON.stringify(aluno, null, 2));
     console.groupEnd();
-
-    if (this.modalidadeId <= 0) {
-      this.toastr.warning('Selecione uma modalidade');
-      return;
-    }
 
     this.alunoService.novoAluno(aluno).subscribe({
       next: (res) => {
@@ -303,6 +323,7 @@ export class AlunosComponent implements OnInit {
 
         this.activeTab = TabsCadastroAluno.Cadastro;
         this.resetFiltro();
+        this.resetNovoAlunoForm();
         this.fecharModal();
         
       },
@@ -347,7 +368,9 @@ export class AlunosComponent implements OnInit {
   }
 
   openModalNovoAluno(template: TemplateRef<any>) {
-     this.modalRef = this.modalService.show(template, {
+    this.resetNovoAlunoForm();
+    this.carregarModalidades();
+    this.modalRef = this.modalService.show(template, {
       class: 'modal-lg modal-dialog-centered',
     });
     
@@ -432,5 +455,21 @@ export class AlunosComponent implements OnInit {
         this.toastr.error('Erro ao alterar status');
       },
     });
+  }
+
+  private createNovoAlunoForm() {
+    return {
+      nome: '',
+      cpf: '',
+      email: '',
+      telefone: '',
+      modalidadeId: 0,
+      graduacao: '',
+      redeSocial: '',
+    };
+  }
+
+  private resetNovoAlunoForm() {
+    this.novoAlunoForm = this.createNovoAlunoForm();
   }
 }
