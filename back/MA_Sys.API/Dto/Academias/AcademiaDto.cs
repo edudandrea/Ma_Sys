@@ -13,7 +13,6 @@ namespace MA_SYS.Api.Dto
         public DateTime DataCadastro { get; set; }
         public string? Responsavel { get; set; }
         public string? Telefone { get; set; }
-        public string? ChavePix { get; set; }
         public string? MercadoPagoPublicKey { get; set; }
         public string? MercadoPagoAccessToken { get; set; }
         public bool Ativo { get; set; }

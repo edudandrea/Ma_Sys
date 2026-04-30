@@ -57,7 +57,6 @@ namespace MA_SYS.Api.Controllers
                 .Where(a => string.Equals(a.Slug, slug, StringComparison.OrdinalIgnoreCase))
                 .Select(a => new AcademiaPagamentoConfigDto
                 {
-                    ChavePix = a.ChavePix,
                     MercadoPagoPublicKey = a.MercadoPagoPublicKey
                 })
                 .FirstOrDefault();

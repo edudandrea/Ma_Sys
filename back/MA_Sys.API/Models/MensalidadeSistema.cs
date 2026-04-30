@@ -13,7 +13,11 @@ namespace MA_Sys.API.Models
         public int PrazoPagamentoDias { get; set; }
         public int MesesUso { get; set; }
         public bool Ativo { get; set; }
+        public bool AceitaPix { get; set; }
+        public bool AceitaCartao { get; set; }
         public string? Descricao { get; set; }
+        public string? MercadoPagoPublicKey { get; set; }
+        public string? MercadoPagoAccessToken { get; set; }
         public DateTime DataCadastro { get; set; }
         public int? OwnerUserId { get; set; }
         public Users? OwnerUser { get; set; }

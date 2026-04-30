@@ -19,7 +19,6 @@ export interface Academias {
   totalProf: number;
   diasAtraso: number;
   slug: string;
-  chavePix: string;
   mercadoPagoPublicKey: string;
   mercadoPagoAccessToken?: string;
   menuAberto?: boolean;
@@ -63,8 +62,8 @@ export class AcademiasService {
     return this.http.get<Academias>(`${this.apiUrl}/${id}`);
   }
 
-  getPagamentoConfigPublico(slug: string): Observable<{ chavePix?: string; mercadoPagoPublicKey?: string }> {
-    return this.http.get<{ chavePix?: string; mercadoPagoPublicKey?: string }>(
+  getPagamentoConfigPublico(slug: string): Observable<{ mercadoPagoPublicKey?: string }> {
+    return this.http.get<{ mercadoPagoPublicKey?: string }>(
       `${this.apiUrl}/public/${slug}/pagamento-config`,
     );
   }

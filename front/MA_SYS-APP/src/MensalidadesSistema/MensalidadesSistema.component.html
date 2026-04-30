@@ -25,6 +25,17 @@
         </span>
       </div>
 
+      <div class="payment-badges" *ngIf="editarId !== mensalidade.id">
+        <span class="method-badge" [class.disabled]="!mensalidade.aceitaPix">
+          <i class="fa-solid fa-qrcode"></i>
+          PIX
+        </span>
+        <span class="method-badge" [class.disabled]="!mensalidade.aceitaCartao">
+          <i class="fa-solid fa-credit-card"></i>
+          Cartao
+        </span>
+      </div>
+
       <div class="card-header-kpi">
         <div class="avatar">
           {{ mensalidade.mesesUso }}
@@ -63,6 +74,26 @@
             <span class="detail-label">Descricao</span>
             <strong *ngIf="editarId !== mensalidade.id">{{ mensalidade.descricao || 'Sem descricao adicional' }}</strong>
             <input *ngIf="editarId === mensalidade.id" [(ngModel)]="descricao" class="edit-input" />
+          </div>
+        </div>
+
+        <div class="detail-item" *ngIf="editarId === mensalidade.id">
+          <i class="fa-solid fa-wallet"></i>
+          <div>
+            <span class="detail-label">Formas de pagamento</span>
+            <div class="checkbox-row">
+              <label><input type="checkbox" [(ngModel)]="aceitaPix" /> PIX</label>
+              <label><input type="checkbox" [(ngModel)]="aceitaCartao" /> Cartao</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-item" *ngIf="editarId === mensalidade.id">
+          <i class="fa-solid fa-key"></i>
+          <div>
+            <span class="detail-label">Credenciais Mercado Pago</span>
+            <input [(ngModel)]="mercadoPagoPublicKey" class="edit-input" placeholder="Public Key" />
+            <input [(ngModel)]="mercadoPagoAccessToken" class="edit-input" placeholder="Access Token (preencha apenas para alterar)" />
           </div>
         </div>
       </div>
@@ -108,6 +139,24 @@
         <div class="form-group full">
           <label>Descricao</label>
           <input [(ngModel)]="descricao" name="descricaoMensalidadeSistema" />
+        </div>
+
+        <div class="form-group full">
+          <label>Formas de pagamento habilitadas</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" [(ngModel)]="aceitaPix" name="aceitaPixMensalidadeSistema" /> PIX</label>
+            <label><input type="checkbox" [(ngModel)]="aceitaCartao" name="aceitaCartaoMensalidadeSistema" /> Cartao de credito</label>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>Chave publica Mercado Pago</label>
+          <input [(ngModel)]="mercadoPagoPublicKey" name="mercadoPagoPublicKeyMensalidadeSistema" placeholder="APP_USR... ou TEST..." />
+        </div>
+
+        <div class="form-group full">
+          <label>Access Token Mercado Pago</label>
+          <input [(ngModel)]="mercadoPagoAccessToken" name="mercadoPagoAccessTokenMensalidadeSistema" placeholder="APP_USR... ou TEST..." />
         </div>
       </form>
     </div>

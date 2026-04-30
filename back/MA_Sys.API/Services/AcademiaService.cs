@@ -69,7 +69,6 @@ namespace MA_Sys.API.Services
                 Cidade = a.Cidade,
                 RedeSocial = a.RedeSocial,
                 Responsavel = a.Responsavel,
-                ChavePix = a.ChavePix,
                 MercadoPagoPublicKey = a.MercadoPagoPublicKey,
                 Ativo = a.Ativo,
                 totalAlunos = a.Alunos != null ? a.Alunos.Count() : 0,
@@ -115,7 +114,6 @@ namespace MA_Sys.API.Services
                 Cidade = a.Cidade,
                 RedeSocial = a.RedeSocial,
                 Responsavel = a.Responsavel,
-                ChavePix = a.ChavePix,
                 MercadoPagoPublicKey = a.MercadoPagoPublicKey,
                 Ativo = a.Ativo,
                 totalAlunos = a.Alunos != null ? a.Alunos.Count() : 0,
@@ -154,7 +152,6 @@ namespace MA_Sys.API.Services
                 Estado = a.Estado,
                 DataCadastro = a.DataCadastro,
                 Slug = a.Slug,
-                ChavePix = a.ChavePix,
                 MercadoPagoPublicKey = a.MercadoPagoPublicKey,
                 MercadoPagoAccessToken = a.MercadoPagoAccessToken,
                 Ativo = a.Ativo
@@ -183,7 +180,6 @@ namespace MA_Sys.API.Services
                 Telefone = dto.Telefone,
                 Email = dto.Email,
                 LogoUrl = dto.LogoUrl?.Trim(),
-                ChavePix = dto.ChavePix?.Trim(),
                 MercadoPagoPublicKey = dto.MercadoPagoPublicKey?.Trim(),
                 MercadoPagoAccessToken = dto.MercadoPagoAccessToken?.Trim(),
                 OwnerUserId = RoleScope.IsAdmin(role) ? currentUserId : dto.OwnerUserId,
@@ -227,7 +223,6 @@ namespace MA_Sys.API.Services
             academia.RedeSocial = dto.RedeSocial;
             academia.Email = dto.Email;
             academia.Responsavel = dto.Responsavel;
-            academia.ChavePix = dto.ChavePix?.Trim();
             academia.MercadoPagoPublicKey = dto.MercadoPagoPublicKey?.Trim();
             academia.MercadoPagoAccessToken = dto.MercadoPagoAccessToken?.Trim();
 

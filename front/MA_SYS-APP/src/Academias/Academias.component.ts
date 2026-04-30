@@ -41,7 +41,6 @@ export class AcademiasComponent implements OnInit {
   totalProf = 0;
   linkCadastro = '';
   slug = '';
-  chavePix = '';
   mercadoPagoPublicKey = '';
   mercadoPagoAccessToken = '';
   publicOrigin = '';
@@ -170,7 +169,6 @@ export class AcademiasComponent implements OnInit {
         email: this.email,
         redeSocial: this.redeSocial,
         responsavel: this.responsavel,
-        chavePix: this.chavePix,
         mercadoPagoPublicKey: this.mercadoPagoPublicKey,
         mercadoPagoAccessToken: this.mercadoPagoAccessToken,
         dataCadastro: this.dataCadastro || new Date().toISOString(),
@@ -238,7 +236,6 @@ export class AcademiasComponent implements OnInit {
     this.email = academia.email;
     this.redeSocial = academia.redeSocial;
     this.responsavel = academia.responsavel;
-    this.chavePix = academia.chavePix || '';
     this.logoUrl = this.resolveLogoUrl(academia.logoUrl);
     this.logoPreviewUrl = this.resolveLogoUrl(academia.logoUrl);
     this.mercadoPagoPublicKey = academia.mercadoPagoPublicKey || '';
@@ -273,7 +270,6 @@ export class AcademiasComponent implements OnInit {
         email: this.email,
         redeSocial: this.redeSocial,
         responsavel: this.responsavel,
-        chavePix: this.chavePix,
         mercadoPagoPublicKey: this.mercadoPagoPublicKey,
         mercadoPagoAccessToken: this.mercadoPagoAccessToken,
         ativo: academia.ativo,
@@ -288,7 +284,6 @@ export class AcademiasComponent implements OnInit {
         academia.email = this.email;
         academia.redeSocial = this.redeSocial;
         academia.responsavel = this.responsavel;
-        academia.chavePix = this.chavePix;
         academia.mercadoPagoPublicKey = this.mercadoPagoPublicKey;
         academia.mercadoPagoAccessToken = this.mercadoPagoAccessToken;
 
@@ -490,7 +485,6 @@ export class AcademiasComponent implements OnInit {
     this.totalProf = 0;
     this.linkCadastro = '';
     this.slug = '';
-    this.chavePix = '';
     this.mercadoPagoPublicKey = '';
     this.mercadoPagoAccessToken = '';
   }

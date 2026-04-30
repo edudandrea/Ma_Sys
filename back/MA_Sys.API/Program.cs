@@ -105,7 +105,6 @@ builder.Services.AddScoped<PagamentoAcademiaService>();
 builder.Services.AddScoped<FormaPagamentoService>();
 builder.Services.AddScoped<MatriculaService>();
 builder.Services.AddScoped<FluxoCaixaService>();
-builder.Services.AddScoped<PixService>();
 builder.Services.AddScoped<MensalidadeStatusService>();
 builder.Services.AddScoped<MensalidadeSistemaService>();
 builder.Services.AddScoped<TurmaService>();

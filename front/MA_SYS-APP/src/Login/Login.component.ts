@@ -41,18 +41,9 @@ export class LoginComponent implements OnInit {
 
   entrar() {
     this.auth.login(this.login, this.password).subscribe({
-      next: (response) => {
+      next: () => {
         this.toastr.success('Login realizado com sucesso', 'Sucesso');
 
-        const token = response.token;
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', response.role);
-        localStorage.setItem('usuario', JSON.stringify(response.usuario));
-
-        const decodedToken = this.decodeToken(token);
-        const role = decodedToken.role;
-
-        localStorage.setItem('role', role);
         this.router.navigate(['/dashboard']);
       },
       error: () => {
@@ -110,12 +101,6 @@ export class LoginComponent implements OnInit {
           this.checkBootstrapStatus();
         },
       });
-  }
-
-  decodeToken(token: string): any {
-    const payload = token.split('.')[1];
-    const decodedPayload = atob(payload);
-    return JSON.parse(decodedPayload);
   }
 
   private checkBootstrapStatus() {

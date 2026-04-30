@@ -42,18 +42,30 @@ namespace MA_Sys.API.Services
                 throw new InvalidOperationException("Token do cartao nao informado.");
             }
 
-            var installments = dto.Parcelas <= 0 ? 1 : dto.Parcelas;
-            var paymentRequest = new
+            var payer = new Dictionary<string, object?>
             {
-                transaction_amount = dto.Valor,
-                token = dto.CardToken,
-                description = descricao,
-                installments,
-                payment_method_id = string.IsNullOrWhiteSpace(dto.PaymentMethodId) ? "visa" : dto.PaymentMethodId,
-                payer = new
+                ["email"] = string.IsNullOrWhiteSpace(dto.PayerEmail) ? "test_user_123456@testuser.com" : dto.PayerEmail
+            };
+
+            var payerCpf = ApenasDigitos(dto.PayerCpf);
+            if (payerCpf.Length == 11)
+            {
+                payer["identification"] = new
                 {
-                    email = string.IsNullOrWhiteSpace(dto.PayerEmail) ? "test_user_123456@testuser.com" : dto.PayerEmail
-                }
+                    type = "CPF",
+                    number = payerCpf
+                };
+            }
+
+            var installments = dto.Parcelas <= 0 ? 1 : dto.Parcelas;
+            var paymentRequest = new Dictionary<string, object?>
+            {
+                ["transaction_amount"] = dto.Valor,
+                ["token"] = dto.CardToken,
+                ["description"] = descricao,
+                ["installments"] = installments,
+                ["payment_method_id"] = string.IsNullOrWhiteSpace(dto.PaymentMethodId) ? "visa" : dto.PaymentMethodId,
+                ["payer"] = payer
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/v1/payments");
@@ -107,7 +119,7 @@ namespace MA_Sys.API.Services
                 payment_method_id = "pix",
                 payer = new
                 {
-                    email = payerEmail
+                    email = string.IsNullOrWhiteSpace(payerEmail) ? "pagador@marcialprox.com.br" : payerEmail
                 }
             };
 
@@ -137,16 +149,21 @@ namespace MA_Sys.API.Services
                 throw new InvalidOperationException("Resposta invalida ao gerar PIX.");
             }
 
+            var transactionData = result.PointOfInteraction?.TransactionData;
+            var payloadPix = ObterPayloadPix(
+                transactionData?.QrCode,
+                transactionData?.QrCodeAlias);
+
             return new MercadoPagoPixResult
             {
                 ExternalId = result.Id.ToString(),
                 Status = result.Status ?? "pending",
                 StatusDetail = result.StatusDetail ?? string.Empty,
-                Payload = result.PointOfInteraction?.TransactionData?.QrCode ??
-                    result.PointOfInteraction?.TransactionData?.QrCodeAlias ??
-                    result.PointOfInteraction?.TransactionData?.TicketUrl,
-                QrCodeBase64 = result.PointOfInteraction?.TransactionData?.QrCodeBase64 ??
-                    result.PointOfInteraction?.TransactionData?.QrCodeBase64Alias
+                Payload = payloadPix,
+                QrCodeBase64 = transactionData?.QrCodeBase64 ??
+                    transactionData?.QrCodeBase64Alias,
+                TicketUrl = transactionData?.TicketUrl,
+                AmbienteTeste = accessToken.StartsWith("TEST-", StringComparison.OrdinalIgnoreCase)
             };
         }
 
@@ -242,6 +259,23 @@ namespace MA_Sys.API.Services
             return "Erro desconhecido.";
         }
 
+        private static string ApenasDigitos(string? valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                return string.Empty;
+            }
+
+            return new string(valor.Where(char.IsDigit).ToArray());
+        }
+
+        private static string? ObterPayloadPix(params string?[] candidatos)
+        {
+            return candidatos
+                .Select(c => c?.Trim())
+                .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c));
+        }
+
         private class MercadoPagoPaymentResponse
         {
             [JsonPropertyName("id")]
@@ -311,5 +345,7 @@ namespace MA_Sys.API.Services
     {
         public string? Payload { get; set; }
         public string? QrCodeBase64 { get; set; }
+        public string? TicketUrl { get; set; }
+        public bool AmbienteTeste { get; set; }
     }
 }

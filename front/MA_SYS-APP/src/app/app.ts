@@ -3,6 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterModule, RouterOutlet } from "@angular/router";
 import { ThemeService } from '../Services/Theme/theme.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { AuthService } from '../Services/Auth/Auth.service';
 
 
 @Component({
@@ -14,10 +15,11 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 })
 
 export class App implements OnInit {
-  constructor(private themeService: ThemeService) {}
+  constructor(private themeService: ThemeService, private auth: AuthService) {}
 
   ngOnInit(): void {
     this.themeService.initializeTheme();
+    this.auth.initializeIdleTimeout();
   }
 
   protected readonly title = signal('Marcial ProX'); 

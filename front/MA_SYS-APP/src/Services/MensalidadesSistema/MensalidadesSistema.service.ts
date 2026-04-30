@@ -9,7 +9,11 @@ export interface MensalidadeSistema {
   prazoPagamentoDias: number;
   mesesUso: number;
   ativo: boolean;
+  aceitaPix: boolean;
+  aceitaCartao: boolean;
   descricao?: string;
+  mercadoPagoPublicKey?: string;
+  mercadoPagoAccessToken?: string;
   dataCadastro: string;
 }
 

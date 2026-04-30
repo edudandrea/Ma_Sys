@@ -208,7 +208,7 @@ namespace MA_Sys.API.Services
             if (string.IsNullOrWhiteSpace(gatewayResult.Payload) &&
                 string.IsNullOrWhiteSpace(gatewayResult.QrCodeBase64))
             {
-                throw new InvalidOperationException("O Mercado Pago gerou a cobranca, mas nao retornou QR Code nem codigo copia e cola do PIX.");
+                throw new InvalidOperationException("O Mercado Pago gerou a cobranca, mas nao retornou o codigo PIX copia e cola nem a imagem do QR Code. Tente novamente em instantes.");
             }
 
             pagamento.ExternalId = gatewayResult.ExternalId;
@@ -227,13 +227,18 @@ namespace MA_Sys.API.Services
                 Status = pagamento.Status,
                 Payload = gatewayResult.Payload,
                 QrCodeBase64 = gatewayResult.QrCodeBase64,
+                TicketUrl = gatewayResult.TicketUrl,
                 ExternalId = gatewayResult.ExternalId,
+                StatusDetail = gatewayResult.StatusDetail,
+                AmbienteTeste = gatewayResult.AmbienteTeste,
                 VerificacaoAutomaticaDisponivel = true,
-                Mensagem = "Cobranca PIX gerada com verificacao automatica habilitada."
+                Mensagem = gatewayResult.AmbienteTeste
+                    ? "Cobranca PIX gerada em ambiente de teste. Apps bancarios reais podem recusar este QR Code."
+                    : "Cobranca PIX gerada com verificacao automatica habilitada."
             };
         }
 
-        public async Task<Pagamentos> ProcessarPagamentoCartaoPublico(PagamentoCartaoPublicoDto dto, int academiaId)
+        public async Task<(Pagamentos Pagamento, string StatusDetail)> ProcessarPagamentoCartaoPublico(PagamentoCartaoPublicoDto dto, int academiaId)
         {
             if (dto.AlunoId <= 0 || dto.MatriculaId <= 0 || dto.PlanoId <= 0)
             {
@@ -345,7 +350,7 @@ namespace MA_Sys.API.Services
 
             _pagRepo.Save();
 
-            return pagamento;
+            return (pagamento, gatewayResult.StatusDetail);
         }
 
         public void ProcessarWebhook(dynamic payload)

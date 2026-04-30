@@ -99,20 +99,22 @@ namespace MA_Sys.API.Controllers
                     return Unauthorized(new { message = "Usuario sem vinculo com academia." });
                 }
 
-                var pagamento = await _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+                var resultado = await _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+                var pagamento = resultado.Pagamento;
 
                 var mensagem = pagamento.Status switch
                 {
                     "Pago" => "Pagamento com cartao aprovado com sucesso.",
                     "Pendente" => "Pagamento pendente. Aguarde a confirmacao do emissor.",
                     "EmAnalise" => "Pagamento em analise. Retorne em instantes para consultar o status.",
-                    _ => "Pagamento recusado."
+                    _ => MontarMensagemRecusa(resultado.StatusDetail)
                 };
 
                 return Ok(new
                 {
                     pagamentoId = pagamento.Id,
                     status = pagamento.Status,
+                    statusDetail = resultado.StatusDetail,
                     mensagem
                 });
             }
@@ -163,20 +165,22 @@ namespace MA_Sys.API.Controllers
                     return NotFound(new { message = "Academia nao encontrada." });
                 }
 
-                var pagamento = await _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+                var resultado = await _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+                var pagamento = resultado.Pagamento;
 
                 var mensagem = pagamento.Status switch
                 {
                     "Pago" => "Pagamento com cartao aprovado com sucesso.",
                     "Pendente" => "Pagamento pendente. Aguarde a confirmacao do emissor.",
                     "EmAnalise" => "Pagamento em analise. Retorne em instantes para consultar o status.",
-                    _ => "Pagamento recusado."
+                    _ => MontarMensagemRecusa(resultado.StatusDetail)
                 };
 
                 return Ok(new
                 {
                     pagamentoId = pagamento.Id,
                     status = pagamento.Status,
+                    statusDetail = resultado.StatusDetail,
                     mensagem
                 });
             }
@@ -246,6 +250,30 @@ namespace MA_Sys.API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        private static string MontarMensagemRecusa(string? statusDetail)
+        {
+            if (string.IsNullOrWhiteSpace(statusDetail))
+            {
+                return "Pagamento recusado pelo Mercado Pago.";
+            }
+
+            return statusDetail switch
+            {
+                "cc_rejected_bad_filled_card_number" => "Pagamento recusado: numero do cartao invalido.",
+                "cc_rejected_bad_filled_date" => "Pagamento recusado: validade do cartao invalida.",
+                "cc_rejected_bad_filled_security_code" => "Pagamento recusado: codigo de seguranca invalido.",
+                "cc_rejected_bad_filled_other" => "Pagamento recusado: confira os dados do cartao.",
+                "cc_rejected_insufficient_amount" => "Pagamento recusado: limite insuficiente.",
+                "cc_rejected_call_for_authorize" => "Pagamento recusado: autorize a compra com o banco emissor.",
+                "cc_rejected_duplicated_payment" => "Pagamento recusado: pagamento duplicado.",
+                "cc_rejected_high_risk" => "Pagamento recusado por analise de risco do Mercado Pago.",
+                "cc_rejected_card_disabled" => "Pagamento recusado: cartao desabilitado.",
+                "cc_rejected_max_attempts" => "Pagamento recusado: limite de tentativas excedido.",
+                "cc_rejected_other_reason" => "Pagamento recusado pelo emissor do cartao.",
+                _ => $"Pagamento recusado pelo Mercado Pago ({statusDetail})."
+            };
         }
     }
 }

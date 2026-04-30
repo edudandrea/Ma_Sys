@@ -119,8 +119,13 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await loadMercadoPago();
-    this.mp = new window.MercadoPago(publicKey, { locale: 'pt-BR' });
+    try {
+      await loadMercadoPago();
+      this.mp = new window.MercadoPago(publicKey, { locale: 'pt-BR' });
+    } catch {
+      this.mp = null;
+      this.toastr.warning('O navegador bloqueou o SDK do Mercado Pago. Desative AdBlock/Brave Shields para pagar com cartao.');
+    }
   }
 
   private carregarConfiguracaoPagamentoAcademia() {
@@ -290,17 +295,18 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       this.verificacaoAutomaticaPix = res.verificacaoAutomaticaDisponivel;
       this.pixPayload = res.payload || '';
 
-      if (res.qrCodeBase64) {
+      if (res.payload) {
+        this.gerarCodePix(res.payload);
+      } else if (res.qrCodeBase64) {
         setTimeout(() => {
           this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
           this.showQrCode = true;
           this.isGerandoPix = false;
           this.cd.detectChanges();
         }, 0);
-      } else if (res.payload) {
-        this.gerarCodePix(res.payload);
       } else {
         this.isGerandoPix = false;
+        this.toastr.error('O Mercado Pago nao retornou um codigo PIX valido para gerar o QR Code.');
       }
 
       if (res.status === 'Pago') {
@@ -404,6 +410,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       valor: this.aluno?.valor,
       parcelas: Number(this.formaPagamentoSelecionada?.parcelas || 1),
       payerEmail: this.email || this.emailBusca || '',
+      payerCpf: this.cpf || this.cpfBusca || '',
       cardToken,
       paymentMethodId,
     };

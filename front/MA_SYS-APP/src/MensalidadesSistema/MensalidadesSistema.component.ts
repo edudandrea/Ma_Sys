@@ -26,6 +26,10 @@ export class MensalidadesSistemaComponent implements OnInit {
   mesesUso = 0;
   descricao = '';
   ativo = true;
+  aceitaPix = true;
+  aceitaCartao = true;
+  mercadoPagoPublicKey = '';
+  mercadoPagoAccessToken = '';
 
   constructor(
     private mensalidadesService: MensalidadesSistemaService,
@@ -86,6 +90,8 @@ export class MensalidadesSistemaComponent implements OnInit {
           ...item,
           menuAberto: false,
           ativo: !!item.ativo,
+          aceitaPix: !!item.aceitaPix,
+          aceitaCartao: !!item.aceitaCartao,
         }));
         this.cd.detectChanges();
       },
@@ -108,6 +114,10 @@ export class MensalidadesSistemaComponent implements OnInit {
       prazoPagamentoDias: this.prazoPagamentoDias,
       mesesUso: this.mesesUso,
       descricao: this.descricao,
+      aceitaPix: this.aceitaPix,
+      aceitaCartao: this.aceitaCartao,
+      mercadoPagoPublicKey: this.mercadoPagoPublicKey,
+      mercadoPagoAccessToken: this.mercadoPagoAccessToken,
     }).subscribe({
       next: () => {
         this.spinner.hide();
@@ -130,6 +140,10 @@ export class MensalidadesSistemaComponent implements OnInit {
     this.mesesUso = mensalidade.mesesUso;
     this.descricao = mensalidade.descricao || '';
     this.ativo = mensalidade.ativo;
+    this.aceitaPix = mensalidade.aceitaPix;
+    this.aceitaCartao = mensalidade.aceitaCartao;
+    this.mercadoPagoPublicKey = mensalidade.mercadoPagoPublicKey || '';
+    this.mercadoPagoAccessToken = '';
   }
 
   salvarEdicao(mensalidade: MensalidadeSistema) {
@@ -144,6 +158,10 @@ export class MensalidadesSistemaComponent implements OnInit {
       mesesUso: this.mesesUso,
       descricao: this.descricao,
       ativo: this.ativo,
+      aceitaPix: this.aceitaPix,
+      aceitaCartao: this.aceitaCartao,
+      mercadoPagoPublicKey: this.mercadoPagoPublicKey,
+      mercadoPagoAccessToken: this.mercadoPagoAccessToken,
     }).subscribe({
       next: () => {
         mensalidade.valor = this.valor;
@@ -151,6 +169,9 @@ export class MensalidadesSistemaComponent implements OnInit {
         mensalidade.mesesUso = this.mesesUso;
         mensalidade.descricao = this.descricao;
         mensalidade.ativo = this.ativo;
+        mensalidade.aceitaPix = this.aceitaPix;
+        mensalidade.aceitaCartao = this.aceitaCartao;
+        mensalidade.mercadoPagoPublicKey = this.mercadoPagoPublicKey;
         this.editarId = null;
         this.toastr.success('Mensalidade atualizada com sucesso.');
         this.carregarMensalidades();
@@ -193,6 +214,21 @@ export class MensalidadesSistemaComponent implements OnInit {
       return false;
     }
 
+    if (!this.aceitaPix && !this.aceitaCartao) {
+      this.toastr.warning('Habilite PIX, cartao ou ambos para a cobranca.');
+      return false;
+    }
+
+    if (this.aceitaCartao && !this.mercadoPagoPublicKey.trim()) {
+      this.toastr.warning('Informe a chave publica do Mercado Pago para pagamento com cartao.');
+      return false;
+    }
+
+    if (!this.editarId && !this.mercadoPagoAccessToken.trim()) {
+      this.toastr.warning('Informe o Access Token do Mercado Pago para receber a cobranca.');
+      return false;
+    }
+
     return true;
   }
 
@@ -202,5 +238,9 @@ export class MensalidadesSistemaComponent implements OnInit {
     this.mesesUso = 0;
     this.descricao = '';
     this.ativo = true;
+    this.aceitaPix = true;
+    this.aceitaCartao = true;
+    this.mercadoPagoPublicKey = '';
+    this.mercadoPagoAccessToken = '';
   }
 }

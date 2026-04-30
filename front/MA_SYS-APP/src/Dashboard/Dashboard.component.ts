@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   pagamentoMensagem = '';
   pagamentoStatus = '';
   pagamentoVerificacaoAutomatica = false;
+  pixGerado = false;
   cartao = {
     numero: '',
     nome: '',
@@ -43,6 +44,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     cpf: '',
   };
   private mp: any = null;
+  private mpPublicKey = '';
   private themeObserver?: MutationObserver;
   private statusPollingHandle: any = null;
 
@@ -55,7 +57,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private modalService: BsModalService,
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     if (typeof window !== 'undefined') {
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
       this.role = usuario.role || '';
@@ -63,10 +65,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadDashboard();
     this.carregarCobrancasAcademia();
-
-    if (this.isAcademia) {
-      await this.inicializarMercadoPago();
-    }
   }
 
   ngAfterViewInit() {
@@ -147,6 +145,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selecionarMetodoPagamento(metodo: 'pix' | 'cartao') {
+    if (metodo === 'pix' && !this.cobrancaSelecionada?.aceitaPix) {
+      this.toastr.warning('PIX nao esta habilitado para esta cobranca.');
+      return;
+    }
+
+    if (metodo === 'cartao' && !this.cobrancaSelecionada?.aceitaCartao) {
+      this.toastr.warning('Cartao de credito nao esta habilitado para esta cobranca.');
+      return;
+    }
+
     this.metodoPagamentoSelecionado = metodo;
     this.resetPagamentoState();
   }
@@ -162,14 +170,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.spinner.hide();
         this.pagamentoStatus = res.status;
         this.pagamentoMensagem = res.mensagem;
-        this.pixPayload = res.payload || '';
+        this.pixPayload = (res.payload || '').trim();
+        this.pixGerado = true;
+        this.qrCodePix = this.normalizarQrCodeBase64(res.qrCodeBase64);
 
-        if (res.qrCodeBase64) {
-          this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
-        } else if (res.payload) {
-          this.gerarQrCodePix(res.payload);
-        } else {
-          this.qrCodePix = '';
+        if (!this.qrCodePix && this.pixPayload) {
+          this.gerarQrCodePix(this.pixPayload);
         }
 
         this.pagamentoVerificacaoAutomatica = res.verificacaoAutomaticaDisponivel;
@@ -180,12 +186,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           return;
         }
 
-        this.toastr.info('PIX gerado. Aguarde a confirmacao do pagamento.');
+        if (!this.qrCodePix && !this.pixPayload) {
+          this.toastr.warning('PIX gerado, mas o gateway nao retornou QR Code nem codigo copia e cola.');
+        } else {
+          this.toastr.info('PIX gerado. Aguarde a confirmacao do pagamento.');
+        }
+
         this.iniciarPollingStatus();
       },
-      error: (err) => {
+      error: async (err) => {
         this.spinner.hide();
-        const message = err?.error?.message || 'Nao foi possivel gerar o PIX da cobranca.';
+        const message = await this.extrairMensagemErroHttp(err, 'Nao foi possivel gerar o PIX da cobranca.');
         this.toastr.error(message);
       },
     });
@@ -195,6 +206,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.cobrancaSelecionada) {
       return;
     }
+
+    await this.inicializarMercadoPago(this.cobrancaSelecionada.mercadoPagoPublicKey);
 
     if (!this.mp) {
       this.toastr.error('Pagamento por cartao indisponivel. Configure a chave publica do Mercado Pago.');
@@ -241,9 +254,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.toastr.info(this.pagamentoMensagem);
         this.iniciarPollingStatus();
       },
-      error: (err) => {
+      error: async (err) => {
         this.spinner.hide();
-        const message = err?.error?.message || 'Nao foi possivel processar o pagamento no cartao.';
+        const message = await this.extrairMensagemErroHttp(err, 'Nao foi possivel processar o pagamento no cartao.');
         this.toastr.error(message);
       },
     });
@@ -278,6 +291,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   copiarPix() {
     if (!this.pixPayload) {
+      this.toastr.warning('Codigo PIX ainda nao disponivel para copiar.');
       return;
     }
 
@@ -295,6 +309,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get cobrancasRecentesAdmin(): PagamentoAcademia[] {
     return this.cobrancasAcademia.slice(0, 8);
+  }
+
+  get cobrancaPermitePix(): boolean {
+    return this.cobrancaSelecionada?.aceitaPix !== false;
+  }
+
+  get cobrancaPermiteCartao(): boolean {
+    return this.cobrancaSelecionada?.aceitaCartao !== false;
   }
 
   renderCharts() {
@@ -454,14 +476,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return document.body.getAttribute('data-theme') || 'system';
   }
 
-  private async inicializarMercadoPago() {
-    const publicKey = environment.mercadoPagoPublicKey;
+  private async inicializarMercadoPago(publicKeyOverride?: string | null) {
+    const publicKey = publicKeyOverride || environment.mercadoPagoPublicKey;
     if (!publicKey || publicKey.includes('__CONFIGURE_VIA_')) {
+      this.mp = null;
+      this.mpPublicKey = '';
+      return;
+    }
+
+    if (this.mp && this.mpPublicKey === publicKey) {
       return;
     }
 
     await loadMercadoPago();
     this.mp = new (window as any).MercadoPago(publicKey, { locale: 'pt-BR' });
+    this.mpPublicKey = publicKey;
   }
 
   private gerarQrCodePix(payload: string) {
@@ -474,6 +503,47 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.qrCodePix = '';
         this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
       });
+  }
+
+  private normalizarQrCodeBase64(qrCodeBase64?: string | null): string {
+    const valor = (qrCodeBase64 || '').trim();
+    if (!valor) {
+      return '';
+    }
+
+    if (valor.startsWith('data:image/')) {
+      return valor;
+    }
+
+    return `data:image/png;base64,${valor}`;
+  }
+
+  private async extrairMensagemErroHttp(error: any, fallback: string): Promise<string> {
+    const body = error?.error;
+
+    if (typeof body === 'string') {
+      return body || fallback;
+    }
+
+    if (body?.message) {
+      return body.message;
+    }
+
+    if (body instanceof Blob) {
+      const text = await body.text();
+      if (!text) {
+        return fallback;
+      }
+
+      try {
+        const parsed = JSON.parse(text);
+        return parsed?.message || text || fallback;
+      } catch {
+        return text;
+      }
+    }
+
+    return error?.message || fallback;
   }
 
   private async gerarTokenCartao(): Promise<string | null> {
@@ -549,6 +619,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pararPollingStatus();
     this.qrCodePix = '';
     this.pixPayload = '';
+    this.pixGerado = false;
     this.pagamentoMensagem = '';
     this.pagamentoStatus = '';
     this.pagamentoVerificacaoAutomatica = false;

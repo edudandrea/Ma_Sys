@@ -76,7 +76,10 @@ namespace MA_Sys.API.Services
                         Status = p.Status,
                         Descricao = p.Descricao,
                         FormaPagamentoNome = p.FormaPagamentoNome,
-                        MensalidadeSistemaId = p.MensalidadeSistemaId
+                        MensalidadeSistemaId = p.MensalidadeSistemaId,
+                        AceitaPix = p.MensalidadeSistemaId == null || p.MensalidadeSistema!.AceitaPix,
+                        AceitaCartao = p.MensalidadeSistemaId == null || p.MensalidadeSistema!.AceitaCartao,
+                        MercadoPagoPublicKey = p.MensalidadeSistema!.MercadoPagoPublicKey
                     })
                 .OrderByDescending(x => x.DataVencimento)
                 .ToList();
@@ -131,10 +134,20 @@ namespace MA_Sys.API.Services
                 };
             }
 
+            ValidarMetodoPagamentoHabilitado(cobranca, "pix");
+            var accessToken = ObterAccessTokenCobranca(cobranca);
+
             var gatewayResult = await _mercadoPagoGateway.CriarPagamentoPixAsync(
                 cobranca.Valor,
                 cobranca.Descricao ?? $"Mensalidade do sistema - Academia {cobranca.AcademiaId}",
-                "financeiro@marcialprox.local");
+                ObterEmailPagadorCobranca(cobranca),
+                accessToken);
+
+            if (string.IsNullOrWhiteSpace(gatewayResult.Payload) &&
+                string.IsNullOrWhiteSpace(gatewayResult.QrCodeBase64))
+            {
+                throw new InvalidOperationException("O Mercado Pago gerou a cobranca, mas nao retornou o codigo PIX copia e cola nem a imagem do QR Code. Tente novamente em instantes.");
+            }
 
             cobranca.ExternalId = gatewayResult.ExternalId;
             cobranca.FormaPagamentoNome = "PIX";
@@ -174,6 +187,9 @@ namespace MA_Sys.API.Services
             if (string.IsNullOrWhiteSpace(dto.CardToken))
                 throw new InvalidOperationException("Token do cartao nao informado.");
 
+            ValidarMetodoPagamentoHabilitado(cobranca, "cartao");
+            var accessToken = ObterAccessTokenCobranca(cobranca);
+
             var gatewayDto = new PagamentoCartaoPublicoDto
             {
                 Valor = cobranca.Valor,
@@ -185,7 +201,8 @@ namespace MA_Sys.API.Services
 
             var gatewayResult = await _mercadoPagoGateway.ProcessarPagamentoCartaoAsync(
                 gatewayDto,
-                cobranca.Descricao ?? $"Mensalidade do sistema - Academia {cobranca.AcademiaId}");
+                cobranca.Descricao ?? $"Mensalidade do sistema - Academia {cobranca.AcademiaId}",
+                accessToken);
 
             cobranca.ExternalId = gatewayResult.ExternalId;
             cobranca.FormaPagamentoNome = "Cartao";
@@ -241,7 +258,9 @@ namespace MA_Sys.API.Services
                 return MapToStatus(cobranca);
             }
 
-            var gatewayResult = _mercadoPagoGateway.ConsultarPagamentoAsync(cobranca.ExternalId)
+            var gatewayResult = _mercadoPagoGateway.ConsultarPagamentoAsync(
+                cobranca.ExternalId,
+                ObterAccessTokenCobranca(cobranca))
                 .GetAwaiter()
                 .GetResult();
 
@@ -275,6 +294,9 @@ namespace MA_Sys.API.Services
                 Descricao = pagamento.Descricao,
                 FormaPagamentoNome = pagamento.FormaPagamentoNome,
                 MensalidadeSistemaId = pagamento.MensalidadeSistemaId,
+                AceitaPix = pagamento.MensalidadeSistemaId == null || pagamento.MensalidadeSistema?.AceitaPix == true,
+                AceitaCartao = pagamento.MensalidadeSistemaId == null || pagamento.MensalidadeSistema?.AceitaCartao == true,
+                MercadoPagoPublicKey = pagamento.MensalidadeSistema?.MercadoPagoPublicKey
             };
         }
 
@@ -316,6 +338,62 @@ namespace MA_Sys.API.Services
                 throw new InvalidOperationException("Cobranca nao encontrada.");
 
             return cobranca;
+        }
+
+        private string? ObterAccessTokenCobranca(PagamentoAcademia cobranca)
+        {
+            var mensalidade = cobranca.MensalidadeSistema;
+
+            if (mensalidade == null && cobranca.MensalidadeSistemaId.HasValue)
+            {
+                mensalidade = _mensalidadeSistemaRepo.Query()
+                    .FirstOrDefault(x => x.Id == cobranca.MensalidadeSistemaId.Value);
+            }
+
+            return mensalidade?.MercadoPagoAccessToken;
+        }
+
+        private string ObterEmailPagadorCobranca(PagamentoAcademia cobranca)
+        {
+            var emailAcademia = _academiaRepo.Query()
+                .Where(a => a.Id == cobranca.AcademiaId)
+                .Select(a => a.Email)
+                .FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(emailAcademia) &&
+                emailAcademia.Contains('@') &&
+                !emailAcademia.EndsWith(".local", StringComparison.OrdinalIgnoreCase))
+            {
+                return emailAcademia.Trim();
+            }
+
+            return "pagador@marcialprox.com.br";
+        }
+
+        private void ValidarMetodoPagamentoHabilitado(PagamentoAcademia cobranca, string metodo)
+        {
+            var mensalidade = cobranca.MensalidadeSistema;
+
+            if (mensalidade == null && cobranca.MensalidadeSistemaId.HasValue)
+            {
+                mensalidade = _mensalidadeSistemaRepo.Query()
+                    .FirstOrDefault(x => x.Id == cobranca.MensalidadeSistemaId.Value);
+            }
+
+            if (mensalidade == null)
+            {
+                return;
+            }
+
+            if (metodo == "pix" && !mensalidade.AceitaPix)
+            {
+                throw new InvalidOperationException("PIX nao esta habilitado para esta cobranca.");
+            }
+
+            if (metodo == "cartao" && !mensalidade.AceitaCartao)
+            {
+                throw new InvalidOperationException("Cartao de credito nao esta habilitado para esta cobranca.");
+            }
         }
 
         private void ValidarMensalidadeNoEscopo(int mensalidadeSistemaId, string role, int? userId)

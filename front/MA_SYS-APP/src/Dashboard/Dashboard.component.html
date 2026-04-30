@@ -215,6 +215,9 @@
             <strong>{{ c.descricao || 'Mensalidade do sistema' }}</strong>
             <span>Vencimento: {{ c.dataVencimento | date: 'dd/MM/yyyy' }}</span>
             <span>Valor: {{ c.valor | currency: 'BRL' }}</span>
+            <span *ngIf="c.status !== 'Pago'">
+              Opcoes: {{ c.aceitaPix ? 'PIX' : '' }}{{ c.aceitaPix && c.aceitaCartao ? ' / ' : '' }}{{ c.aceitaCartao ? 'Cartao' : '' }}
+            </span>
             <span *ngIf="c.formaPagamentoNome">Pago via {{ c.formaPagamentoNome }}</span>
           </div>
 
@@ -322,6 +325,7 @@
 
       <div class="payment-method-grid">
         <button
+          *ngIf="cobrancaPermitePix"
           type="button"
           class="payment-method-btn"
           [class.active]="metodoPagamentoSelecionado === 'pix'"
@@ -332,6 +336,7 @@
         </button>
 
         <button
+          *ngIf="cobrancaPermiteCartao"
           type="button"
           class="payment-method-btn"
           [class.active]="metodoPagamentoSelecionado === 'cartao'"
@@ -342,15 +347,44 @@
         </button>
       </div>
 
+      <div *ngIf="!cobrancaPermitePix && !cobrancaPermiteCartao" class="empty-note">
+        Nenhuma forma de pagamento foi habilitada para esta cobrança.
+      </div>
+
       <div *ngIf="metodoPagamentoSelecionado === 'pix'" class="payment-pane">
-        <button type="button" class="btn-save small-action" (click)="pagarCobrancaPix()">Gerar PIX</button>
+        <div class="pix-toolbar">
+          <div>
+            <strong>Pagamento via PIX</strong>
+            <span>Gere o QR Code e use a confirmação automática para atualizar o status.</span>
+          </div>
+          <button type="button" class="btn-save small-action" (click)="pagarCobrancaPix()">
+            {{ pixGerado ? 'Gerar novo PIX' : 'Gerar PIX' }}
+          </button>
+        </div>
 
         <p class="payment-message" *ngIf="pagamentoMensagem">{{ pagamentoMensagem }}</p>
 
-        <div *ngIf="qrCodePix" class="pix-qrcode">
-          <img [src]="qrCodePix" alt="QR Code PIX" />
+        <div *ngIf="pixGerado" class="pix-qrcode">
+          <div class="pix-code-shell" *ngIf="qrCodePix; else qrCodeLoading">
+            <img [src]="qrCodePix" alt="QR Code PIX" />
+          </div>
+
+          <ng-template #qrCodeLoading>
+            <div class="pix-code-shell pix-code-empty">
+              <i class="fa-solid fa-qrcode"></i>
+              <span>QR Code indisponivel</span>
+            </div>
+          </ng-template>
+
+          <div class="pix-copy-panel">
+            <span>Codigo copia e cola</span>
+            <textarea readonly [value]="pixPayload || 'Codigo PIX nao retornado pelo gateway.'"></textarea>
+          </div>
+
           <div class="pix-actions">
-            <button type="button" class="btn-cancel small-action" (click)="copiarPix()">Copiar código PIX</button>
+            <button type="button" class="btn-cancel small-action" [disabled]="!pixPayload" (click)="copiarPix()">
+              Copiar codigo PIX
+            </button>
             <button
               type="button"
               class="btn-save small-action"

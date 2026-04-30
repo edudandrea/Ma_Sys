@@ -17,6 +17,7 @@ export interface Pagamentos {
 export interface PagamentoCartaoResponse {
   pagamentoId: number;
   status: string;
+  statusDetail?: string;
   mensagem: string;
 }
 
@@ -30,7 +31,10 @@ export interface PagamentoPixResponse {
   status: string;
   payload?: string;
   qrCodeBase64?: string;
+  ticketUrl?: string;
   externalId?: string;
+  statusDetail?: string;
+  ambienteTeste?: boolean;
   verificacaoAutomaticaDisponivel: boolean;
   mensagem: string;
 }

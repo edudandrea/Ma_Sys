@@ -5,7 +5,6 @@ import { Pagamentos, PagamentosService } from '../Services/PagamentosService/Pag
 import { ToastrService } from 'ngx-toastr';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import * as QRCode from 'qrcode';
 import { PixResponse } from '../Model/pix-response.model';
 import { Academias, AcademiasService } from '../Services/AcademiaService/Academias.service';
 
@@ -24,7 +23,6 @@ export class PagamentosComponent implements OnInit {
   taxa: number = 0;
   parcelas: number = 0;
   dias: number = 0;
-  qrCodePix: string = '';
   pixPayload: string = '';
   valor: number = 0;
   academias: Academias[] = [];
@@ -73,19 +71,20 @@ export class PagamentosComponent implements OnInit {
     }
   }
 
+  gerarQrCodePixRemovido(payload: string) {
+    this.toastr.info('A geracao manual de PIX foi removida. Use as cobrancas via Mercado Pago.');
+  }
+
   gerarQrCodePix(payload: string) {
-    console.log('Gerando QR com payload:', payload);
-    QRCode.toDataURL(payload)
-      .then((url) => {
-        this.qrCodePix = url;
-        this.cd.detectChanges();
-      })
-      .catch((err) => {
-        console.error('Erro ao gerar QRCode:', err);
-      });
+    this.gerarQrCodePixRemovido(payload);
   }
 
   gerarPix() {
+    if (true) {
+      this.toastr.info('A geracao manual de PIX foi removida. Use as cobrancas via Mercado Pago.');
+      return;
+    }
+
     if (!this.valor || this.valor <= 0) {
       this.toastr.warning('Informe um valor válido');
       return;

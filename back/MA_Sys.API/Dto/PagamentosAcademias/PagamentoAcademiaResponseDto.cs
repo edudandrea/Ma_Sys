@@ -13,5 +13,8 @@ namespace MA_Sys.API.Dto.PagamentosAcademias
         public string? Descricao { get; set; }
         public string? FormaPagamentoNome { get; set; }
         public int? MensalidadeSistemaId { get; set; }
+        public bool AceitaPix { get; set; }
+        public bool AceitaCartao { get; set; }
+        public string? MercadoPagoPublicKey { get; set; }
     }
 }

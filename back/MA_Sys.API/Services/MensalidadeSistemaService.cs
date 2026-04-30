@@ -45,7 +45,10 @@ namespace MA_Sys.API.Services
                     PrazoPagamentoDias = x.PrazoPagamentoDias,
                     MesesUso = x.MesesUso,
                     Ativo = x.Ativo,
+                    AceitaPix = x.AceitaPix,
+                    AceitaCartao = x.AceitaCartao,
                     Descricao = x.Descricao,
+                    MercadoPagoPublicKey = x.MercadoPagoPublicKey,
                     DataCadastro = x.DataCadastro
                 })
                 .ToList();
@@ -55,6 +58,11 @@ namespace MA_Sys.API.Services
         {
             ValidarPermissao(role, userId);
             ValidarDto(dto.Valor, dto.PrazoPagamentoDias, dto.MesesUso);
+            ValidarConfiguracaoCobranca(
+                dto.AceitaPix,
+                dto.AceitaCartao,
+                dto.MercadoPagoPublicKey,
+                dto.MercadoPagoAccessToken);
 
             var mensalidade = new MensalidadeSistema
             {
@@ -62,6 +70,10 @@ namespace MA_Sys.API.Services
                 PrazoPagamentoDias = dto.PrazoPagamentoDias,
                 MesesUso = dto.MesesUso,
                 Descricao = dto.Descricao?.Trim(),
+                AceitaPix = dto.AceitaPix,
+                AceitaCartao = dto.AceitaCartao,
+                MercadoPagoPublicKey = dto.MercadoPagoPublicKey?.Trim(),
+                MercadoPagoAccessToken = dto.MercadoPagoAccessToken?.Trim(),
                 Ativo = true,
                 DataCadastro = DateTime.UtcNow,
                 OwnerUserId = RoleScope.IsAdmin(role) ? userId : null
@@ -81,11 +93,27 @@ namespace MA_Sys.API.Services
             if (mensalidade == null)
                 throw new InvalidOperationException("Mensalidade do sistema nao encontrada.");
 
+            ValidarConfiguracaoCobranca(
+                dto.AceitaPix,
+                dto.AceitaCartao,
+                dto.MercadoPagoPublicKey,
+                string.IsNullOrWhiteSpace(dto.MercadoPagoAccessToken)
+                    ? mensalidade.MercadoPagoAccessToken
+                    : dto.MercadoPagoAccessToken);
+
             mensalidade.Valor = dto.Valor;
             mensalidade.PrazoPagamentoDias = dto.PrazoPagamentoDias;
             mensalidade.MesesUso = dto.MesesUso;
             mensalidade.Ativo = dto.Ativo;
             mensalidade.Descricao = dto.Descricao?.Trim();
+            mensalidade.AceitaPix = dto.AceitaPix;
+            mensalidade.AceitaCartao = dto.AceitaCartao;
+            mensalidade.MercadoPagoPublicKey = dto.MercadoPagoPublicKey?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(dto.MercadoPagoAccessToken))
+            {
+                mensalidade.MercadoPagoAccessToken = dto.MercadoPagoAccessToken.Trim();
+            }
 
             _repo.Update(mensalidade);
             _repo.Save();
@@ -139,6 +167,22 @@ namespace MA_Sys.API.Services
 
             if (mesesUso <= 0)
                 throw new InvalidOperationException("Informe a quantidade de meses de uso.");
+        }
+
+        private static void ValidarConfiguracaoCobranca(
+            bool aceitaPix,
+            bool aceitaCartao,
+            string? mercadoPagoPublicKey,
+            string? mercadoPagoAccessToken)
+        {
+            if (!aceitaPix && !aceitaCartao)
+                throw new InvalidOperationException("Habilite PIX, cartao ou ambos para a cobranca.");
+
+            if ((aceitaPix || aceitaCartao) && string.IsNullOrWhiteSpace(mercadoPagoAccessToken))
+                throw new InvalidOperationException("Informe o Access Token do Mercado Pago para receber a cobranca.");
+
+            if (aceitaCartao && string.IsNullOrWhiteSpace(mercadoPagoPublicKey))
+                throw new InvalidOperationException("Informe a chave publica do Mercado Pago para pagamento com cartao.");
         }
     }
 }

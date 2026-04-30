@@ -15,6 +15,9 @@ export interface PagamentoAcademia {
   descricao?: string;
   formaPagamentoNome?: string;
   mensalidadeSistemaId?: number;
+  aceitaPix: boolean;
+  aceitaCartao: boolean;
+  mercadoPagoPublicKey?: string;
 }
 
 export interface PagamentoAcademiaPixResponse {
