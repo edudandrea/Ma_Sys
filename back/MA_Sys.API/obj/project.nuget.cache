@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ewYImTHs93w=",
+  "dgSpecHash": "u/Fh/X+6EIE=",
   "success": true,
-  "projectFilePath": "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\ma_sys.api.csproj",
+  "projectFilePath": "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\MA_Sys.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Eduardo\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\Eduardo\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",

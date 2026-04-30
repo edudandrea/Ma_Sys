@@ -59,6 +59,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   qrCodePix: string = '';
   pixPayload: string = '';
   verificacaoAutomaticaPix = false;
+  isGerandoPix = false;
 
   aluno: any = null;
   alunoEncontrado: boolean = false;
@@ -224,19 +225,30 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
 
   onFormaPagamentoChange() {
     this.formaPagamentoSelecionada = this.formasPagamento.find((f) => f.id == this.formaPagamentoId);
-    const nome = this.formaPagamentoSelecionada?.nome?.toLowerCase() || '';
 
-    this.isPix = nome === 'pix';
-    this.isCartao = nome.includes('credito') || nome.includes('debito');
+    this.isPix = this.isFormaPix(this.formaPagamentoSelecionada?.nome);
+    this.isCartao = this.isFormaCartao(this.formaPagamentoSelecionada?.nome);
 
     this.showQrCode = false;
     this.qrCodePix = '';
+    this.pixPayload = '';
+    this.isGerandoPix = false;
+    this.pagamentoStatus = '';
+    this.pagamentoMensagem = '';
+    this.pagamentoId = null;
+    this.verificacaoAutomaticaPix = false;
     this.numeroCartao = '';
     this.validadeCartao = '';
     this.cvvCartao = '';
+    this.cartao = { numero: '', nome: '', validade: '', cvv: '' };
+    this.pararPollingStatus();
   }
 
   gerarPix() {
+    if (this.isGerandoPix) {
+      return;
+    }
+
     if (!this.aluno?.alunoId || !this.aluno?.matriculaId || !this.aluno?.planoId) {
       this.toastr.error('Nao foi possivel identificar a matricula para gerar o PIX.');
       return;
@@ -250,10 +262,15 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
     const valor = this.aluno?.valor || 0;
 
     this.spinner.show();
+    this.isGerandoPix = true;
+    this.showQrCode = false;
+    this.qrCodePix = '';
+    this.pixPayload = '';
     this.pagamentoStatus = '';
     this.pagamentoMensagem = '';
     this.pagamentoId = null;
     this.pararPollingStatus();
+    this.cd.detectChanges();
 
     this.pgService.gerarPagamentoPixPublico({
       slug: this.context.slug,
@@ -274,10 +291,16 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       this.pixPayload = res.payload || '';
 
       if (res.qrCodeBase64) {
-        this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
-        this.showQrCode = true;
+        setTimeout(() => {
+          this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
+          this.showQrCode = true;
+          this.isGerandoPix = false;
+          this.cd.detectChanges();
+        }, 0);
       } else if (res.payload) {
         this.gerarCodePix(res.payload);
+      } else {
+        this.isGerandoPix = false;
       }
 
       if (res.status === 'Pago') {
@@ -290,17 +313,26 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       this.spinner.hide();
       const message = err?.error?.message || 'Nao foi possivel gerar o pagamento PIX.';
       this.toastr.error(message);
+      this.isGerandoPix = false;
     });
   }
 
   gerarCodePix(payload: string) {
-    QRCode.toDataURL(payload).then((url) => {
-      setTimeout(() => {
-        this.qrCodePix = url;
-        this.showQrCode = true;
-        this.cd.detectChanges();
-      }, 0);
-    });
+    QRCode.toDataURL(payload)
+      .then((url) => {
+        setTimeout(() => {
+          this.qrCodePix = url;
+          this.showQrCode = true;
+          this.isGerandoPix = false;
+          this.cd.detectChanges();
+        }, 0);
+      })
+      .catch(() => {
+        this.showQrCode = false;
+        this.qrCodePix = '';
+        this.isGerandoPix = false;
+        this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+      });
   }
 
   copiarPix() {
@@ -526,5 +558,25 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
     if (/^(606282|3841)/.test(numero)) return 'hipercard';
 
     return 'visa';
+  }
+
+  private isFormaPix(nome?: string): boolean {
+    const nomeNormalizado = this.normalizarTexto(nome);
+    return nomeNormalizado === 'pix' || nomeNormalizado.includes('pix');
+  }
+
+  private isFormaCartao(nome?: string): boolean {
+    const nomeNormalizado = this.normalizarTexto(nome);
+    return nomeNormalizado.includes('credito') ||
+      nomeNormalizado.includes('cartao') ||
+      nomeNormalizado.includes('debito');
+  }
+
+  private normalizarTexto(valor?: string): string {
+    return (valor || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 }

@@ -58,6 +58,7 @@ namespace MA_Sys.API.Services
 
             var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/v1/payments");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Headers.Add("X-Idempotency-Key", Guid.NewGuid().ToString("N"));
             request.Content = new StringContent(
                 JsonSerializer.Serialize(paymentRequest),
                 Encoding.UTF8,
@@ -112,6 +113,7 @@ namespace MA_Sys.API.Services
 
             var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/v1/payments");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Headers.Add("X-Idempotency-Key", Guid.NewGuid().ToString("N"));
             request.Content = new StringContent(
                 JsonSerializer.Serialize(paymentRequest),
                 Encoding.UTF8,
@@ -140,8 +142,11 @@ namespace MA_Sys.API.Services
                 ExternalId = result.Id.ToString(),
                 Status = result.Status ?? "pending",
                 StatusDetail = result.StatusDetail ?? string.Empty,
-                Payload = result.PointOfInteraction?.TransactionData?.QrCode,
-                QrCodeBase64 = result.PointOfInteraction?.TransactionData?.QrCodeBase64
+                Payload = result.PointOfInteraction?.TransactionData?.QrCode ??
+                    result.PointOfInteraction?.TransactionData?.QrCodeAlias ??
+                    result.PointOfInteraction?.TransactionData?.TicketUrl,
+                QrCodeBase64 = result.PointOfInteraction?.TransactionData?.QrCodeBase64 ??
+                    result.PointOfInteraction?.TransactionData?.QrCodeBase64Alias
             };
         }
 
@@ -203,6 +208,11 @@ namespace MA_Sys.API.Services
 
         private static string ExtrairMensagemErro(string payload)
         {
+            if (payload.Contains("Unauthorized use of live credentials", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Credenciais live do Mercado Pago nao autorizadas para este ambiente. Use Access Token TEST- para testes ou configure credenciais live validas da mesma conta em producao.";
+            }
+
             try
             {
                 var error = JsonSerializer.Deserialize<MercadoPagoErrorResponse>(payload, new JsonSerializerOptions
@@ -212,6 +222,11 @@ namespace MA_Sys.API.Services
 
                 if (!string.IsNullOrWhiteSpace(error?.Message))
                 {
+                    if (error.Message.Contains("Unauthorized use of live credentials", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return "Credenciais live do Mercado Pago nao autorizadas para este ambiente. Use Access Token TEST- para testes ou configure credenciais live validas da mesma conta em producao.";
+                    }
+
                     return error.Message;
                 }
 
@@ -258,6 +273,15 @@ namespace MA_Sys.API.Services
 
             [JsonPropertyName("qr_code_base64")]
             public string? QrCodeBase64 { get; set; }
+
+            [JsonPropertyName("qrCode")]
+            public string? QrCodeAlias { get; set; }
+
+            [JsonPropertyName("qrCodeBase64")]
+            public string? QrCodeBase64Alias { get; set; }
+
+            [JsonPropertyName("ticket_url")]
+            public string? TicketUrl { get; set; }
         }
 
         private class MercadoPagoErrorResponse

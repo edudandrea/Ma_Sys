@@ -253,6 +253,13 @@
   transform: translateY(-1px);
 }
 
+.btn-primary-block:disabled,
+.btn-secondary-block:disabled {
+  cursor: wait;
+  opacity: 0.78;
+  transform: none;
+}
+
 .payment-panel {
   display: flex;
   flex-direction: column;
@@ -352,21 +359,78 @@
   padding-left: 38px;
 }
 
-.payment-action {
-  display: flex;
-}
-
-.qr-container {
+.pix-panel {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0.03)),
+    color-mix(in srgb, var(--bg-panel-strong) 94%, transparent);
+}
+
+.pix-panel-header {
+  width: 100%;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pix-panel-header div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pix-panel-header small {
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.pix-status {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--accent-border-soft);
+  border-radius: 999px;
+  background: var(--accent-surface);
+  color: var(--accent-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pix-content {
+  display: grid;
+  grid-template-columns: minmax(210px, 260px) minmax(260px, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.pix-actions,
+.pix-copy-box,
+.qr-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.pix-actions {
+  gap: 12px;
+  min-width: 0;
+}
+
+.pix-copy-box {
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-panel-strong) 92%, transparent);
+  color: var(--text-primary);
 }
 
 .qr-card {
   width: 100%;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 14px;
@@ -475,6 +539,15 @@ textarea {
 
   .student-chips {
     justify-content: flex-start;
+  }
+
+  .pix-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pix-content {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -153,6 +153,17 @@ namespace MA_Sys.API.Services
                 throw new UnauthorizedAccessException("Academia invalida para criar matricula.");
             }
 
+            var aluno = _alunoRepo.Query().FirstOrDefault(a => a.Id == dto.AlunoId && a.AcademiaId == academiaDestino);
+            if (aluno == null)
+            {
+                throw new InvalidOperationException("Aluno nao encontrado na academia logada.");
+            }
+
+            if (ExisteMatriculaComCpfNaAcademia(academiaDestino, aluno.CPF))
+            {
+                throw new InvalidOperationException("Ja existe uma matricula para este CPF nesta academia.");
+            }
+
             var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId && p.AcademiaId == academiaDestino);
             if (plano == null)
             {
@@ -190,6 +201,17 @@ namespace MA_Sys.API.Services
                 throw new UnauthorizedAccessException("Usuario sem permissao para editar esta matricula.");
             }
 
+            var aluno = _alunoRepo.Query().FirstOrDefault(a => a.Id == dto.AlunoId && a.AcademiaId == matricula.AcademiaId);
+            if (aluno == null)
+            {
+                throw new InvalidOperationException("Aluno nao encontrado na academia da matricula.");
+            }
+
+            if (ExisteMatriculaComCpfNaAcademia(matricula.AcademiaId, aluno.CPF, matricula.Id))
+            {
+                throw new InvalidOperationException("Ja existe outra matricula para este CPF nesta academia.");
+            }
+
             var plano = _planoRepo.Query().FirstOrDefault(p => p.Id == dto.PlanoId && p.AcademiaId == matricula.AcademiaId);
             if (plano == null)
             {
@@ -211,6 +233,54 @@ namespace MA_Sys.API.Services
 
             _repo.Save();
             return Get(role, new MatriculasFiltro(), matricula.AcademiaId).First(m => m.Id == matricula.Id);
+        }
+
+        public void Delete(int id, int? academiaId, string role)
+        {
+            var matricula = _repo.Query().FirstOrDefault(m => m.Id == id);
+            if (matricula == null)
+            {
+                throw new InvalidOperationException("Matricula nao encontrada.");
+            }
+
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) && matricula.AcademiaId != academiaId)
+            {
+                throw new UnauthorizedAccessException("Usuario sem permissao para excluir esta matricula.");
+            }
+
+            _repo.Delete(matricula);
+            _repo.Save();
+        }
+
+        private bool ExisteMatriculaComCpfNaAcademia(int academiaId, string? cpf, int? matriculaIdIgnorada = null)
+        {
+            var cpfNormalizado = NormalizarCpf(cpf);
+            if (string.IsNullOrWhiteSpace(cpfNormalizado))
+            {
+                return false;
+            }
+
+            var query =
+                from matricula in _repo.Query()
+                join aluno in _alunoRepo.Query() on matricula.AlunoId equals aluno.Id
+                where matricula.AcademiaId == academiaId
+                select new { matricula.Id, aluno.CPF };
+
+            if (matriculaIdIgnorada.HasValue)
+            {
+                query = query.Where(item => item.Id != matriculaIdIgnorada.Value);
+            }
+
+            return query
+                .AsEnumerable()
+                .Any(item => NormalizarCpf(item.CPF) == cpfNormalizado);
+        }
+
+        private static string NormalizarCpf(string? cpf)
+        {
+            return string.IsNullOrWhiteSpace(cpf)
+                ? string.Empty
+                : new string(cpf.Where(char.IsDigit).ToArray());
         }
     }
 }

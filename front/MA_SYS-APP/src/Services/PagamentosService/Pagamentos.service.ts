@@ -81,6 +81,10 @@ export class PagamentosService {
     return this.http.post<PagamentoCartaoResponse>(`${this.apiUrl}/public/cartao`, payload);
   }
 
+  pagarCartao(payload: any): Observable<PagamentoCartaoResponse> {
+    return this.http.post<PagamentoCartaoResponse>(`${this.apiUrl}/cartao`, payload);
+  }
+
   consultarStatusPagamentoPublico(pagamentoId: number, slug: string): Observable<PagamentoStatusResponse> {
     return this.http.get<PagamentoStatusResponse>(`${this.apiUrl}/public/${pagamentoId}/status`, {
       params: { slug },

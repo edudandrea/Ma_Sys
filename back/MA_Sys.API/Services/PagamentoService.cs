@@ -1,6 +1,8 @@
 using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.Pagamentos;
 using MA_SYS.Api.Models;
+using System.Globalization;
+using System.Text;
 
 namespace MA_Sys.API.Services
 {
@@ -203,6 +205,12 @@ namespace MA_Sys.API.Services
                 string.IsNullOrWhiteSpace(email) ? "pagador@aluno.local" : email!,
                 academia.MercadoPagoAccessToken);
 
+            if (string.IsNullOrWhiteSpace(gatewayResult.Payload) &&
+                string.IsNullOrWhiteSpace(gatewayResult.QrCodeBase64))
+            {
+                throw new InvalidOperationException("O Mercado Pago gerou a cobranca, mas nao retornou QR Code nem codigo copia e cola do PIX.");
+            }
+
             pagamento.ExternalId = gatewayResult.ExternalId;
             pagamento.Status = MapearStatusGateway(gatewayResult.Status);
             _pagRepo.Add(pagamento);
@@ -273,8 +281,9 @@ namespace MA_Sys.API.Services
                 throw new InvalidOperationException("Forma de pagamento nao encontrada ou indisponivel.");
             }
 
-            if (!formaPagamento.Nome.Contains("credito", StringComparison.OrdinalIgnoreCase) &&
-                !formaPagamento.Nome.Contains("crédito", StringComparison.OrdinalIgnoreCase))
+            var formaPagamentoNormalizada = NormalizarTexto(formaPagamento.Nome);
+            if (!formaPagamentoNormalizada.Contains("credito") &&
+                !formaPagamentoNormalizada.Contains("cartao"))
             {
                 throw new InvalidOperationException("A forma de pagamento selecionada nao e valida para cartao de credito.");
             }
@@ -331,9 +340,7 @@ namespace MA_Sys.API.Services
 
             if (statusPagamento == "Pago")
             {
-                matricula.MensalidadePaga = true;
-                matricula.DataPagamento = agora;
-                matricula.FormaPagamentoId = dto.FormaPagamentoId;
+                _mensalidadeStatusService.AtualizarMatriculaComoPaga(dto.MatriculaId, dto.FormaPagamentoId);
             }
 
             _pagRepo.Save();
@@ -423,6 +430,27 @@ namespace MA_Sys.API.Services
                 "in_process" => "EmAnalise",
                 _ => "Recusado"
             };
+        }
+
+        private static string NormalizarTexto(string? valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                return string.Empty;
+            }
+
+            var decomposed = valor.Normalize(NormalizationForm.FormD);
+            var builder = new StringBuilder(decomposed.Length);
+
+            foreach (var character in decomposed)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString().Normalize(NormalizationForm.FormC).ToLowerInvariant().Trim();
         }
 
     }

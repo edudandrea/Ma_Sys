@@ -41,10 +41,17 @@ namespace MA_Sys.API.Controllers
             if (RoleScope.IsAdmin(GetUserRole()))
                 return Forbid();
 
-            var (role, academiaId, _) = GetUserInfo();
-            var matricula = await _service.Add(dto, academiaId, role);
+            try
+            {
+                var (role, academiaId, _) = GetUserInfo();
+                var matricula = await _service.Add(dto, academiaId, role);
 
-            return Ok(matricula);
+                return Ok(matricula);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
@@ -53,9 +60,34 @@ namespace MA_Sys.API.Controllers
             if (RoleScope.IsAdmin(GetUserRole()))
                 return Forbid();
 
-            var (role, academiaId, _) = GetUserInfo();
-            var matricula = _service.Update(id, dto, academiaId, role);
-            return Ok(matricula);
+            try
+            {
+                var (role, academiaId, _) = GetUserInfo();
+                var matricula = _service.Update(id, dto, academiaId, role);
+                return Ok(matricula);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            if (RoleScope.IsAdmin(GetUserRole()))
+                return Forbid();
+
+            try
+            {
+                var (role, academiaId, _) = GetUserInfo();
+                _service.Delete(id, academiaId, role);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
     }

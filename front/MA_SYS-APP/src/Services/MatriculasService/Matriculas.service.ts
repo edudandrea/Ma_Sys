@@ -42,4 +42,8 @@ export class MatriculasService {
   atualizarMatricula(id: number, matricula: Partial<Matriculas>): Observable<Matriculas> {
     return this.http.put<Matriculas>(`${this.apiUrl}/${id}`, matricula);
   }
+
+  excluirMatricula(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

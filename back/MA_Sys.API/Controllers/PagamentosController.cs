@@ -89,6 +89,39 @@ namespace MA_Sys.API.Controllers
             }
         }
 
+        [HttpPost("cartao")]
+        public async Task<IActionResult> PagarCartaoMatricula([FromBody] PagamentoCartaoPublicoDto dto)
+        {
+            try
+            {
+                if (GetAcademiaId() is not int academiaId || academiaId <= 0)
+                {
+                    return Unauthorized(new { message = "Usuario sem vinculo com academia." });
+                }
+
+                var pagamento = await _service.ProcessarPagamentoCartaoPublico(dto, academiaId);
+
+                var mensagem = pagamento.Status switch
+                {
+                    "Pago" => "Pagamento com cartao aprovado com sucesso.",
+                    "Pendente" => "Pagamento pendente. Aguarde a confirmacao do emissor.",
+                    "EmAnalise" => "Pagamento em analise. Retorne em instantes para consultar o status.",
+                    _ => "Pagamento recusado."
+                };
+
+                return Ok(new
+                {
+                    pagamentoId = pagamento.Id,
+                    status = pagamento.Status,
+                    mensagem
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost("public/pix")]
         public async Task<IActionResult> GerarPixPublico([FromBody] PagamentoPixPublicoDto dto)

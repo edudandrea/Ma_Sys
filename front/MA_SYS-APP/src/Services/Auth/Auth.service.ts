@@ -48,9 +48,26 @@ export class AuthService {
     return payload.role ?? payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? null;
   }
 
-  isLogged(): boolean{
-    if(typeof window !== 'undefined'){
-      return !!localStorage.getItem(`token`);  
+  isLogged(): boolean {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem(`token`);
+      if (!token) {
+        return false;
+      }
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = Number(payload.exp || 0);
+        if (exp && exp * 1000 <= Date.now()) {
+          localStorage.clear();
+          return false;
+        }
+
+        return true;
+      } catch {
+        localStorage.clear();
+        return false;
+      }
     }
     return false;
   }

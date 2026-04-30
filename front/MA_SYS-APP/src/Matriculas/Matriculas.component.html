@@ -91,7 +91,10 @@
         </div>
       </div>
 
-      <button class="btn-save small" (click)="editarMatricula(templateNovamatricula, matricula)">Editar</button>
+      <div class="card-actions">
+        <button class="btn-save small" (click)="editarMatricula(templateNovamatricula, matricula)">Editar</button>
+        <button class="btn-delete small" (click)="excluirMatricula(matricula)">Excluir</button>
+      </div>
     </article>
   </div>
 </div>
@@ -181,38 +184,83 @@
         </div>
 
         <div class="form-group full">
-          <label class="check-line">
+          <label class="manual-payment-toggle">
             <input type="checkbox" [(ngModel)]="marcarComoPagoManual" />
-            <span>Marcar mensalidade como paga manualmente</span>
+            <span class="manual-payment-check" aria-hidden="true">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <span class="manual-payment-copy">
+              <strong>Pagamento manual</strong>
+              <small>Marcar a mensalidade como paga sem gerar cobranca automatica.</small>
+            </span>
+            <span class="manual-payment-state">
+              {{ marcarComoPagoManual ? 'Ativado' : 'Desativado' }}
+            </span>
           </label>
         </div>
 
-        <div
-          *ngIf="formaPagamentoSelecionada?.nome?.toLowerCase() === 'pix'"
-          class="pix-container full"
-        >
-          <button *ngIf="editarId && !qrCodePix" class="btn-pix" (click)="gerarPix()">
-            <i class="fa-solid fa-qrcode"></i>
-            Gerar QR Code PIX
-          </button>
+        <div *ngIf="isPix" class="pix-container full">
+          <div class="pix-panel">
+            <div class="pix-panel-header">
+              <div>
+                <strong>Pagamento via PIX</strong>
+                <small>{{ mensagemPix || 'Gere a cobranca para exibir o QR Code e o copia e cola.' }}</small>
+              </div>
+              <span *ngIf="pagamentoStatus" class="pix-status">{{ pagamentoStatus }}</span>
+            </div>
 
-          <p class="pix-message" *ngIf="mensagemPix">{{ mensagemPix }}</p>
-
-          <div *ngIf="qrCodePix" class="pix-qrcode">
-            <h5>Escaneie para pagar</h5>
-            <img [src]="qrCodePix" alt="QR Code PIX" />
-            <span class="pix-valor">Valor: R$ {{ planoSelecionado?.valor | number: '1.2-2' }}</span>
             <button
-              *ngIf="verificacaoAutomaticaPix && pagamentoPixId"
-              class="btn-save small"
-              (click)="verificarPagamentoPix()"
+              *ngIf="editarId && !qrCodePix"
+              class="btn-pix"
+              type="button"
+              [disabled]="isGerandoPix"
+              (click)="gerarPix()"
             >
-              Verificar pagamento
+              <i class="fa-solid" [ngClass]="isGerandoPix ? 'fa-spinner fa-spin' : 'fa-qrcode'"></i>
+              {{ isGerandoPix ? 'Gerando PIX...' : 'Gerar QR Code PIX' }}
             </button>
+
+            <div *ngIf="qrCodePix" class="pix-content">
+              <div class="pix-qrcode">
+                <h5>Escaneie para pagar</h5>
+                <img [src]="qrCodePix" alt="QR Code PIX" />
+                <span class="pix-valor">Valor: R$ {{ planoSelecionado?.valor | number: '1.2-2' }}</span>
+              </div>
+
+              <div class="pix-actions">
+                <div *ngIf="pixPayload" class="pix-copy-box">
+                  <span>Codigo PIX copia e cola disponivel</span>
+                  <button class="btn-save small" type="button" (click)="copiarPix()">
+                    Copiar codigo PIX
+                  </button>
+                </div>
+
+                <button
+                  *ngIf="verificacaoAutomaticaPix && pagamentoPixId"
+                  type="button"
+                  class="btn-save small"
+                  (click)="verificarPagamentoPix()"
+                >
+                  Verificar pagamento
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div *ngIf="isCartao" class="card-payment">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome no cartao</label>
+              <input type="text" [(ngModel)]="nomeCartao" />
+            </div>
+
+            <div class="form-group">
+              <label>CPF do titular</label>
+              <input type="text" [(ngModel)]="cpfCartao" placeholder="00000000000" />
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Numero do cartao</label>
             <input
@@ -234,6 +282,23 @@
               <input type="text" [(ngModel)]="cvvCartao" placeholder="123" />
             </div>
           </div>
+
+          <button type="button" class="btn-save small" (click)="pagarCartao()">
+            Pagar com cartao
+          </button>
+        </div>
+
+        <div *ngIf="pagamentoStatus" class="payment-status full" [ngClass]="{
+          'status-paid': pagamentoStatus === 'Pago',
+          'status-pending': pagamentoStatus === 'Pendente' || pagamentoStatus === 'EmAnalise',
+          'status-failed': pagamentoStatus === 'Recusado' || pagamentoStatus === 'Erro'
+        }">
+          <div class="status-head">
+            <strong>Status do pagamento:</strong>
+            <span>{{ pagamentoStatus }}</span>
+          </div>
+          <p>{{ pagamentoMensagem }}</p>
+          <small *ngIf="pagamentoId">ID: {{ pagamentoId }}</small>
         </div>
 
         <div *ngIf="planoSelecionado" class="info-box">

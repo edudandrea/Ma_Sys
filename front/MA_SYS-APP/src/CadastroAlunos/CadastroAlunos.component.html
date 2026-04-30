@@ -271,25 +271,47 @@
           </div>
         </div>
 
-        <div *ngIf="isPix && !showQrCode" class="payment-action">
-          <button type="button" class="btn-primary-block" (click)="gerarPix()">Gerar PIX</button>
-        </div>
-
-        <div *ngIf="showQrCode" class="qr-container">
-          <div class="qr-card">
-            <img [src]="qrCodePix" alt="QR Code PIX" />
-            <p>Escaneie o codigo com o aplicativo do seu banco.</p>
+        <div *ngIf="isPix" class="pix-panel">
+          <div class="pix-panel-header">
+            <div>
+              <strong>Pagamento via PIX</strong>
+              <small>Gere a cobranca para exibir o QR Code e o copia e cola.</small>
+            </div>
+            <span *ngIf="pagamentoStatus" class="pix-status">{{ pagamentoStatus }}</span>
           </div>
 
-          <button type="button" class="btn-secondary-block" (click)="copiarPix()">Copiar codigo PIX</button>
           <button
+            *ngIf="!showQrCode"
             type="button"
             class="btn-primary-block"
-            *ngIf="verificacaoAutomaticaPix && pagamentoId"
-            (click)="verificarPagamentoPix()"
+            [disabled]="isGerandoPix"
+            (click)="gerarPix()"
           >
-            Verificar pagamento PIX
+            {{ isGerandoPix ? 'Gerando PIX...' : 'Gerar PIX' }}
           </button>
+
+          <div *ngIf="showQrCode" class="pix-content">
+            <div class="qr-card">
+              <img [src]="qrCodePix" alt="QR Code PIX" />
+              <p>Escaneie o codigo com o aplicativo do seu banco.</p>
+            </div>
+
+            <div class="pix-actions">
+              <div *ngIf="pixPayload" class="pix-copy-box">
+                <span>Codigo PIX copia e cola disponivel</span>
+                <button type="button" class="btn-secondary-block" (click)="copiarPix()">Copiar codigo PIX</button>
+              </div>
+
+              <button
+                type="button"
+                class="btn-primary-block"
+                *ngIf="verificacaoAutomaticaPix && pagamentoId"
+                (click)="verificarPagamentoPix()"
+              >
+                Verificar pagamento PIX
+              </button>
+            </div>
+          </div>
         </div>
 
         <div *ngIf="isPix && pagamentoStatus" class="payment-status" [ngClass]="{
@@ -327,6 +349,16 @@
               <div class="input-modern">
                 <i class="fa-solid fa-user"></i>
                 <input [(ngModel)]="cartao.nome" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid cols-1">
+            <div class="input-group">
+              <label>CPF do titular</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-id-card"></i>
+                <input [(ngModel)]="cpf" placeholder="00000000000" />
               </div>
             </div>
           </div>
