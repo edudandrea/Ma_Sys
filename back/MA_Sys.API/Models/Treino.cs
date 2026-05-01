@@ -10,10 +10,12 @@ namespace MA_SYS.Api.Models
         public int Id { get; set; }
         public int AcademiaId { get; set; }
         public int AlunoId { get; set; }
+        public int? ProfessorId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string? Objetivo { get; set; }
         public string? Observacoes { get; set; }
         public bool Ativo { get; set; } = true;
+        public Professor? Professor { get; set; }
         public ICollection<TreinoExercicio> Exercicios { get; set; } = [];
     }
 }

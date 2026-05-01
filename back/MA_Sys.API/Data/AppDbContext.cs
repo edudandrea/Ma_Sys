@@ -68,6 +68,18 @@ namespace MA_SYS.Api.Data
                 .HasForeignKey(ta => ta.TurmaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Turma>()
+                .HasOne(t => t.Professor)
+                .WithMany()
+                .HasForeignKey(t => t.ProfessorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Treino>()
+                .HasOne(t => t.Professor)
+                .WithMany()
+                .HasForeignKey(t => t.ProfessorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<TurmaAluno>()
                 .HasOne(ta => ta.Aluno)
                 .WithMany()

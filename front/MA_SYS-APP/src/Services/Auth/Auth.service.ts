@@ -25,7 +25,7 @@ export class AuthService {
         localStorage.setItem(`token`, res.token);
         localStorage.setItem(`usuario`, JSON.stringify(res.usuario));
         localStorage.setItem(`role`, res.usuario?.role ?? '');
-        this.registerActivity();
+        this.registerActivity(true);
         this.scheduleIdleLogout();
       }),
     );
@@ -110,13 +110,13 @@ export class AuthService {
     return true;
   }
 
-  registerActivity() {
+  registerActivity(force = false) {
     if (typeof window === 'undefined' || !localStorage.getItem('token')) {
       return;
     }
 
     const now = Date.now();
-    if (now - this.lastActivityWriteAt < 30000) {
+    if (!force && now - this.lastActivityWriteAt < 30000) {
       return;
     }
 
@@ -163,6 +163,7 @@ export class AuthService {
 
   private clearSession() {
     localStorage.clear();
+    this.lastActivityWriteAt = 0;
 
     if (this.idleTimerId) {
       clearTimeout(this.idleTimerId);

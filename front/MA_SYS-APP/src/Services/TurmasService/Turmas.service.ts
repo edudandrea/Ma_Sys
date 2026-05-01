@@ -12,6 +12,8 @@ export interface Turma {
   id: number;
   nome: string;
   descricao?: string;
+  professorId?: number | null;
+  professorNome?: string | null;
   diasSemana: string[];
   ativo: boolean;
   alunos: TurmaAluno[];

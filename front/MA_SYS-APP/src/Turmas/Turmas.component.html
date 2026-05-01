@@ -19,6 +19,11 @@
 
       <p>{{ turma.descricao || 'Sem descricao informada.' }}</p>
 
+      <div class="teacher-row">
+        <i class="fa-solid fa-chalkboard-user"></i>
+        <span>{{ turma.professorNome || 'Professor nao vinculado' }}</span>
+      </div>
+
       <div class="chip-row">
         <span class="chip" *ngFor="let dia of turma.diasSemana">{{ dia }}</span>
       </div>
@@ -63,6 +68,16 @@
       <div class="form-group full">
         <label>Descricao</label>
         <textarea rows="3" [(ngModel)]="form.descricao"></textarea>
+      </div>
+
+      <div class="form-group full">
+        <label>Professor da turma</label>
+        <select [(ngModel)]="form.professorId">
+          <option [ngValue]="null">Sem professor vinculado</option>
+          <option *ngFor="let professor of professores" [ngValue]="professor.id">
+            {{ professor.nome }}
+          </option>
+        </select>
       </div>
 
       <div class="form-group full">

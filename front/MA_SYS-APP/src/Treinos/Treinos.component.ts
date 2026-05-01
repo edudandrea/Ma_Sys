@@ -6,6 +6,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import { Alunos, AlunosService } from '../Services/AlunosService/Alunosservice';
+import { ProfessorService, Professores } from '../Services/ProfessorService/Professor.service';
 import {
   Exercicio,
   Treino,
@@ -25,6 +26,7 @@ export class TreinosComponent implements OnInit {
   exercicios: Exercicio[] = [];
   treinos: Treino[] = [];
   alunos: Alunos[] = [];
+  professores: Professores[] = [];
   aba: 'exercicios' | 'treinos' = 'exercicios';
   editandoExercicioId: number | null = null;
   editandoTreinoId: number | null = null;
@@ -37,6 +39,7 @@ export class TreinosComponent implements OnInit {
   constructor(
     private treinosService: TreinosService,
     private alunosService: AlunosService,
+    private professorService: ProfessorService,
     private modalService: BsModalService,
     private spinner: NgxSpinnerService,
     private toastr: ToastrService,
@@ -53,12 +56,14 @@ export class TreinosComponent implements OnInit {
       exercicios: this.treinosService.getExercicios(),
       treinos: this.treinosService.getTreinos(),
       alunos: this.alunosService.getAlunos(),
+      professores: this.professorService.getProfessores(),
     }).subscribe({
-      next: ({ exercicios, treinos, alunos }) => {
+      next: ({ exercicios, treinos, alunos, professores }) => {
         this.spinner.hide();
         this.exercicios = exercicios ?? [];
         this.treinos = treinos ?? [];
         this.alunos = alunos ?? [];
+        this.professores = (professores ?? []).filter((professor) => professor.ativo !== false);
         this.cd.detectChanges();
       },
       error: () => {
@@ -66,6 +71,7 @@ export class TreinosComponent implements OnInit {
         this.exercicios = [];
         this.treinos = [];
         this.alunos = [];
+        this.professores = [];
         this.toastr.error('Erro ao carregar treinos e exercicios');
         this.cd.detectChanges();
       },
@@ -91,6 +97,7 @@ export class TreinosComponent implements OnInit {
     this.treinoForm = treino
       ? {
           alunoId: treino.alunoId,
+          professorId: treino.professorId ?? null,
           nome: treino.nome,
           objetivo: treino.objetivo ?? '',
           observacoes: treino.observacoes ?? '',
@@ -466,6 +473,7 @@ export class TreinosComponent implements OnInit {
   private createTreinoForm() {
     return {
       alunoId: 0,
+      professorId: null as number | null,
       nome: '',
       objetivo: '',
       observacoes: '',

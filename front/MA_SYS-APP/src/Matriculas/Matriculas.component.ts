@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -77,6 +77,7 @@ export class MatriculasComponent implements OnInit, OnDestroy {
     private planoService: PlanosService,
     private pgService: PagamentosService,
     private academiasService: AcademiasService,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
@@ -226,18 +227,21 @@ export class MatriculasComponent implements OnInit, OnDestroy {
   gerarCodePix(payload: string): void {
     QRCode.toDataURL(payload)
       .then((url) => {
-        setTimeout(() => {
+        this.ngZone.run(() => {
           this.qrCodePix = url;
           this.showQrCode = true;
           this.isGerandoPix = false;
           this.cd.detectChanges();
-        }, 0);
+        });
       })
       .catch(() => {
-        this.qrCodePix = '';
-        this.showQrCode = false;
-        this.isGerandoPix = false;
-        this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+        this.ngZone.run(() => {
+          this.qrCodePix = '';
+          this.showQrCode = false;
+          this.isGerandoPix = false;
+          this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+          this.cd.detectChanges();
+        });
       });
   }
 
@@ -283,15 +287,16 @@ export class MatriculasComponent implements OnInit, OnDestroy {
           if (res.payload) {
             this.gerarCodePix(res.payload);
           } else if (res.qrCodeBase64) {
-            setTimeout(() => {
+            this.ngZone.run(() => {
               this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
               this.showQrCode = true;
               this.isGerandoPix = false;
               this.cd.detectChanges();
-            }, 0);
+            });
           } else {
             this.isGerandoPix = false;
             this.toastr.error('O Mercado Pago nao retornou um codigo PIX valido para gerar o QR Code.');
+            this.cd.detectChanges();
           }
 
           if (res.status === 'Pago') {

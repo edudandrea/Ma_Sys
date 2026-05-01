@@ -43,6 +43,10 @@
     <article class="item-card" *ngFor="let treino of treinos">
       <strong>{{ treino.nome }}</strong>
       <span>{{ treino.alunoNome }}</span>
+      <span class="teacher-line">
+        <i class="fa-solid fa-chalkboard-user"></i>
+        {{ treino.professorNome || 'Professor nao vinculado' }}
+      </span>
       <p>{{ treino.objetivo || 'Sem objetivo informado.' }}</p>
       <div class="chip-row">
         <span class="chip" *ngFor="let exercicio of treino.exercicios">
@@ -176,6 +180,14 @@
         <select [(ngModel)]="treinoForm.alunoId">
           <option [ngValue]="0">Selecione</option>
           <option *ngFor="let aluno of alunos" [ngValue]="aluno.id">{{ aluno.nome }}</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Professor do treino</label>
+        <select [(ngModel)]="treinoForm.professorId">
+          <option [ngValue]="null">Sem professor vinculado</option>
+          <option *ngFor="let professor of professores" [ngValue]="professor.id">{{ professor.nome }}</option>
         </select>
       </div>
 

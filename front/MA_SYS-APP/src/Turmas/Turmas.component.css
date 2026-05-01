@@ -24,6 +24,7 @@
 
 .card-top,
 .turma-card > p,
+.teacher-row,
 .chip-row,
 .alunos-row,
 .card-actions {
@@ -31,7 +32,8 @@
 }
 
 .turma-card p,
-.alunos-row {
+.alunos-row,
+.teacher-row {
   color: var(--text-secondary);
 }
 
@@ -82,6 +84,20 @@
 .alunos-row {
   min-height: 40px;
   margin-bottom: 12px;
+}
+
+.teacher-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.teacher-row i {
+  color: var(--accent-text);
 }
 
 .form-grid {

@@ -14,7 +14,12 @@
 
     <article class="mensalidade-card" *ngFor="let mensalidade of mensalidades">
       <div class="card-topline">
-        <span class="entity-badge">Mensalidade</span>
+        <div class="card-identity">
+          <span class="entity-badge">Mensalidade</span>
+          <strong *ngIf="editarId !== mensalidade.id">{{ mensalidade.mesesUso }} {{ mensalidade.mesesUso === 1 ? 'mes' : 'meses' }} de uso</strong>
+          <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="mesesUso" class="edit-input compact" />
+        </div>
+
         <span
           class="status clickable"
           [class.ativo]="mensalidade.ativo"
@@ -23,34 +28,6 @@
         >
           {{ mensalidade.ativo ? 'Ativa' : 'Inativa' }}
         </span>
-      </div>
-
-      <div class="payment-badges" *ngIf="editarId !== mensalidade.id">
-        <span class="method-badge" [class.disabled]="!mensalidade.aceitaPix">
-          <i class="fa-solid fa-qrcode"></i>
-          PIX
-        </span>
-        <span class="method-badge" [class.disabled]="!mensalidade.aceitaCartao">
-          <i class="fa-solid fa-credit-card"></i>
-          Cartao
-        </span>
-      </div>
-
-      <div class="card-header-kpi">
-        <div class="avatar">
-          {{ mensalidade.mesesUso }}
-        </div>
-
-        <div class="title-block">
-          <div class="mensalidade-title">
-            <span *ngIf="editarId !== mensalidade.id">{{ mensalidade.mesesUso }} {{ mensalidade.mesesUso === 1 ? 'mes' : 'meses' }} de uso</span>
-            <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="mesesUso" class="edit-input" />
-          </div>
-
-          <span class="subtitle">
-            {{ mensalidade.descricao || 'Configuracao padrao da cobranca do sistema' }}
-          </span>
-        </div>
       </div>
 
       <div class="kpi-grid">
@@ -65,37 +42,50 @@
           <strong class="kpi-value" *ngIf="editarId !== mensalidade.id">{{ mensalidade.prazoPagamentoDias }} dias</strong>
           <input *ngIf="editarId === mensalidade.id" type="number" [(ngModel)]="prazoPagamentoDias" class="edit-input" />
         </div>
+
+        <div class="kpi-box">
+          <span class="kpi-label">Uso liberado</span>
+          <strong class="kpi-value">{{ editarId === mensalidade.id ? mesesUso : mensalidade.mesesUso }} mes(es)</strong>
+        </div>
       </div>
 
-      <div class="detail-list">
-        <div class="detail-item">
-          <i class="fa-solid fa-note-sticky"></i>
-          <div>
-            <span class="detail-label">Descricao</span>
-            <strong *ngIf="editarId !== mensalidade.id">{{ mensalidade.descricao || 'Sem descricao adicional' }}</strong>
-            <input *ngIf="editarId === mensalidade.id" [(ngModel)]="descricao" class="edit-input" />
+      <div class="billing-config">
+        <div class="config-box">
+          <span class="detail-label">Formas de pagamento</span>
+          <div class="payment-badges" *ngIf="editarId !== mensalidade.id">
+            <span class="method-badge" [class.disabled]="!mensalidade.aceitaPix">
+              <i class="fa-solid fa-qrcode"></i>
+              PIX
+            </span>
+            <span class="method-badge" [class.disabled]="!mensalidade.aceitaCartao">
+              <i class="fa-solid fa-credit-card"></i>
+              Cartao
+            </span>
+          </div>
+
+          <div class="checkbox-row" *ngIf="editarId === mensalidade.id">
+            <label><input type="checkbox" [(ngModel)]="aceitaPix" /> PIX</label>
+            <label><input type="checkbox" [(ngModel)]="aceitaCartao" /> Cartao</label>
           </div>
         </div>
 
-        <div class="detail-item" *ngIf="editarId === mensalidade.id">
-          <i class="fa-solid fa-wallet"></i>
-          <div>
-            <span class="detail-label">Formas de pagamento</span>
-            <div class="checkbox-row">
-              <label><input type="checkbox" [(ngModel)]="aceitaPix" /> PIX</label>
-              <label><input type="checkbox" [(ngModel)]="aceitaCartao" /> Cartao</label>
-            </div>
-          </div>
-        </div>
+        <div class="config-box">
+          <span class="detail-label">Credenciais</span>
+          <strong *ngIf="editarId !== mensalidade.id" class="credential-state">
+            {{ mensalidade.mercadoPagoPublicKey ? 'Mercado Pago configurado' : 'Public Key pendente' }}
+          </strong>
 
-        <div class="detail-item" *ngIf="editarId === mensalidade.id">
-          <i class="fa-solid fa-key"></i>
-          <div>
-            <span class="detail-label">Credenciais Mercado Pago</span>
+          <div class="credential-fields" *ngIf="editarId === mensalidade.id">
             <input [(ngModel)]="mercadoPagoPublicKey" class="edit-input" placeholder="Public Key" />
             <input [(ngModel)]="mercadoPagoAccessToken" class="edit-input" placeholder="Access Token (preencha apenas para alterar)" />
           </div>
         </div>
+      </div>
+
+      <div class="description-box">
+        <span class="detail-label">Descricao</span>
+        <strong *ngIf="editarId !== mensalidade.id">{{ mensalidade.descricao || 'Sem descricao adicional' }}</strong>
+        <input *ngIf="editarId === mensalidade.id" [(ngModel)]="descricao" class="edit-input" />
       </div>
 
       <div class="card-actions">

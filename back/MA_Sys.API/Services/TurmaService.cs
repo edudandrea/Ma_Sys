@@ -20,6 +20,7 @@ namespace MA_Sys.API.Services
             var turmas = _context.Set<Turma>()
                 .AsNoTracking()
                 .Where(t => t.AcademiaId == academiaId)
+                .Include(t => t.Professor)
                 .Include(t => t.Alunos)
                 .ThenInclude(ta => ta.Aluno)
                 .OrderBy(t => t.Nome)
@@ -32,6 +33,8 @@ namespace MA_Sys.API.Services
                     Id = t.Id,
                     Nome = t.Nome,
                     Descricao = t.Descricao,
+                    ProfessorId = t.ProfessorId,
+                    ProfessorNome = t.Professor?.Nome,
                     DiasSemana = string.IsNullOrWhiteSpace(t.DiasSemana)
                         ? new List<string>()
                         : t.DiasSemana.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim()).ToList(),
@@ -55,6 +58,7 @@ namespace MA_Sys.API.Services
                 AcademiaId = academiaId,
                 Nome = dto.Nome.Trim(),
                 Descricao = dto.Descricao?.Trim(),
+                ProfessorId = ValidarProfessor(dto.ProfessorId, academiaId),
                 DiasSemana = string.Join(",", dto.DiasSemana.Distinct(StringComparer.OrdinalIgnoreCase)),
                 Ativo = dto.Ativo
             };
@@ -79,6 +83,7 @@ namespace MA_Sys.API.Services
 
             turma.Nome = dto.Nome.Trim();
             turma.Descricao = dto.Descricao?.Trim();
+            turma.ProfessorId = ValidarProfessor(dto.ProfessorId, academiaId);
             turma.DiasSemana = string.Join(",", dto.DiasSemana.Distinct(StringComparer.OrdinalIgnoreCase));
             turma.Ativo = dto.Ativo;
 
@@ -128,6 +133,24 @@ namespace MA_Sys.API.Services
                 .Select(id => new TurmaAluno { TurmaId = turmaId, AlunoId = id });
 
             _context.Set<TurmaAluno>().AddRange(novos);
+        }
+
+        private int? ValidarProfessor(int? professorId, int academiaId)
+        {
+            if (!professorId.HasValue || professorId.Value <= 0)
+            {
+                return null;
+            }
+
+            var professorExiste = _context.Professores
+                .Any(p => p.Id == professorId.Value && p.AcademiaId == academiaId);
+
+            if (!professorExiste)
+            {
+                throw new InvalidOperationException("Professor nao encontrado para esta turma.");
+            }
+
+            return professorId.Value;
         }
     }
 }

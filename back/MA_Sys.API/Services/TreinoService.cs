@@ -19,6 +19,7 @@ namespace MA_Sys.API.Services
             return _context.Set<Treino>()
                 .AsNoTracking()
                 .Where(t => t.AcademiaId == academiaId)
+                .Include(t => t.Professor)
                 .Include(t => t.Exercicios)
                 .ThenInclude(te => te.Exercicio)
                 .Join(_context.Alunos.AsNoTracking(), t => t.AlunoId, a => a.Id, (t, a) => new TreinoResponseDto
@@ -26,6 +27,8 @@ namespace MA_Sys.API.Services
                     Id = t.Id,
                     AlunoId = t.AlunoId,
                     AlunoNome = a.Nome ?? string.Empty,
+                    ProfessorId = t.ProfessorId,
+                    ProfessorNome = t.Professor != null ? t.Professor.Nome : null,
                     Nome = t.Nome,
                     Objetivo = t.Objetivo,
                     Observacoes = t.Observacoes,
@@ -51,11 +54,13 @@ namespace MA_Sys.API.Services
         public TreinoResponseDto Add(TreinoCreateUpdateDto dto, int academiaId)
         {
             ValidarAluno(dto.AlunoId, academiaId);
+            var professorId = ValidarProfessor(dto.ProfessorId, academiaId);
 
             var treino = new Treino
             {
                 AcademiaId = academiaId,
                 AlunoId = dto.AlunoId,
+                ProfessorId = professorId,
                 Nome = dto.Nome.Trim(),
                 Objetivo = dto.Objetivo?.Trim(),
                 Observacoes = dto.Observacoes?.Trim(),
@@ -72,6 +77,7 @@ namespace MA_Sys.API.Services
         public TreinoResponseDto Update(int id, TreinoCreateUpdateDto dto, int academiaId)
         {
             ValidarAluno(dto.AlunoId, academiaId);
+            var professorId = ValidarProfessor(dto.ProfessorId, academiaId);
 
             var treino = _context.Set<Treino>()
                 .Include(t => t.Exercicios)
@@ -83,6 +89,7 @@ namespace MA_Sys.API.Services
             }
 
             treino.AlunoId = dto.AlunoId;
+            treino.ProfessorId = professorId;
             treino.Nome = dto.Nome.Trim();
             treino.Objetivo = dto.Objetivo?.Trim();
             treino.Observacoes = dto.Observacoes?.Trim();
@@ -120,6 +127,24 @@ namespace MA_Sys.API.Services
             {
                 throw new InvalidOperationException("Aluno nao encontrado para este treino.");
             }
+        }
+
+        private int? ValidarProfessor(int? professorId, int academiaId)
+        {
+            if (!professorId.HasValue || professorId.Value <= 0)
+            {
+                return null;
+            }
+
+            var professorExiste = _context.Professores
+                .Any(p => p.Id == professorId.Value && p.AcademiaId == academiaId);
+
+            if (!professorExiste)
+            {
+                throw new InvalidOperationException("Professor nao encontrado para este treino.");
+            }
+
+            return professorId.Value;
         }
 
         private void SincronizarExercicios(int treinoId, IEnumerable<TreinoExercicioDto> exercicios)

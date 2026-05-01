@@ -12,7 +12,9 @@ namespace MA_SYS.Api.Models
         public string Nome { get; set; } = string.Empty;
         public string? Descricao { get; set; }
         public string DiasSemana { get; set; } = string.Empty;
+        public int? ProfessorId { get; set; }
         public bool Ativo { get; set; } = true;
+        public Professor? Professor { get; set; }
         public ICollection<TurmaAluno> Alunos { get; set; } = [];
     }
 }

@@ -25,6 +25,8 @@ export interface Treino {
   id: number;
   alunoId: number;
   alunoNome: string;
+  professorId?: number | null;
+  professorNome?: string | null;
   nome: string;
   objetivo?: string;
   observacoes?: string;

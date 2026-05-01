@@ -5,6 +5,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { Alunos, AlunosService } from '../Services/AlunosService/Alunosservice';
+import { ProfessorService, Professores } from '../Services/ProfessorService/Professor.service';
 import { Turma, TurmasService } from '../Services/TurmasService/Turmas.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class TurmasComponent implements OnInit {
   modalRef?: BsModalRef;
   turmas: Turma[] = [];
   alunos: Alunos[] = [];
+  professores: Professores[] = [];
   editandoId: number | null = null;
   turmaParaExcluir: Turma | null = null;
   diasDisponiveis = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo'];
@@ -27,6 +29,7 @@ export class TurmasComponent implements OnInit {
   constructor(
     private turmasService: TurmasService,
     private alunosService: AlunosService,
+    private professorService: ProfessorService,
     private modalService: BsModalService,
     private spinner: NgxSpinnerService,
     private toastr: ToastrService,
@@ -36,11 +39,13 @@ export class TurmasComponent implements OnInit {
   ngOnInit(): void {
     this.carregarTurmas();
     this.carregarAlunos();
+    this.carregarProfessores();
   }
 
   carregarDados(): void {
     this.carregarTurmas();
     this.carregarAlunos();
+    this.carregarProfessores();
   }
 
   carregarTurmas(): void {
@@ -71,12 +76,26 @@ export class TurmasComponent implements OnInit {
     });
   }
 
+  carregarProfessores(): void {
+    this.professorService.getProfessores().subscribe({
+      next: (res) => {
+        this.professores = (res ?? []).filter((professor) => professor.ativo !== false);
+        this.cd.detectChanges();
+      },
+      error: () => {
+        this.professores = [];
+        this.cd.detectChanges();
+      },
+    });
+  }
+
   abrirModal(template: TemplateRef<any>, turma?: Turma): void {
     this.editandoId = turma?.id ?? null;
     this.form = turma
       ? {
           nome: turma.nome,
           descricao: turma.descricao ?? '',
+          professorId: turma.professorId ?? null,
           ativo: turma.ativo,
           diasSemana: [...turma.diasSemana],
           alunoIds: turma.alunos.map((aluno) => aluno.alunoId),
@@ -162,6 +181,7 @@ export class TurmasComponent implements OnInit {
     return {
       nome: '',
       descricao: '',
+      professorId: null as number | null,
       ativo: true,
       diasSemana: [] as string[],
       alunoIds: [] as number[],

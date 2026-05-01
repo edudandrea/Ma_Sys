@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
       next: () => {
         this.toastr.success('Login realizado com sucesso', 'Sucesso');
 
-        this.router.navigate(['/dashboard']);
+        this.ngZone.run(() => this.router.navigate(['/dashboard']));
       },
       error: () => {
         this.toastr.error('Usuario ou senha invalidos', 'Erro');

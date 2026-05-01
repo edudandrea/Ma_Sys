@@ -5,6 +5,8 @@ namespace MA_Sys.API.Dto.Treinos
         public int Id { get; set; }
         public int AlunoId { get; set; }
         public string AlunoNome { get; set; } = string.Empty;
+        public int? ProfessorId { get; set; }
+        public string? ProfessorNome { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string? Objetivo { get; set; }
         public string? Observacoes { get; set; }

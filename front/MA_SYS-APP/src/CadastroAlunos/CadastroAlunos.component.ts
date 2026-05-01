@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { AlunosService } from '../Services/AlunosService/Alunosservice';
@@ -101,6 +101,7 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
     private pgService: PagamentosService,
     private academiasService: AcademiasService,
     private cd: ChangeDetectorRef,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit() {
@@ -298,15 +299,16 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
       if (res.payload) {
         this.gerarCodePix(res.payload);
       } else if (res.qrCodeBase64) {
-        setTimeout(() => {
+        this.ngZone.run(() => {
           this.qrCodePix = `data:image/png;base64,${res.qrCodeBase64}`;
           this.showQrCode = true;
           this.isGerandoPix = false;
           this.cd.detectChanges();
-        }, 0);
+        });
       } else {
         this.isGerandoPix = false;
         this.toastr.error('O Mercado Pago nao retornou um codigo PIX valido para gerar o QR Code.');
+        this.cd.detectChanges();
       }
 
       if (res.status === 'Pago') {
@@ -326,18 +328,21 @@ export class CadastroAlunosComponent implements OnInit, OnDestroy {
   gerarCodePix(payload: string) {
     QRCode.toDataURL(payload)
       .then((url) => {
-        setTimeout(() => {
+        this.ngZone.run(() => {
           this.qrCodePix = url;
           this.showQrCode = true;
           this.isGerandoPix = false;
           this.cd.detectChanges();
-        }, 0);
+        });
       })
       .catch(() => {
-        this.showQrCode = false;
-        this.qrCodePix = '';
-        this.isGerandoPix = false;
-        this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+        this.ngZone.run(() => {
+          this.showQrCode = false;
+          this.qrCodePix = '';
+          this.isGerandoPix = false;
+          this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+          this.cd.detectChanges();
+        });
       });
   }
 

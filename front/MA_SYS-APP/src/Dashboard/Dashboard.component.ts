@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, TemplateRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { DashboardService } from '../Services/Dashboard/Dashboard.service';
@@ -55,6 +55,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private dashService: DashboardService,
     private pagamentosAcademiasService: PagamentosAcademiasService,
     private modalService: BsModalService,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit() {
@@ -179,6 +180,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.pagamentoVerificacaoAutomatica = res.verificacaoAutomaticaDisponivel;
+        this.cd.detectChanges();
 
         if (res.status === 'Pago') {
           this.toastr.success('Pagamento PIX confirmado com sucesso.');
@@ -496,12 +498,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private gerarQrCodePix(payload: string) {
     QRCode.toDataURL(payload)
       .then((url) => {
-        this.qrCodePix = url;
-        this.cd.detectChanges();
+        this.ngZone.run(() => {
+          this.qrCodePix = url;
+          this.cd.detectChanges();
+        });
       })
       .catch(() => {
-        this.qrCodePix = '';
-        this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+        this.ngZone.run(() => {
+          this.qrCodePix = '';
+          this.toastr.error('Nao foi possivel gerar o QR Code do PIX.');
+          this.cd.detectChanges();
+        });
       });
   }
 
