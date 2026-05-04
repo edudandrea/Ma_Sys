@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dev\\MA_SYS\\back\\MA_Sys.API\\MA_Sys.API.csproj": {}
+    "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\MA_Sys.API.csproj": {}
   },
   "projects": {
-    "D:\\Dev\\MA_SYS\\back\\MA_Sys.API\\MA_Sys.API.csproj": {
+    "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\MA_Sys.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dev\\MA_SYS\\back\\MA_Sys.API\\MA_Sys.API.csproj",
+        "projectUniqueName": "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\MA_Sys.API.csproj",
         "projectName": "MA_Sys.API",
-        "projectPath": "D:\\Dev\\MA_SYS\\back\\MA_Sys.API\\MA_Sys.API.csproj",
+        "projectPath": "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\MA_Sys.API.csproj",
         "packagesPath": "C:\\Users\\Eduardo\\.nuget\\packages\\",
-        "outputPath": "D:\\Dev\\MA_SYS\\back\\MA_Sys.API\\obj\\",
+        "outputPath": "D:\\Dev\\MA_SYS\\back\\ma_sys.api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Eduardo\\AppData\\Roaming\\NuGet\\NuGet.Config"
