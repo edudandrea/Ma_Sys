@@ -23,6 +23,17 @@ namespace MA_Sys.API.Controllers
             return int.TryParse(claim.Value, out var academiaId) ? academiaId : null;
         }
 
+        protected int? GetFederacaoId()
+        {
+            var claim = User.FindFirst("FederacaoId");
+            if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
+            {
+                return null;
+            }
+
+            return int.TryParse(claim.Value, out var federacaoId) ? federacaoId : null;
+        }
+
         protected int? GetUserId()
         {
             var claim = User.FindFirst("UserId");

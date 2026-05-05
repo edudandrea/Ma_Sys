@@ -48,6 +48,11 @@ namespace MA_Sys.API.Services
                 claims.Add(new Claim("AcademiaId", user.AcademiaId.Value.ToString()));
             }
 
+            if (user.FederacaoId.HasValue)
+            {
+                claims.Add(new Claim("FederacaoId", user.FederacaoId.Value.ToString()));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

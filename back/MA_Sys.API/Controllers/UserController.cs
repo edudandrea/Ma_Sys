@@ -77,8 +77,11 @@ namespace MA_Sys.API.Controllers
                     login = user.Login,
                     role = user.Role,
                     academiaId = user.AcademiaId,
+                    federacaoId = user.FederacaoId,
                     academiaNome = user.Academia != null ? user.Academia.Nome : null,
-                    academiaLogoUrl = user.Academia != null ? user.Academia.LogoUrl : null
+                    federacaoNome = user.Federacao != null ? user.Federacao.Nome : null,
+                    academiaLogoUrl = user.Academia != null ? user.Academia.LogoUrl : null,
+                    federacaoLogoUrl = user.Federacao != null ? user.Federacao.LogoUrl : null
                 }
             });
         }
@@ -117,8 +120,7 @@ namespace MA_Sys.API.Controllers
                     return Forbid();
                 }
 
-                if (!string.Equals(dto.Role, "Admin", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(dto.Role, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(dto.Role, "Academia", StringComparison.OrdinalIgnoreCase))
                 {
                     dto.AcademiaId = dto.AcademiaId ?? academiaId;
                 }

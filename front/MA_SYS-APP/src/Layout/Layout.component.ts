@@ -30,6 +30,7 @@ export class LayoutComponent implements OnInit {
   profileMenuOpen = false;
   modalRef?: BsModalRef;
   currentAcademiaId: number | null = null;
+  currentFederacaoId: number | null = null;
   currentUserId = 0;
 
   perfilForm = {
@@ -111,8 +112,20 @@ export class LayoutComponent implements OnInit {
     return this.currentRole === 'Academia';
   }
 
+  isFederacao(): boolean {
+    return this.currentRole === 'Federacao';
+  }
+
   canViewAcademias(): boolean {
     return this.isAdmin() || this.isSuperAdmin();
+  }
+
+  canViewFederacoes(): boolean {
+    return this.isAdmin() || this.isSuperAdmin();
+  }
+
+  canViewFiliados(): boolean {
+    return this.isAdmin() || this.isSuperAdmin() || this.isFederacao();
   }
 
   canViewUsuarios(): boolean {
@@ -120,7 +133,7 @@ export class LayoutComponent implements OnInit {
   }
 
   canViewCadastrosAcademia(): boolean {
-    return this.isAcademia() || this.isSuperAdmin();
+    return this.isAcademia() || this.isFederacao() || this.isSuperAdmin();
   }
 
   canViewFinanceiroSistema(): boolean {
@@ -128,7 +141,7 @@ export class LayoutComponent implements OnInit {
   }
 
   canViewFinanceiroAcademia(): boolean {
-    return this.isAcademia() || this.isSuperAdmin();
+    return this.isAcademia() || this.isFederacao() || this.isSuperAdmin();
   }
 
   openPerfilModal(template: TemplateRef<any>, event?: Event) {
@@ -211,7 +224,12 @@ export class LayoutComponent implements OnInit {
     this.userEmail = usuario.email || '';
     this.academiaNome = usuario.academiaNome || 'Marcial ProX';
     this.academiaLogoUrl = this.resolveLogoUrl(usuario.academiaLogoUrl);
+    if (usuario.role === 'Federacao') {
+      this.academiaNome = usuario.federacaoNome || this.academiaNome;
+      this.academiaLogoUrl = this.resolveLogoUrl(usuario.federacaoLogoUrl) || this.academiaLogoUrl;
+    }
     this.currentAcademiaId = usuario.academiaId || null;
+    this.currentFederacaoId = usuario.federacaoId || null;
     this.currentRole = usuario.role || '';
   }
 
@@ -239,6 +257,7 @@ export class LayoutComponent implements OnInit {
       academiaNome: this.academiaNome,
       academiaLogoUrl: this.academiaLogoUrl,
       academiaId: this.currentAcademiaId,
+      federacaoId: this.currentFederacaoId,
       role: this.currentRole,
     }));
   }

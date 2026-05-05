@@ -17,6 +17,9 @@ import { FluxoCaixaComponent } from '../FluxoCaixa/FluxoCaixa.component';
 import { TurmasComponent } from '../Turmas/Turmas.component';
 import { TreinosComponent } from '../Treinos/Treinos.component';
 import { MensalidadesSistemaComponent } from '../MensalidadesSistema/MensalidadesSistema.component';
+import { FiliadosComponent } from '../Filiados/Filiados.component';
+import { RelatoriosComponent } from '../Relatorios/Relatorios.component';
+import { FederacoesComponent } from '../Federacoes/Federacoes.component';
 
 
 export const routes: Routes = [
@@ -34,7 +37,9 @@ export const routes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             
             { path: 'dashboard', component: DashboardComponent },  
-            { path: 'academias', component: AcademiasComponent },            
+            { path: 'academias', component: AcademiasComponent },  
+            { path: 'federacoes', component: FederacoesComponent },
+            { path: 'filiados', component: FiliadosComponent },          
             { path: 'alunos', component: AlunosComponent },
             { path: 'modalidades', component: ModalidadesComponent },
             { path: 'professores', component: ProfessoresComponent },
@@ -44,6 +49,7 @@ export const routes: Routes = [
             { path: 'turmas', component: TurmasComponent },
             { path: 'treinos', component: TreinosComponent },
             { path: 'fluxo-caixa', component: FluxoCaixaComponent },
+            { path: 'relatorios', component: RelatoriosComponent },
             { path: 'usuarios', component: UsuariosComponent },
             { path: 'matriculas', component: MatriculasComponent },
         ]

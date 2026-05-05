@@ -122,6 +122,11 @@
   color: var(--text-secondary);
 }
 
+.empty-note {
+  margin: 0;
+  font-weight: 600;
+}
+
 .stat-card h3 {
   font-size: 1.8rem;
   margin-bottom: 4px;

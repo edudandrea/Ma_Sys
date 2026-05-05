@@ -60,6 +60,16 @@
           <span>Academias</span>
         </a>
 
+        <a *ngIf="canViewFederacoes()" routerLink="/federacoes" routerLinkActive="active">
+          <i class="fa-solid fa-building-columns"></i>
+          <span>Federações</span>
+        </a>
+
+        <a *ngIf="canViewFiliados()" routerLink="/filiados" routerLinkActive="active">
+          <i class="fa-solid fa-building"></i>
+          <span>Filiados</span>
+        </a>
+
         <a *ngIf="canViewCadastrosAcademia()" routerLink="/alunos" routerLinkActive="active">
           <i class="fa-solid fa-circle-user"></i>
           <span>Alunos</span>
@@ -134,6 +144,18 @@
       </div>
 
       <a
+        routerLink="/relatorios"
+        routerLinkActive="active"
+        data-label="Relatorios"
+        [attr.title]="sidebarCollapsed ? 'Relatorios' : null"
+      >
+        <div class="menu-left">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span *ngIf="!sidebarCollapsed">Relatorios</span>
+        </div>
+      </a>
+
+      <a
         *ngIf="canViewUsuarios()"
         routerLink="/usuarios"
         routerLinkActive="active"
@@ -201,7 +223,7 @@
             </button>
             <button type="button" class="danger" (click)="logout()">
               <i class="fa-solid fa-right-from-bracket"></i>
-              Deslogar
+              Sair
             </button>
           </div>
         </div>

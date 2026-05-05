@@ -115,9 +115,11 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   background: var(--bg-panel-strong);
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.28);
+  max-width: min(100%, 460px);
+  overflow: hidden;
 }
 
 .login-brand {
@@ -128,7 +130,8 @@
 }
 
 .login-brand-logo {
-  width: min(100%, 240px);
+  width: min(100%, 220px);
+  max-height: 180px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 16px 28px var(--accent-shadow));
@@ -189,6 +192,7 @@
 
 .btn-login {
   width: 100%;
+  max-width: 100%;
   margin-top: 8px;
   padding: 14px 18px;
   border: 0;
@@ -202,6 +206,7 @@
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-strong));
   box-shadow: 0 18px 30px var(--accent-shadow);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 @media (max-width: 980px) {

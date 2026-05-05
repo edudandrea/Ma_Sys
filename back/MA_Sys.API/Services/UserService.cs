@@ -17,7 +17,7 @@ namespace MA_Sys.API.Services
 
         public List<UserResponseDto> List(string role, int? academiaId, int? userId)
         {
-            IQueryable<Users> user = _repo.Query().Include(u => u.Academia);
+            IQueryable<Users> user = _repo.Query().Include(u => u.Academia).Include(u => u.Federacao);
 
             if (RoleScope.IsSuperAdmin(role))
             {
@@ -40,7 +40,7 @@ namespace MA_Sys.API.Services
         public List<UserResponseDto> Get(string role, int? academiaId, int? userId, UserFiltroDto filtro)
         {
             filtro ??= new UserFiltroDto();
-            IQueryable<Users> query = _repo.Query().Include(u => u.Academia);
+            IQueryable<Users> query = _repo.Query().Include(u => u.Academia).Include(u => u.Federacao);
 
             if (RoleScope.IsSuperAdmin(role))
             {
@@ -73,6 +73,7 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query()
                 .Include(u => u.Academia)
+                .Include(u => u.Federacao)
                 .Where(u => u.UserId == id);
 
             if (RoleScope.IsSuperAdmin(role))
@@ -101,7 +102,9 @@ namespace MA_Sys.API.Services
                 Email = u.Email,
                 Role = u.Role,
                 AcademiaId = u.AcademiaId,
-                AcademiaNome = u.Academia != null ? u.Academia.Nome : null
+                AcademiaNome = u.Academia != null ? u.Academia.Nome : null,
+                FederacaoId = u.FederacaoId,
+                FederacaoNome = u.Federacao != null ? u.Federacao.Nome : null
             }).FirstOrDefault();
 
             if (user == null)
@@ -129,10 +132,8 @@ namespace MA_Sys.API.Services
                 Email = dto.Email.Trim(),
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Role = role,
-                AcademiaId = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(role, "SuperAdmin", StringComparison.OrdinalIgnoreCase)
-                    ? null
-                    : dto.AcademiaId,
+                AcademiaId = string.Equals(role, "Academia", StringComparison.OrdinalIgnoreCase) ? dto.AcademiaId : null,
+                FederacaoId = string.Equals(role, "Federacao", StringComparison.OrdinalIgnoreCase) ? dto.FederacaoId : null,
                 CreatedByUserId = currentUserId
             };
 
@@ -177,10 +178,8 @@ namespace MA_Sys.API.Services
             {
                 var novoRole = dto.Role.Trim();
                 user.Role = novoRole;
-                user.AcademiaId = string.Equals(novoRole, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                                  string.Equals(novoRole, "SuperAdmin", StringComparison.OrdinalIgnoreCase)
-                    ? null
-                    : dto.AcademiaId;
+                user.AcademiaId = string.Equals(novoRole, "Academia", StringComparison.OrdinalIgnoreCase) ? dto.AcademiaId : null;
+                user.FederacaoId = string.Equals(novoRole, "Federacao", StringComparison.OrdinalIgnoreCase) ? dto.FederacaoId : null;
             }
 
             _repo.Update(user);
@@ -225,7 +224,9 @@ namespace MA_Sys.API.Services
                 Email = u.Email,
                 Role = u.Role,
                 AcademiaId = u.AcademiaId,
-                AcademiaNome = u.Academia != null ? u.Academia.Nome : null
+                AcademiaNome = u.Academia != null ? u.Academia.Nome : null,
+                FederacaoId = u.FederacaoId,
+                FederacaoNome = u.Federacao != null ? u.Federacao.Nome : null
             }).ToList();
         }
     }

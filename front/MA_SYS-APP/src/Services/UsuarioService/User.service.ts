@@ -10,8 +10,10 @@ export interface Usuarios {
   email?: string;
   password: string;
   academiaId?: number;
+  federacaoId?: number;
   role: string;
   nomeAcademia: string;
+  federacaoNome?: string;
 }
 
 export interface BootstrapStatus {

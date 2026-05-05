@@ -22,8 +22,8 @@ namespace MA_SYS.Api.Data
         public DbSet<Professor> Professores { get; set; }
         public DbSet<Academia> Academias { get; set; }
         public DbSet<Modalidade> Modalidades { get; internal set; }
-        public DbSet <FormaPagamento> FormaPagamentos { get; set; }   
-        public DbSet<Matricula> Matriculas { get; set; }     
+        public DbSet<FormaPagamento> FormaPagamentos { get; set; }
+        public DbSet<Matricula> Matriculas { get; set; }
         public DbSet<PagamentoAcademia> PagamentosAcademias { get; set; }
         public DbSet<Financeiro> Financeiros { get; set; }
         public DbSet<CategoriaTransacao> CategoriasTransacao { get; set; }
@@ -33,6 +33,9 @@ namespace MA_SYS.Api.Data
         public DbSet<Exercicio> Exercicios { get; set; }
         public DbSet<Treino> Treinos { get; set; }
         public DbSet<TreinoExercicio> TreinosExercicios { get; set; }
+        public DbSet<Filiados> Filiado { get; set; }
+        public DbSet<PagamentoFiliado> PagamentosFiliados { get; set; }
+        public DbSet<Federacao> Federacoes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +46,12 @@ namespace MA_SYS.Api.Data
                 .WithMany(u => u.CreatedUsers)
                 .HasForeignKey(u => u.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.Federacao)
+                .WithMany()
+                .HasForeignKey(u => u.FederacaoId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Academia>()
                 .HasOne(a => a.OwnerUser)
@@ -96,6 +105,24 @@ namespace MA_SYS.Api.Data
                 .HasOne(te => te.Exercicio)
                 .WithMany()
                 .HasForeignKey(te => te.ExercicioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Filiados>()
+                .HasOne(a => a.OwnerUser)
+                .WithMany()
+                .HasForeignKey(a => a.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PagamentoFiliado>()
+                .HasOne(p => p.Filiado)
+                .WithMany()
+                .HasForeignKey(p => p.FiliadoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Federacao>()
+                .HasOne(f => f.OwnerUser)
+                .WithMany()
+                .HasForeignKey(f => f.OwnerUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         }

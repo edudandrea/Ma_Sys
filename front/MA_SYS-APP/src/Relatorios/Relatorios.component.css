@@ -1,0 +1,83 @@
+.relatorio-header {
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.date-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-filter label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.date-filter input {
+  min-width: 150px;
+}
+
+.relatorio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-strong));
+  box-shadow: var(--shadow-soft);
+}
+
+.metric-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+}
+
+.metric-card strong {
+  color: var(--text-primary);
+  font-size: 2rem;
+}
+
+.metric-card.ok strong {
+  color: #16a34a;
+}
+
+.metric-card.warn strong {
+  color: #d97706;
+}
+
+.metric-card.danger strong {
+  color: #dc2626;
+}
+
+.metric-card.muted strong {
+  color: var(--text-secondary);
+}
+
+.sistema-card {
+  margin-top: 22px;
+}
+
+@media (max-width: 720px) {
+  .relatorio-header,
+  .date-filter {
+    align-items: stretch;
+  }
+
+  .date-filter,
+  .date-filter label,
+  .date-filter input,
+  .date-filter button {
+    width: 100%;
+  }
+}

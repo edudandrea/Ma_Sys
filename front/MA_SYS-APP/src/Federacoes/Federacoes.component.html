@@ -1,0 +1,214 @@
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>Federações</h1>
+    <p>Cadastre federações e vincule seus usuários de acesso.</p>
+  </div>
+</div>
+
+<div class="federacoes-grid">
+  <div class="empty-state" *ngIf="!federacoes.length">
+    <i class="fa-solid fa-building-columns"></i>
+    <p>Nenhuma federação cadastrada</p>
+  </div>
+
+  <article class="federacao-card" *ngFor="let federacao of federacoes">
+    <div class="card-topline">
+      <span class="entity-badge">Federação</span>
+      <span
+        class="status clickable"
+        [class.ativo]="federacao.ativo"
+        [class.inativo]="!federacao.ativo"
+        (click)="toggleStatus(federacao)"
+      >
+        {{ federacao.ativo ? 'Ativa' : 'Inativa' }}
+      </span>
+    </div>
+
+    <div class="card-header-kpi">
+      <div class="avatar avatar-logo" *ngIf="federacao.logoUrl; else semLogo">
+        <img [src]="federacao.logoUrl" [alt]="federacao.nome" />
+      </div>
+      <ng-template #semLogo>
+        <div class="avatar">{{ getInicial(federacao.nome) }}</div>
+      </ng-template>
+
+      <div class="title-block">
+        <h3>{{ federacao.nome }}</h3>
+        <span
+          >{{ federacao.cidade || 'Cidade não informada' }}
+          {{ federacao.estado ? '- ' + federacao.estado : '' }}</span
+        >
+      </div>
+    </div>
+
+    <div class="detail-list">
+      <div class="detail-item">
+        <i class="fa-solid fa-user-tie"></i>
+        <div>
+          <span>Responsável</span>
+          <strong>{{ federacao.responsavel || 'Não informado' }}</strong>
+        </div>
+      </div>
+      <div class="detail-item">
+        <i class="fa-solid fa-envelope"></i>
+        <div>
+          <span>Email</span>
+          <strong>{{ federacao.email || 'Não informado' }}</strong>
+        </div>
+      </div>
+      <div class="detail-item">
+        <i class="fa-solid fa-phone"></i>
+        <div>
+          <span>Telefone</span>
+          <strong>{{ federacao.telefone || 'Não informado' }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn-save" (click)="editar(templateFederacao, federacao)">Editar</button>
+    </div>
+  </article>
+</div>
+
+<button class="floating-add" (click)="abrirModal(templateFederacao)">
+  <i class="fa-solid fa-plus"></i>
+  <span class="fab-text"> Nova Federação </span>
+</button>
+
+<ng-template #templateFederacao>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>{{ editandoId ? 'Editar Federação' : 'Nova Federação' }}</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <form #federacaoForm="ngForm" novalidate>
+        <div class="federacao-form-layout">
+          <section class="form-section logo-section">
+            <div class="section-head">
+              <h5>Logo da federação</h5>
+              <p>Imagem exibida no card e na identificação do acesso.</p>
+            </div>
+
+            <div class="logo-uploader">
+              <div class="logo-preview" [class.has-image]="!!logoPreviewUrl">
+                <img *ngIf="logoPreviewUrl" [src]="logoPreviewUrl" alt="Preview da logo" />
+                <div class="logo-placeholder" *ngIf="!logoPreviewUrl">
+                  <i class="fa-solid fa-image"></i>
+                  <span>Nenhuma logo selecionada</span>
+                </div>
+              </div>
+
+              <div class="logo-actions">
+                <label class="upload-button">
+                  <input type="file" accept="image/*" (change)="onLogoSelecionada($event)" hidden />
+                  <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                  Enviar imagem
+                </label>
+                <button
+                  type="button"
+                  class="btn-cancel subtle"
+                  *ngIf="logoPreviewUrl"
+                  (click)="removerLogoSelecionada()"
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-head">
+              <h5>Dados principais</h5>
+              <p>Informações usadas para identificar a federação.</p>
+            </div>
+
+            <div class="form-grid-modal">
+              <div class="input-group full">
+                <label>Nome da Federação</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-building-columns"></i>
+                  <input [(ngModel)]="nome" name="nome" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Responsável</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-user-tie"></i>
+                  <input [(ngModel)]="responsavel" name="responsavel" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Telefone</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-phone"></i>
+                  <input [(ngModel)]="telefone" name="telefone" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Email</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-envelope"></i>
+                  <input [(ngModel)]="email" name="email" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Cidade</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-city"></i>
+                  <input [(ngModel)]="cidade" name="cidade" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Estado</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-map"></i>
+                  <input [(ngModel)]="estado" name="estado" maxlength="2" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Rede social</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-globe"></i>
+                  <input [(ngModel)]="redeSocial" name="redeSocial" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-head">
+              <h5>Financeiro e integrações</h5>
+              <p>Informações usadas nas cobranças e nas integrações de pagamento.</p>
+            </div>
+
+            <div class="form-grid-modal">
+              <div class="input-group">
+                <label>Mercado Pago Public Key</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-key"></i>
+                  <input [(ngModel)]="mercadoPagoPublicKey" name="mercadoPagoPublicKey" />
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Mercado Pago Access Token</label>
+                <div class="input-modern">
+                  <i class="fa-solid fa-lock"></i>
+                  <input [(ngModel)]="mercadoPagoAccessToken" name="mercadoPagoAccessToken" />
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Cancelar</button>
+      <button class="btn-save" (click)="salvar()">Salvar</button>
+    </div>
+  </div>
+</ng-template>

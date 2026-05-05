@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using MA_Sys.API.Data.interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped<IFinanceiroRepository, FinanceiroRepository>();
 builder.Services.AddScoped<IFormaPagamentoRepository, FormaPagamentoRepository>();
 builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
 builder.Services.AddScoped<IMensalidadeSistemaRepository, MensalidadeSistemaRepository>();
+builder.Services.AddScoped<IFiliadosRepository, FiliadosRepository>();
 
 // SERVICES
 builder.Services.AddScoped<AlunoService>();
@@ -111,6 +113,10 @@ builder.Services.AddScoped<TurmaService>();
 builder.Services.AddScoped<ExercicioService>();
 builder.Services.AddScoped<TreinoService>();
 builder.Services.AddHttpClient<MercadoPagoGatewayService>();
+builder.Services.AddScoped<FiliadosService>();
+builder.Services.AddScoped<PagamentoFiliadoService>();
+builder.Services.AddScoped<RelatorioService>();
+builder.Services.AddScoped<FederacaoService>();
 
 
 builder.Services.AddHttpContextAccessor();

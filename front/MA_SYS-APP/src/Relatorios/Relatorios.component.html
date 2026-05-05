@@ -1,3 +1,82 @@
-<p>
-  Relatorios works!
-</p>
+<div class="page-header relatorio-header">
+  <div class="page-title-group">
+    <h1>Relatórios</h1>
+    <p>Resumo operacional por período.</p>
+  </div>
+
+  <div class="date-filter">
+    <label>
+      Início
+      <input type="date" [(ngModel)]="inicio" />
+    </label>
+    <label>
+      Fim
+      <input type="date" [(ngModel)]="fim" />
+    </label>
+    <button class="btn-save" (click)="carregar()">Aplicar</button>
+  </div>
+</div>
+
+<section class="relatorio-grid" *ngIf="resumo">
+  <article class="metric-card">
+    <span>{{ entidadeLabel }} cadastrados</span>
+    <strong>{{ resumo.totalCadastrados }}</strong>
+  </article>
+  <article class="metric-card ok">
+    <span>{{ entidadeLabel }} ativos</span>
+    <strong>{{ resumo.totalAtivos }}</strong>
+  </article>
+  <article class="metric-card muted">
+    <span>{{ entidadeLabel }} inativos</span>
+    <strong>{{ resumo.totalInativos }}</strong>
+  </article>
+  <article class="metric-card ok" *ngIf="!isSistema">
+    <span>{{ entidadeLabel }} em dia</span>
+    <strong>{{ resumo.totalEmDia }}</strong>
+  </article>
+  <article class="metric-card warn" *ngIf="!isSistema">
+    <span>{{ entidadeLabel }} pendentes</span>
+    <strong>{{ resumo.totalPendentes }}</strong>
+  </article>
+  <article class="metric-card danger" *ngIf="!isSistema">
+    <span>{{ entidadeLabel }} em atraso</span>
+    <strong>{{ resumo.totalEmAtraso }}</strong>
+  </article>
+</section>
+
+<section class="surface-card sistema-card" *ngIf="resumo && isSistema">
+  <div class="surface-header">
+    <h2>Mensalidades do sistema</h2>
+  </div>
+
+  <div class="relatorio-grid">
+    <article class="metric-card">
+      <span>Total de cobranças</span>
+      <strong>{{ resumo.totalMensalidadesSistema }}</strong>
+    </article>
+    <article class="metric-card ok">
+      <span>Pagas</span>
+      <strong>{{ resumo.totalMensalidadesSistemaPagas }}</strong>
+    </article>
+    <article class="metric-card warn">
+      <span>Pendentes</span>
+      <strong>{{ resumo.totalMensalidadesSistemaPendentes }}</strong>
+    </article>
+    <article class="metric-card danger">
+      <span>Em atraso</span>
+      <strong>{{ resumo.totalMensalidadesSistemaAtrasadas }}</strong>
+    </article>
+    <article class="metric-card">
+      <span>Valor total</span>
+      <strong>{{ resumo.valorMensalidadesSistema | currency:'BRL' }}</strong>
+    </article>
+    <article class="metric-card ok">
+      <span>Recebido</span>
+      <strong>{{ resumo.valorMensalidadesSistemaRecebido | currency:'BRL' }}</strong>
+    </article>
+    <article class="metric-card warn">
+      <span>A receber</span>
+      <strong>{{ resumo.valorMensalidadesSistemaPendente | currency:'BRL' }}</strong>
+    </article>
+  </div>
+</section>

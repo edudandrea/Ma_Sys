@@ -13,6 +13,7 @@ namespace MA_Sys.API.Data.Repository
         {
             return _context.User
                                 .Include(u => u.Academia)
+                                .Include(u => u.Federacao)
                                 .FirstOrDefault(u => u.Login == login);
         }
 

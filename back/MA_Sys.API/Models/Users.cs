@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MA_Sys.API.Models;
 
 namespace MA_SYS.Api.Models
 {
@@ -20,8 +21,10 @@ namespace MA_SYS.Api.Models
         public string? Password { get; set; }
         public string? Role { get; set; }
         public int? AcademiaId { get; set; }
+        public int? FederacaoId { get; set; }
         public int? CreatedByUserId { get; set; }
         public Academia? Academia { get; set; }
+        public Federacao? Federacao { get; set; }
         public Users? CreatedByUser { get; set; }
         public ICollection<Users>? CreatedUsers { get; set; }
     }

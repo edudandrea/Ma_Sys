@@ -9,6 +9,8 @@ namespace MA_Sys.API.Dto.UsersDto
         public string? Role { get; set; }
         public int? AcademiaId { get; set; }    
         public string? AcademiaNome { get; set; }    
+        public int? FederacaoId { get; set; }
+        public string? FederacaoNome { get; set; }
         
     }
 }

@@ -16,10 +16,16 @@
 }
 
 .surface-header h2,
-.turma-card strong,
-.empty-state i,
-.empty-state p {
+.turma-card strong {
   color: var(--text-primary);
+}
+
+.empty-state i {
+  color: var(--accent-text);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
 }
 
 .card-top,

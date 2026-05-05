@@ -1,0 +1,253 @@
+<div class="page-header">
+  <div class="page-title-group">
+    <h1>Filiados</h1>
+    <p>Gerencie federações, vínculos e cobranças dos filiados.</p>
+  </div>
+</div>
+
+<div class="filiados-page">
+  <div class="filiado-grid">
+    <div class="empty-state" *ngIf="!filiados || filiados.length === 0">
+      <i class="fa-solid fa-user-slash"></i>
+      <p>Nenhum filiado cadastrado</p>
+    </div>
+
+    <article class="filiado-card" *ngFor="let filiado of filiados">
+      <div class="card-topline">
+        <span class="entity-badge">Filiado</span>
+        <span class="status clickable" [class.ativo]="filiado.ativo" [class.inativo]="!filiado.ativo" (click)="toggleStatus(filiado)">
+          {{ filiado.ativo ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+
+      <div class="card-header-kpi">
+        <div class="avatar avatar-logo" *ngIf="filiado.logoUrl; else semLogo">
+          <img [src]="filiado.logoUrl" [alt]="filiado.nome" />
+        </div>
+        <ng-template #semLogo>
+          <div class="avatar">{{ getInicial(filiado.nome) }}</div>
+        </ng-template>
+
+        <div class="title-block">
+          <h3>{{ filiado.nome }}</h3>
+          <span class="subtitle">{{ filiado.cidade || 'Cidade não informada' }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <span class="kpi-label">Responsável</span>
+          <strong class="kpi-value kpi-text">{{ filiado.responsavel || 'Não informado' }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span class="kpi-label">UF</span>
+          <strong class="kpi-value">{{ filiado.estado || '-' }}</strong>
+        </div>
+      </div>
+
+      <div class="detail-list">
+        <div class="detail-item">
+          <i class="fa-solid fa-phone"></i>
+          <div>
+            <span class="detail-label">Telefone</span>
+            <strong>{{ filiado.telefone || 'Não informado' }}</strong>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <span class="detail-label">Email</span>
+            <strong>{{ filiado.email || 'Não informado' }}</strong>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fa-solid fa-globe"></i>
+          <div>
+            <span class="detail-label">Rede social</span>
+            <strong>{{ filiado.redeSocial || 'Não informada' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-save" (click)="editarFiliado(templateFiliado, filiado)">Editar</button>
+        <button class="btn-cancel" (click)="openModalCobrancas(templateCobrancas, filiado)">Cobranças</button>
+        <button class="btn-cancel danger" (click)="excluir(filiado)">Excluir</button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<button class="floating-add" (click)="openModalFiliado(templateFiliado)">
+  <i class="fa-solid fa-plus"></i>
+  <span class="fab-text"> Novo Filiado </span>
+</button>
+
+<ng-template #templateFiliado>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>{{ editarId ? 'Editar Filiado' : 'Novo Filiado' }}</h4>
+      <button type="button" class="btn-close" (click)="fecharModal()"></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="filiado-form-layout">
+        <section class="form-section logo-section">
+          <div class="section-head">
+            <h5>Logo</h5>
+            <p>Imagem exibida no card do filiado.</p>
+          </div>
+
+          <div class="logo-uploader">
+            <div class="logo-preview" [class.has-image]="!!logoPreviewUrl">
+              <img *ngIf="logoPreviewUrl" [src]="logoPreviewUrl" alt="Preview da logo" />
+              <div class="logo-placeholder" *ngIf="!logoPreviewUrl">
+                <i class="fa-solid fa-image"></i>
+                <span>Nenhuma logo selecionada</span>
+              </div>
+            </div>
+
+            <div class="logo-actions">
+              <label class="upload-button">
+                <input type="file" accept="image/*" (change)="onLogoSelecionada($event)" hidden />
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                Enviar imagem
+              </label>
+              <button type="button" class="btn-cancel subtle" *ngIf="logoPreviewUrl" (click)="removerLogoSelecionada()">Remover</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-head">
+            <h5>Dados principais</h5>
+            <p>Informações de identificação e contato.</p>
+          </div>
+
+          <div class="form-grid-modal">
+            <div class="input-group full">
+              <label>Nome</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-building"></i>
+                <input [(ngModel)]="nome" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Responsável</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-user-tie"></i>
+                <input [(ngModel)]="responsavel" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Telefone</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-phone"></i>
+                <input [(ngModel)]="telefone" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Email</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-envelope"></i>
+                <input [(ngModel)]="email" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Cidade</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-city"></i>
+                <input [(ngModel)]="cidade" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Estado</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-map"></i>
+                <input [(ngModel)]="estado" maxlength="2" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Rede social</label>
+              <div class="input-modern">
+                <i class="fa-solid fa-globe"></i>
+                <input [(ngModel)]="redeSocial" />
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+      <button class="btn-save" (click)="salvar()">Salvar</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #templateCobrancas>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Cobranças - {{ cobrancaSelecionada?.nome }}</h4>
+      <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="cobranca-form">
+        <div class="form-row">
+          <div class="input-group">
+            <label>Valor</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-dollar-sign"></i>
+              <input type="number" [(ngModel)]="cobrancaValor" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Vencimento</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-calendar"></i>
+              <input type="date" [(ngModel)]="cobrancaDataVencimento" />
+            </div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Descrição</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-file-lines"></i>
+            <input [(ngModel)]="cobrancaDescricao" />
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="btn-save" (click)="criarCobranca()">Criar cobrança</button>
+        </div>
+      </div>
+
+      <div class="pix-box" *ngIf="pixPayload || pixQrCodeBase64">
+        <img *ngIf="pixQrCodeBase64" [src]="'data:image/png;base64,' + pixQrCodeBase64" alt="QR Code PIX" />
+        <textarea *ngIf="pixPayload" [value]="pixPayload" readonly></textarea>
+      </div>
+
+      <div class="cobranca-historico">
+        <h5>Histórico</h5>
+        <div class="cobranca-item" *ngFor="let c of cobrancas">
+          <div>
+            <strong>{{ c.valor | currency:'BRL' }}</strong>
+            <small>{{ c.dataVencimento | date:'dd/MM/yyyy' }} - {{ c.status }}</small>
+            <small *ngIf="c.formaPagamentoNome">Forma: {{ c.formaPagamentoNome }}</small>
+            <p>{{ c.descricao || 'Sem descrição' }}</p>
+          </div>
+          <div class="item-actions" *ngIf="c.status !== 'Pago'">
+            <button class="btn-save" (click)="gerarPix(c.id)">PIX Mercado Pago</button>
+            <button class="btn-cancel" (click)="baixarCobranca(c.id)">Baixar</button>
+          </div>
+        </div>
+        <div class="empty-note" *ngIf="!cobrancas.length">Nenhuma cobrança registrada.</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalRef?.hide()">Fechar</button>
+    </div>
+  </div>
+</ng-template>

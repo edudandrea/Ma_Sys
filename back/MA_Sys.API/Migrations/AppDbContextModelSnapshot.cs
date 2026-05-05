@@ -518,6 +518,9 @@ namespace MA_SYS.Api.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("FederacaoId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -539,6 +542,8 @@ namespace MA_SYS.Api.Migrations
                     b.HasIndex("AcademiaId");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("FederacaoId");
 
                     b.ToTable("User");
                 });
@@ -563,6 +568,107 @@ namespace MA_SYS.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CategoriasTransacao");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.Federacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Cidade")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Estado")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MercadoPagoAccessToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MercadoPagoPublicKey")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RedeSocial")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Responsavel")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telefone")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.ToTable("Federacoes");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.Filiados", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Cidade")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Estado")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RedeSocial")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Responsavel")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telefone")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.ToTable("Filiado");
                 });
 
             modelBuilder.Entity("MA_Sys.API.Models.Financeiro", b =>
@@ -734,6 +840,47 @@ namespace MA_SYS.Api.Migrations
                     b.ToTable("PagamentosAcademias");
                 });
 
+            modelBuilder.Entity("MA_Sys.API.Models.PagamentoFiliado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataPagamento")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataVencimento")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FiliadoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FormaPagamentoNome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FiliadoId");
+
+                    b.ToTable("PagamentosFiliados");
+                });
+
             modelBuilder.Entity("MA_SYS.Api.Models.Academia", b =>
                 {
                     b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
@@ -888,9 +1035,36 @@ namespace MA_SYS.Api.Migrations
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("MA_Sys.API.Models.Federacao", "Federacao")
+                        .WithMany()
+                        .HasForeignKey("FederacaoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Academia");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Federacao");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.Federacao", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("OwnerUser");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.Filiados", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("OwnerUser");
                 });
 
             modelBuilder.Entity("MA_Sys.API.Models.Financeiro", b =>
@@ -928,6 +1102,17 @@ namespace MA_SYS.Api.Migrations
                     b.Navigation("Academia");
 
                     b.Navigation("MensalidadeSistema");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.PagamentoFiliado", b =>
+                {
+                    b.HasOne("MA_Sys.API.Models.Filiados", "Filiado")
+                        .WithMany()
+                        .HasForeignKey("FiliadoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Filiado");
                 });
 
             modelBuilder.Entity("MA_SYS.Api.Models.Academia", b =>

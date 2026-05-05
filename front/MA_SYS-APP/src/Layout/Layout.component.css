@@ -418,6 +418,21 @@
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+  }
+
+  .sidebar.collapsed {
+    width: 100%;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
   .topbar {
     padding: 16px 18px;
     align-items: flex-start;
@@ -472,7 +487,7 @@
   }
 
   .main {
-    margin-left: 78px;
+    margin-left: 0;
   }
 
   .brand-mark {

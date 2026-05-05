@@ -8,6 +8,9 @@ namespace MA_Sys.API.Security
         public static bool IsAdmin(string? role)
             => string.Equals(role?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase);
 
+        public static bool IsFederacao(string? role)
+            => string.Equals(role?.Trim(), "Federacao", StringComparison.OrdinalIgnoreCase);
+
         public static bool IsAcademia(string? role)
             => string.Equals(role?.Trim(), "Academia", StringComparison.OrdinalIgnoreCase);
 

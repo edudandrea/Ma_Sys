@@ -16,10 +16,16 @@
 }
 
 .surface-header h2,
-.item-card strong,
-.empty-state i,
-.empty-state p {
+.item-card strong {
   color: var(--text-primary);
+}
+
+.empty-state i {
+  color: var(--accent-text);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
 }
 
 .item-card span,

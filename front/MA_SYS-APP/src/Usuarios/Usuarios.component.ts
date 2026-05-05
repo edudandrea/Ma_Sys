@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { UserService } from '../Services/UsuarioService/User.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { AcademiasService } from '../Services/AcademiaService/Academias.service';
+import { FiliadosService } from '../Services/Filiados/Filiados.service';
+import { FederacoesService } from '../Services/Federacoes/Federacoes.service';
 
 @Component({
   selector: 'app-Usuarios',
@@ -23,13 +25,16 @@ export class UsuariosComponent implements OnInit {
   senha = '';
   confirmarSenha = '';
   academiaId = '';
+  federacaoId = '';
   role = '';
   academias: any[] = [];
   usuarios: any[] = [];
   editando = false;
   currentRole = '';
+  filiados: any[] = [];
+  federacoes: any[] = [];
 
-  modalUsuario!: TemplateRef<any>;
+  @ViewChild('modalUsuario') modalUsuario!: TemplateRef<any>;
 
   constructor(
     private modalService: BsModalService,
@@ -38,12 +43,16 @@ export class UsuariosComponent implements OnInit {
     private service: UserService,
     private cd: ChangeDetectorRef,
     private acad: AcademiasService,
+    private filiadosService: FiliadosService,
+    private federacoesService: FederacoesService,
   ) {}
 
   ngOnInit() {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     this.currentRole = usuario.role || '';
     this.carregarAcademias();
+    this.carregarFiliados();
+    this.carregarFederacoes();
     this.loadUsers();
   }
 
@@ -95,6 +104,30 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
+  carregarFiliados() {
+    this.filiadosService.getFiliados().subscribe({
+      next: (res) => {
+        this.filiados = res ?? [];
+        this.cd.markForCheck();
+      },
+      error: () => {
+        this.filiados = [];
+      },
+    });
+  }
+
+  carregarFederacoes() {
+    this.federacoesService.listar().subscribe({
+      next: (res) => {
+        this.federacoes = res ?? [];
+        this.cd.markForCheck();
+      },
+      error: () => {
+        this.federacoes = [];
+      },
+    });
+  }
+
   loadUsers() {
     this.spinner.show();
     this.service.getUsuarios().subscribe({
@@ -120,12 +153,27 @@ export class UsuariosComponent implements OnInit {
       return;
     }
 
+    if (this.role === 'Academia' && !this.academiaId) {
+      this.toastr.warning('Selecione a academia.');
+      return;
+    }
+
+    if (this.role === 'Federacao' && !this.federacaoId) {
+      this.toastr.warning('Selecione a federação.');
+      return;
+    }
+
     const payload: any = {
       userId: this.userId,
       userName: this.userName,
       login: this.login,
       email: this.email,
-      academiaId: this.role === 'Academia' ? parseInt(this.academiaId, 10) : undefined,
+      academiaId: this.role === 'Academia'
+        ? parseInt(this.academiaId, 10)
+        : undefined,
+      federacaoId: this.role === 'Federacao'
+        ? parseInt(this.federacaoId, 10)
+        : undefined,
       role: this.role,
     };
 
@@ -160,10 +208,19 @@ export class UsuariosComponent implements OnInit {
     this.email = user.email || '';
     this.role = user.role;
     this.academiaId = user.academiaId ? String(user.academiaId) : '';
+    this.federacaoId = user.federacaoId ? String(user.federacaoId) : '';
     this.senha = '';
     this.confirmarSenha = '';
 
     this.openModals(this.modalUsuario);
+  }
+
+  getVinculo(user: any): string {
+    if (user.role === 'Federacao') {
+      return user.federacaoNome || this.federacoes.find((f) => f.id === user.federacaoId)?.nome || 'Federação';
+    }
+
+    return user.academiaNome || 'Global';
   }
 
   deleteUsuario(userId: number): void {
@@ -196,6 +253,7 @@ export class UsuariosComponent implements OnInit {
     this.senha = '';
     this.confirmarSenha = '';
     this.academiaId = '';
+    this.federacaoId = '';
     this.role = '';
     this.editando = false;
   }
