@@ -29,6 +29,9 @@ namespace MA_SYS.Api.Controllers
         [HttpGet]
         public IActionResult List()
         {
+            if (RoleScope.IsFederacao(GetUserRole()))
+                return Forbid();
+
             var (role, academiaId, userId) = GetUserInfo();
             var academias = _service.List(role, academiaId, userId);
             return Ok(academias);
@@ -37,6 +40,9 @@ namespace MA_SYS.Api.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            if (RoleScope.IsFederacao(GetUserRole()))
+                return Forbid();
+
             var (role, academiaId, userId) = GetUserInfo();
             var academia = _service.GetById(id, role, academiaId, userId);
 
@@ -157,6 +163,9 @@ namespace MA_SYS.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] AcademiaUpdateDto dto, int id)
         {
+            if (RoleScope.IsFederacao(GetUserRole()))
+                return Forbid();
+
             var (role, academiaId, userId) = GetUserInfo();
             _service.Update(id, dto, role, academiaId, userId);
 
@@ -166,6 +175,9 @@ namespace MA_SYS.Api.Controllers
         [HttpPatch("{id}/status")]
         public IActionResult AtualizarStatus(int id, [FromBody] bool ativo)
         {
+            if (RoleScope.IsFederacao(GetUserRole()))
+                return Forbid();
+
             var (role, academiaId, userId) = GetUserInfo();
             _service.UpdateStatus(id, role, academiaId, userId, ativo);
 
@@ -175,6 +187,9 @@ namespace MA_SYS.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            if (RoleScope.IsFederacao(GetUserRole()))
+                return Forbid();
+
             var (role, academiaId, userId) = GetUserInfo();
             _service.Delete(id, role, academiaId, userId);
 

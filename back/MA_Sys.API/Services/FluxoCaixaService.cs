@@ -2,6 +2,7 @@ using MA_Sys.API.Data.Repository.interfaces;
 using MA_Sys.API.Dto.FluxoCaixa;
 using MA_Sys.API.Models;
 using MA_Sys.API.Security;
+using MA_SYS.Api.Data;
 
 namespace MA_Sys.API.Services
 {
@@ -12,21 +13,29 @@ namespace MA_Sys.API.Services
         private readonly IPagamentoRepository _pagamentoRepo;
         private readonly IPagamentoAcademiaRepository _pagamentoAcademiaRepo;
         private readonly IAcademiaRepository _academiaRepo;
+        private readonly AppDbContext _context;
 
         public FluxoCaixaService(
             IFinanceiroRepository financeiroRepo,
             IPagamentoRepository pagamentoRepo,
             IPagamentoAcademiaRepository pagamentoAcademiaRepo,
-            IAcademiaRepository academiaRepo)
+            IAcademiaRepository academiaRepo,
+            AppDbContext context)
         {
             _financeiroRepo = financeiroRepo;
             _pagamentoRepo = pagamentoRepo;
             _pagamentoAcademiaRepo = pagamentoAcademiaRepo;
             _academiaRepo = academiaRepo;
+            _context = context;
         }
 
         public FluxoCaixaResponseDto Listar(string role, int? academiaId, int? userId, FluxoCaixaFiltroDto filtro)
         {
+            if (RoleScope.IsFederacao(role))
+            {
+                return ListarFederacao(userId, filtro);
+            }
+
             var movimentos = new List<FluxoCaixaMovimentoDto>();
             var academias = FiltrarAcademias(role, academiaId, userId, filtro.AcademiaId)
                 .Select(a => new { a.Id, Nome = a.Nome ?? $"Academia {a.Id}" })
@@ -42,11 +51,11 @@ namespace MA_Sys.API.Services
             var dataFim = filtro.DataFim?.Date.AddDays(1).AddTicks(-1) ?? DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
 
             movimentos.AddRange(_financeiroRepo.Query()
-                .Where(f => academiaIds.Contains(f.AcademiaId) && f.Data >= dataInicio && f.Data <= dataFim)
+                .Where(f => f.AcademiaId.HasValue && academiaIds.Contains(f.AcademiaId.Value) && f.Data >= dataInicio && f.Data <= dataFim)
                 .ToList()
                 .Join(
                     academias,
-                    f => f.AcademiaId,
+                    f => f.AcademiaId!.Value,
                     a => a.Id,
                     (f, a) => new FluxoCaixaMovimentoDto
                     {
@@ -138,6 +147,12 @@ namespace MA_Sys.API.Services
 
         public void Lancar(string role, int? academiaId, int? userId, FluxoCaixaCreateDto dto)
         {
+            if (RoleScope.IsFederacao(role))
+            {
+                LancarFederacao(userId, dto);
+                return;
+            }
+
             var academiaDestino = RoleScope.IsAcademia(role) ? academiaId ?? 0 : dto.AcademiaId ?? 0;
             var academiaValida = FiltrarAcademias(role, academiaId, userId, academiaDestino)
                 .Any(a => a.Id == academiaDestino);
@@ -201,6 +216,112 @@ namespace MA_Sys.API.Services
                 throw new UnauthorizedAccessException("Usuario sem academia valida.");
 
             return query.Where(a => a.Id == academiaId.Value);
+        }
+
+        private FluxoCaixaResponseDto ListarFederacao(int? userId, FluxoCaixaFiltroDto filtro)
+        {
+            if (!userId.HasValue)
+                throw new UnauthorizedAccessException("Usuario de federacao invalido.");
+
+            var dataInicio = filtro.DataInicio?.Date ?? DateTime.UtcNow.Date.AddMonths(-1);
+            var dataFim = filtro.DataFim?.Date.AddDays(1).AddTicks(-1) ?? DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
+
+            var movimentos = _context.PagamentosFiliados
+                .Where(p =>
+                    p.Filiado != null &&
+                    p.Filiado.OwnerUserId == userId.Value &&
+                    p.DataVencimento >= dataInicio &&
+                    p.DataVencimento <= dataFim)
+                .Select(p => new FluxoCaixaMovimentoDto
+                {
+                    Tipo = "Entrada",
+                    Origem = "Filiado",
+                    Categoria = "Cobranca de filiado",
+                    Descricao = p.Descricao ?? $"Cobranca do filiado #{p.FiliadoId}",
+                    AcademiaNome = p.Filiado != null ? p.Filiado.Nome ?? $"Filiado {p.FiliadoId}" : $"Filiado {p.FiliadoId}",
+                    Valor = p.Valor,
+                    Data = p.DataPagamento ?? p.DataVencimento,
+                    Status = p.Status,
+                    FormaPagamentoNome = p.FormaPagamentoNome
+                })
+                .OrderByDescending(m => m.Data)
+                .ToList();
+
+            movimentos.AddRange(_financeiroRepo.Query()
+                .Where(f =>
+                    f.OwnerUserId == userId.Value &&
+                    f.Data >= dataInicio &&
+                    f.Data <= dataFim)
+                .Select(f => new FluxoCaixaMovimentoDto
+                {
+                    Tipo = f.Tipo,
+                    Origem = f.Origem,
+                    Categoria = f.Categoria,
+                    Descricao = f.Descricao,
+                    AcademiaNome = "Federacao",
+                    Valor = f.Valor,
+                    Data = f.Data,
+                    Status = f.Pago ? "Pago" : "Pendente",
+                    FormaPagamentoNome = f.FormaPagamento != null ? f.FormaPagamento.Nome : null
+                })
+                .ToList());
+
+            movimentos = movimentos
+                .OrderByDescending(m => m.Data)
+                .ToList();
+
+            var totalEntradas = movimentos
+                .Where(m =>
+                    string.Equals(m.Status, "Pago", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(m.Tipo, "Entrada", StringComparison.OrdinalIgnoreCase))
+                .Sum(m => m.Valor);
+
+            var totalSaidas = movimentos
+                .Where(m =>
+                    string.Equals(m.Status, "Pago", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(m.Tipo, "Saida", StringComparison.OrdinalIgnoreCase))
+                .Sum(m => m.Valor);
+
+            return new FluxoCaixaResponseDto
+            {
+                Resumo = new FluxoCaixaResumoDto
+                {
+                    TotalEntradas = totalEntradas,
+                    TotalSaidas = totalSaidas,
+                    Saldo = totalEntradas - totalSaidas,
+                    TotalMovimentos = movimentos.Count
+                },
+                Movimentos = movimentos
+            };
+        }
+
+        private void LancarFederacao(int? userId, FluxoCaixaCreateDto dto)
+        {
+            if (!userId.HasValue)
+                throw new UnauthorizedAccessException("Usuario de federacao invalido.");
+
+            if (dto.Valor <= 0)
+                throw new InvalidOperationException("Valor invalido para o lancamento.");
+
+            if (string.IsNullOrWhiteSpace(dto.Tipo))
+                throw new InvalidOperationException("Tipo do lancamento e obrigatorio.");
+
+            var lancamento = new Financeiro
+            {
+                AcademiaId = null,
+                OwnerUserId = userId.Value,
+                Valor = dto.Valor,
+                Data = dto.Data == default ? DateTime.UtcNow : dto.Data,
+                Tipo = dto.Tipo.Trim(),
+                Categoria = dto.Categoria?.Trim() ?? string.Empty,
+                Descricao = dto.Descricao?.Trim() ?? string.Empty,
+                FormaPagamentoId = dto.FormaPagamentoId,
+                Origem = "Manual",
+                Pago = dto.Pago
+            };
+
+            _financeiroRepo.Add(lancamento);
+            _financeiroRepo.Save();
         }
 
         private static string? SanitizarDescricao(string? descricao)

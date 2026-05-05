@@ -32,6 +32,24 @@ export interface PagamentoFiliado {
   formaPagamentoNome?: string;
 }
 
+export interface PagamentoFiliadoPixResponse {
+  pagamentoId: number;
+  status: string;
+  payload?: string;
+  qrCodeBase64?: string;
+  externalId?: string;
+  verificacaoAutomaticaDisponivel: boolean;
+  mensagem: string;
+}
+
+export interface PagamentoFiliadoStatusResponse {
+  pagamentoId: number;
+  status: string;
+  formaPagamentoNome?: string;
+  dataPagamento?: string;
+  mensagem?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -81,5 +99,29 @@ export class FiliadosService {
 
   gerarPix(id: number): Observable<any> {
     return this.http.post<any>(`${this.pagamentosUrl}/${id}/pix`, {});
+  }
+
+  getPagamentoConfigPublico(federacaoId: number): Observable<any> {
+    return this.http.get<any>(`${this.pagamentosUrl}/public/${federacaoId}/config`);
+  }
+
+  getFormasPagamentoPublicas(federacaoId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.pagamentosUrl}/public/${federacaoId}/formas-pagamento`);
+  }
+
+  buscarFiliadoPublico(federacaoId: number, payload: { email: string; telefone: string }): Observable<any> {
+    return this.http.post<any>(`${this.pagamentosUrl}/public/${federacaoId}/buscar`, payload);
+  }
+
+  gerarPixPublico(payload: any): Observable<PagamentoFiliadoPixResponse> {
+    return this.http.post<PagamentoFiliadoPixResponse>(`${this.pagamentosUrl}/public/pix`, payload);
+  }
+
+  pagarCartaoPublico(payload: any): Observable<PagamentoFiliadoStatusResponse> {
+    return this.http.post<PagamentoFiliadoStatusResponse>(`${this.pagamentosUrl}/public/cartao`, payload);
+  }
+
+  consultarStatusPublico(federacaoId: number, pagamentoId: number): Observable<PagamentoFiliadoStatusResponse> {
+    return this.http.get<PagamentoFiliadoStatusResponse>(`${this.pagamentosUrl}/public/${federacaoId}/${pagamentoId}/status`);
   }
 }

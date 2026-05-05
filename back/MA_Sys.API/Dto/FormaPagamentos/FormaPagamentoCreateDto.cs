@@ -7,7 +7,7 @@ namespace MA_Sys.API.Dto.FormaPagamentos
 {
     public class FormaPagamentoCreateDto
     {
-        public int AcademiaId { get; set; }
+        public int? AcademiaId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public bool Ativo { get; set; }
         public decimal Taxa { get; set; }

@@ -1,0 +1,222 @@
+.filiado-payment-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.2fr);
+  background: var(--bg-main, #0f172a);
+  color: var(--text-primary, #f8fafc);
+}
+
+.payment-hero {
+  padding: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(160deg, #111827, #164e63);
+}
+
+.brand-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-line img {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.brand-line span,
+.eyebrow,
+.summary-card span {
+  color: #a7f3d0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.payment-hero h1 {
+  margin: 4px 0 0;
+  font-size: 2.2rem;
+}
+
+.payment-hero p {
+  max-width: 460px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1.05rem;
+}
+
+.payment-panel {
+  padding: 48px;
+  background: var(--bg-panel, #ffffff);
+  color: var(--text-primary, #111827);
+  overflow: auto;
+}
+
+.panel-heading,
+.search-card,
+.filiado-banner,
+.pix-panel,
+.card-panel,
+.payment-status,
+.summary-card {
+  margin-bottom: 22px;
+}
+
+.panel-heading h2,
+.filiado-banner h3 {
+  margin: 6px 0;
+}
+
+.panel-heading p,
+.filiado-banner p,
+.empty-note,
+.payment-status p,
+.summary-card small {
+  color: var(--text-secondary, #64748b);
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-grid.cols-2,
+.checkout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.input-group.full {
+  grid-column: 1 / -1;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-secondary, #475569);
+}
+
+.input-modern {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border-color, #dbe3ef);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: var(--bg-input, #fff);
+}
+
+.input-modern input,
+.input-modern select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.btn-primary-block,
+.btn-secondary-block {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary-block {
+  width: 100%;
+  margin-top: 16px;
+  background: #0f766e;
+  color: #fff;
+}
+
+.btn-secondary-block {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.filiado-banner,
+.summary-card,
+.pix-panel,
+.card-panel,
+.payment-status,
+.empty-note {
+  padding: 18px;
+  border: 1px solid var(--border-color, #dbe3ef);
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.filiado-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.summary-card strong {
+  font-size: 1.7rem;
+}
+
+.method-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.pix-content {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.pix-content img {
+  width: 220px;
+  max-width: 100%;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+}
+
+.status-paid {
+  border-color: #16a34a;
+}
+
+.status-pending {
+  border-color: #eab308;
+}
+
+.status-failed {
+  border-color: #dc2626;
+}
+
+@media (max-width: 860px) {
+  .filiado-payment-shell,
+  .form-grid.cols-2,
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-hero,
+  .payment-panel {
+    padding: 28px;
+  }
+}

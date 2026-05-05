@@ -26,16 +26,23 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar planos.");
+
+                query = query.Where(pl => pl.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar planos.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id);
 
-                query = query.Where(a => academiaIds.Contains(a.AcademiaId));
+                query = query.Where(a => a.AcademiaId.HasValue && academiaIds.Contains(a.AcademiaId.Value));
             }
             else
             {
@@ -50,7 +57,12 @@ namespace MA_Sys.API.Services
                 Id = a.Id,
                 Nome = a.Nome,
                 Valor = a.Valor,
-                DuracaoMeses = a.DuracaoMeses
+                DuracaoMeses = a.DuracaoMeses,
+                AcademiaId = a.AcademiaId,
+                OwnerUserId = a.OwnerUserId,
+                AcademiaNome = a.Academia != null ? a.Academia.Nome : null,
+                Escopo = a.OwnerUserId.HasValue ? "Federacao" : "Academia",
+                Ativo = a.Ativo
             }).ToList();
         }
 
@@ -59,20 +71,28 @@ namespace MA_Sys.API.Services
             var query = _repo.Query().AsNoTracking();
             var isSuperAdmin = RoleScope.IsSuperAdmin(role);
             var isAdmin = RoleScope.IsAdmin(role);
+            var isFederacao = RoleScope.IsFederacao(role);
 
             if (isSuperAdmin)
             {
             }
+            else if (isFederacao)
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar planos.");
+
+                query = query.Where(pl => pl.OwnerUserId == userId.Value);
+            }
             else if (isAdmin)
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar planos.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id);
 
-                query = query.Where(pl => academiaIds.Contains(pl.AcademiaId));
+                query = query.Where(pl => pl.AcademiaId.HasValue && academiaIds.Contains(pl.AcademiaId.Value));
             }
             else
             {
@@ -91,7 +111,7 @@ namespace MA_Sys.API.Services
                     query = query.Where(pl => pl.Ativo == filtro.Ativo.Value);
             }
 
-            var academiaIdsAdmin = isAdmin && userId.HasValue
+            var academiaIdsUsuario = isAdmin && userId.HasValue
                 ? _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id)
@@ -105,28 +125,52 @@ namespace MA_Sys.API.Services
                 Valor = pl.Valor,
                 DuracaoMeses = pl.DuracaoMeses,
                 AcademiaId = pl.AcademiaId,
-                AcademiaNome = pl.Academia.Nome,
+                OwnerUserId = pl.OwnerUserId,
+                AcademiaNome = pl.Academia != null ? pl.Academia.Nome : null,
+                Escopo = pl.OwnerUserId.HasValue ? "Federacao" : "Academia",
                 Ativo = pl.Ativo,
-                TotalAlunos = _alunoRepo.Query().Count(a =>
-                    a.PlanoId == pl.Id &&
-                    (isSuperAdmin || a.AcademiaId == academiaId || (isAdmin && academiaIdsAdmin.Contains(a.AcademiaId))))
+                TotalAlunos = isFederacao || pl.OwnerUserId.HasValue
+                    ? 0
+                    : _alunoRepo.Query().Count(a =>
+                        a.PlanoId == pl.Id &&
+                        (isSuperAdmin || a.AcademiaId == academiaId || (isAdmin && academiaIdsUsuario.Contains(a.AcademiaId))))
             }).ToList();
         }
 
         public void Add(PlanosCreateDto dto, string role, int? academiaId, int? userId)
         {
-            var academiaDestino = RoleScope.IsAcademia(role) ? (academiaId ?? 0) : dto.AcademiaId;
+            int? academiaDestino = RoleScope.IsAcademia(role) ? (academiaId ?? 0) : dto.AcademiaId;
+            int? ownerUserId = null;
 
-            if (RoleScope.IsAdmin(role))
+            if (RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para cadastrar plano.");
 
-                var academiaPertenceAoAdmin = _academiaRepo.Query()
-                    .Any(a => a.Id == academiaDestino && a.OwnerUserId == userId.Value);
+                academiaDestino = null;
+                ownerUserId = userId.Value;
+            }
+            else if (RoleScope.IsAdmin(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para cadastrar plano.");
 
-                if (!academiaPertenceAoAdmin)
-                    throw new UnauthorizedAccessException("Admin nao pode cadastrar plano em academia fora do seu escopo.");
+                if (!academiaDestino.HasValue)
+                    throw new InvalidOperationException("Informe uma academia para cadastrar o plano.");
+
+                var academiaPertenceAoUsuario = _academiaRepo.Query()
+                    .Any(a => a.Id == academiaDestino.Value && a.OwnerUserId == userId.Value);
+
+                if (!academiaPertenceAoUsuario)
+                    throw new UnauthorizedAccessException("Usuario nao pode cadastrar plano em academia fora do seu escopo.");
+            }
+            else if (!RoleScope.IsSuperAdmin(role) && !academiaDestino.HasValue)
+            {
+                throw new UnauthorizedAccessException("Usuario sem vinculo com academia nao pode cadastrar plano.");
+            }
+            else if (RoleScope.IsSuperAdmin(role) && !academiaDestino.HasValue)
+            {
+                throw new InvalidOperationException("Informe uma academia para cadastrar o plano.");
             }
 
             var plano = new Plano
@@ -135,6 +179,7 @@ namespace MA_Sys.API.Services
                 Valor = dto.Valor,
                 DuracaoMeses = dto.DuracaoMeses,
                 AcademiaId = academiaDestino,
+                OwnerUserId = ownerUserId,
                 Ativo = true
             };
 
@@ -149,12 +194,19 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar plano.");
+
+                query = query.Where(a => a.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar plano.");
 
-                query = query.Where(a => a.Academia.OwnerUserId == userId.Value);
+                query = query.Where(a => a.Academia != null && a.Academia.OwnerUserId == userId.Value);
             }
             else
             {
@@ -181,12 +233,19 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status do plano.");
+
+                query = query.Where(p => p.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status do plano.");
 
-                query = query.Where(p => p.Academia.OwnerUserId == userId.Value);
+                query = query.Where(p => p.Academia != null && p.Academia.OwnerUserId == userId.Value);
             }
             else
             {
@@ -209,8 +268,13 @@ namespace MA_Sys.API.Services
             var query = _alunoRepo.Query().Where(a => a.PlanoId == planoId);
             var isSuperAdmin = RoleScope.IsSuperAdmin(role);
             var isAdmin = RoleScope.IsAdmin(role);
+            var isFederacao = RoleScope.IsFederacao(role);
 
-            if (!isSuperAdmin && !isAdmin && academiaId.HasValue)
+            if (isFederacao)
+            {
+                query = query.Where(_ => false);
+            }
+            else if (!isSuperAdmin && !isAdmin && academiaId.HasValue)
             {
                 query = query.Where(a => a.AcademiaId == academiaId);
             }

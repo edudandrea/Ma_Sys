@@ -52,7 +52,7 @@ export class PagamentosComponent implements OnInit {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     this.role = usuario.role || '';
     this.academiaId = usuario.academiaId || 0;
-    if (this.role !== 'Academia') {
+    if (!this.isAcademia && !this.isFederacao) {
       this.carregarAcademias();
     }
     this.carregarFormaPgtos();
@@ -60,6 +60,10 @@ export class PagamentosComponent implements OnInit {
 
   get isAcademia(): boolean {
     return this.role === 'Academia';
+  }
+
+  get isFederacao(): boolean {
+    return this.role === 'Federacao';
   }
 
   @HostListener('document:click', ['$event'])
@@ -199,16 +203,19 @@ export class PagamentosComponent implements OnInit {
   cadastrarNovaFormaPgto() {
     this.spinner.show();
 
-    const formaPgto = {
+    const formaPgto: Partial<Pagamentos> = {
       nome: this.nome,
       ativo: this.ativo,
       taxa: this.taxa,
       parcelas: this.parcelas,
       dias: this.dias,
-      academiaId: this.academiaId,
     };
 
-    console.group('📤 NOVA FORMA DE PAGAMENTO');
+    if (!this.isFederacao) {
+      formaPgto.academiaId = this.academiaId;
+    }
+
+    console.group('NOVA FORMA DE PAGAMENTO');
     console.log(JSON.stringify(formaPgto, null, 2));
     console.groupEnd();
 

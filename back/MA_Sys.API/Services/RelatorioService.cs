@@ -21,8 +21,14 @@ namespace MA_Sys.API.Services
 
             if (RoleScope.IsFederacao(role))
             {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar relatorio.");
+
                 var filiados = _context.Filiado.AsQueryable();
-                var pagamentos = _context.PagamentosFiliados.AsQueryable();
+                filiados = filiados.Where(f => f.OwnerUserId == userId.Value);
+
+                var filiadoIds = filiados.Select(f => f.Id);
+                var pagamentos = _context.PagamentosFiliados.Where(p => filiadoIds.Contains(p.FiliadoId));
 
                 return MontarRelatorioEntidades(
                     "Filiados",

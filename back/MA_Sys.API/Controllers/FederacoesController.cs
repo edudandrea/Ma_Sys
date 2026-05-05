@@ -49,8 +49,14 @@ namespace MA_Sys.API.Controllers
         }
 
         [HttpPost("upload-logo")]
-        public async Task<IActionResult> UploadLogo(IFormFile file)
+        public async Task<IActionResult> UploadLogo([FromForm] IFormFile file)
         {
+            // Debug: Check if file is received
+            if (file == null)
+            {
+                return BadRequest(new { message = "Arquivo não recebido. Verifique se FormData está sendo enviado corretamente." });
+            }
+
             var role = GetUserRole();
             if (!RoleScope.IsAdmin(role) && !RoleScope.IsSuperAdmin(role) && !RoleScope.IsFederacao(role))
             {

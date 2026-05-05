@@ -5,7 +5,9 @@ import { HttpClient } from '@angular/common/http';
 
 export interface Planos {
   id: number;
-  academiaId: number;
+  academiaId?: number | null;
+  ownerUserId?: number | null;
+  escopo?: string;
   nome: string;
   valor: number;
   ativo: boolean;

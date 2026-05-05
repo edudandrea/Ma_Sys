@@ -316,7 +316,7 @@ namespace MA_SYS.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AcademiaId")
+                    b.Property<int?>("AcademiaId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Ativo")
@@ -328,6 +328,9 @@ namespace MA_SYS.Api.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TotalAlunos")
                         .HasColumnType("INTEGER");
 
@@ -337,6 +340,8 @@ namespace MA_SYS.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AcademiaId");
+
+                    b.HasIndex("OwnerUserId");
 
                     b.ToTable("Planos");
                 });
@@ -677,7 +682,7 @@ namespace MA_SYS.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AcademiaId")
+                    b.Property<int?>("AcademiaId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("AlunoId")
@@ -701,6 +706,9 @@ namespace MA_SYS.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("Pago")
                         .HasColumnType("INTEGER");
 
@@ -713,7 +721,11 @@ namespace MA_SYS.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AcademiaId");
+
                     b.HasIndex("FormaPagamentoId");
+
+                    b.HasIndex("OwnerUserId");
 
                     b.ToTable("Financeiros");
                 });
@@ -724,7 +736,7 @@ namespace MA_SYS.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AcademiaId")
+                    b.Property<int?>("AcademiaId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Ativo")
@@ -737,6 +749,9 @@ namespace MA_SYS.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Parcelas")
                         .HasColumnType("INTEGER");
 
@@ -744,6 +759,10 @@ namespace MA_SYS.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AcademiaId");
+
+                    b.HasIndex("OwnerUserId");
 
                     b.ToTable("FormaPagamentos");
                 });
@@ -951,10 +970,16 @@ namespace MA_SYS.Api.Migrations
                     b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
                         .WithMany()
                         .HasForeignKey("AcademiaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Academia");
+
+                    b.Navigation("OwnerUser");
                 });
 
             modelBuilder.Entity("MA_SYS.Api.Models.Professor", b =>
@@ -1069,11 +1094,42 @@ namespace MA_SYS.Api.Migrations
 
             modelBuilder.Entity("MA_Sys.API.Models.Financeiro", b =>
                 {
+                    b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
+                        .WithMany()
+                        .HasForeignKey("AcademiaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("MA_Sys.API.Models.FormaPagamento", "FormaPagamento")
                         .WithMany()
                         .HasForeignKey("FormaPagamentoId");
 
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Academia");
+
                     b.Navigation("FormaPagamento");
+
+                    b.Navigation("OwnerUser");
+                });
+
+            modelBuilder.Entity("MA_Sys.API.Models.FormaPagamento", b =>
+                {
+                    b.HasOne("MA_SYS.Api.Models.Academia", "Academia")
+                        .WithMany()
+                        .HasForeignKey("AcademiaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MA_SYS.Api.Models.Users", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Academia");
+
+                    b.Navigation("OwnerUser");
                 });
 
             modelBuilder.Entity("MA_Sys.API.Models.MensalidadeSistema", b =>

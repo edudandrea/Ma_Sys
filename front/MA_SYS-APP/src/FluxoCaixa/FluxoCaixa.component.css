@@ -28,8 +28,18 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  justify-content: center;
   min-height: 48px;
+  max-width: 100%;
+  padding: 0.75rem 1rem;
+  line-height: 1.1;
   white-space: nowrap;
+}
+
+.page-action span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .summary-grid {
@@ -44,6 +54,15 @@
   border: 1px dashed var(--border-color);
   border-radius: 20px;
   padding: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-card:hover,
+.movimento-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-border-soft);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-style: solid;
 }
 
 .summary-card span,
@@ -143,5 +162,13 @@ select {
 
   .movimentos-list {
     grid-template-columns: 1fr;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .page-action {
+    width: 100%;
   }
 }

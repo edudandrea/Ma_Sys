@@ -42,7 +42,7 @@ export class PlanosComponent implements OnInit {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     this.role = usuario.role || '';
     this.academiaId = usuario.academiaId || 0;
-    if (this.role !== 'Academia') {
+    if (!this.isAcademia && !this.isFederacao) {
       this.carregarAcademias();
     }
     this.carregarPlanos();
@@ -50,6 +50,10 @@ export class PlanosComponent implements OnInit {
 
   get isAcademia(): boolean {
     return this.role === 'Academia';
+  }
+
+  get isFederacao(): boolean {
+    return this.role === 'Federacao';
   }
 
   getInicial(nome: string): string {
@@ -145,18 +149,21 @@ export class PlanosComponent implements OnInit {
   novoPlano() {
     this.spinner.show();
 
-    const professor = {
+    const plano: Partial<Planos> = {
       nome: this.nome,
       valor: this.valor,
       duracaoMeses: this.duracaoMeses,
-      academiaId: this.academiaId,
     };
 
-    console.group('📤 NOVO PROFESSOR');
-    console.log(JSON.stringify(professor, null, 2));
+    if (!this.isFederacao) {
+      plano.academiaId = this.academiaId;
+    }
+
+    console.group('NOVO PLANO');
+    console.log(JSON.stringify(plano, null, 2));
     console.groupEnd();
 
-    this.planosService.novoPlano(professor).subscribe({
+    this.planosService.novoPlano(plano).subscribe({
       next: (res) => {
         this.spinner.hide();
         this.toastr.success('Plano cadastrado!', 'Sucesso');

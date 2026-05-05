@@ -24,10 +24,10 @@ namespace MA_Sys.API.Services
                 return MapUsers(user);
             }
 
-            if (RoleScope.IsAdmin(role))
+            if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar usuarios.");
 
                 user = user.Where(u => u.UserId == userId.Value || u.CreatedByUserId == userId.Value);
                 return MapUsers(user);
@@ -45,10 +45,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar usuarios.");
 
                 query = query.Where(u => u.UserId == userId.Value || u.CreatedByUserId == userId.Value);
             }
@@ -79,10 +79,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar usuario.");
 
                 query = query.Where(u => u.UserId == userId.Value || u.CreatedByUserId == userId.Value);
             }
@@ -148,10 +148,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar usuario.");
 
                 query = query.Where(u => u.CreatedByUserId == userId.Value || u.UserId == userId.Value);
             }
@@ -193,10 +193,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!currentUserId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para excluir usuario.");
 
                 query = query.Where(u => u.CreatedByUserId == currentUserId.Value);
             }

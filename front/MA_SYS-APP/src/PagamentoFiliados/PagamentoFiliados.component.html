@@ -1,0 +1,168 @@
+<div class="filiado-payment-shell">
+  <section class="payment-hero">
+    <div class="brand-line">
+      <img *ngIf="federacaoLogoUrl" [src]="federacaoLogoUrl" [alt]="federacaoNome" />
+      <div>
+        <span>Pagamento de filiado</span>
+        <h1>{{ federacaoNome }}</h1>
+      </div>
+    </div>
+    <p>Localize suas cobrancas pendentes e conclua o pagamento.</p>
+  </section>
+
+  <section class="payment-panel">
+    <div class="panel-heading">
+      <span class="eyebrow">Identificacao</span>
+      <h2>Buscar cobrancas</h2>
+      <p>Informe email e telefone cadastrados pela federacao.</p>
+    </div>
+
+    <div class="search-card" *ngIf="!filiado">
+      <div class="form-grid cols-2">
+        <div class="input-group">
+          <label>Email</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-envelope"></i>
+            <input [(ngModel)]="emailBusca" placeholder="voce@exemplo.com" (keyup.enter)="pesquisarFiliado()" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Telefone</label>
+          <div class="input-modern">
+            <i class="fa-solid fa-phone"></i>
+            <input [(ngModel)]="telefoneBusca" placeholder="(00) 00000-0000" (keyup.enter)="pesquisarFiliado()" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary-block" type="button" (click)="pesquisarFiliado()">Buscar cobrancas</button>
+    </div>
+
+    <ng-container *ngIf="filiado">
+      <div class="filiado-banner">
+        <div>
+          <span class="eyebrow">Filiado encontrado</span>
+          <h3>{{ filiado?.nome }}</h3>
+          <p>{{ filiado?.email }} · {{ filiado?.telefone }}</p>
+        </div>
+        <button class="btn-secondary-block" type="button" (click)="filiado = null; cobrancas = []">Nova busca</button>
+      </div>
+
+      <div class="empty-note" *ngIf="!cobrancas.length">
+        Nenhuma cobranca pendente encontrada para este filiado.
+      </div>
+
+      <section class="checkout-grid" *ngIf="cobrancas.length">
+        <div class="input-group">
+          <label>Cobranca</label>
+          <div class="input-modern select-shell">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <select [(ngModel)]="cobrancaSelecionadaId" (change)="onCobrancaChange()">
+              <option [ngValue]="0" disabled>Selecione</option>
+              <option *ngFor="let c of cobrancas" [ngValue]="c.id">
+                {{ c.descricao || 'Cobranca' }} - {{ c.valor | currency:'BRL' }} - {{ c.dataVencimento | date:'dd/MM/yyyy' }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Forma de pagamento</label>
+          <div class="input-modern select-shell">
+            <i class="fa-solid fa-credit-card"></i>
+            <select [(ngModel)]="formaPagamentoId" (change)="onFormaPagamentoChange()">
+              <option value="" disabled>Selecione</option>
+              <option *ngFor="let f of formasPagamento" [value]="f.id">{{ f.nome }}</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-card" *ngIf="cobrancaSelecionada">
+        <span>Valor selecionado</span>
+        <strong>{{ cobrancaSelecionada.valor | currency:'BRL' }}</strong>
+        <small>Vencimento em {{ cobrancaSelecionada.dataVencimento | date:'dd/MM/yyyy' }}</small>
+      </section>
+
+      <div class="pix-panel" *ngIf="isPix && cobrancaSelecionada">
+        <div class="method-head">
+          <strong>Pagamento via PIX</strong>
+          <span *ngIf="pagamentoStatus">{{ pagamentoStatus }}</span>
+        </div>
+
+        <button class="btn-primary-block" type="button" *ngIf="!showQrCode" [disabled]="isGerandoPix" (click)="gerarPix()">
+          {{ isGerandoPix ? 'Gerando PIX...' : 'Gerar PIX' }}
+        </button>
+
+        <div class="pix-content" *ngIf="showQrCode">
+          <img [src]="qrCodePix" alt="QR Code PIX" />
+          <button class="btn-secondary-block" type="button" *ngIf="pixPayload" (click)="copiarPix()">Copiar codigo PIX</button>
+          <button class="btn-primary-block" type="button" *ngIf="verificacaoAutomaticaPix && pagamentoId" (click)="verificarPagamento()">
+            Verificar pagamento
+          </button>
+        </div>
+      </div>
+
+      <div class="card-panel" *ngIf="isCartao && cobrancaSelecionada">
+        <div class="method-head">
+          <strong>Pagamento por cartao</strong>
+        </div>
+
+        <div class="form-grid cols-2">
+          <div class="input-group full">
+            <label>Numero do cartao</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-credit-card"></i>
+              <input [(ngModel)]="cartao.numero" placeholder="0000 0000 0000 0000" />
+            </div>
+          </div>
+
+          <div class="input-group full">
+            <label>Nome no cartao</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-user"></i>
+              <input [(ngModel)]="cartao.nome" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>CPF do titular</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-id-card"></i>
+              <input [(ngModel)]="cartao.cpf" placeholder="00000000000" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Validade</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-calendar"></i>
+              <input [(ngModel)]="cartao.validade" placeholder="MM/AA" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>CVV</label>
+            <div class="input-modern">
+              <i class="fa-solid fa-lock"></i>
+              <input [(ngModel)]="cartao.cvv" placeholder="123" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary-block" type="button" (click)="pagarCartao()">Pagar com cartao</button>
+      </div>
+
+      <div class="payment-status" *ngIf="pagamentoStatus" [ngClass]="{
+        'status-paid': pagamentoStatus === 'Pago',
+        'status-pending': pagamentoStatus === 'Pendente' || pagamentoStatus === 'EmAnalise',
+        'status-failed': pagamentoStatus === 'Recusado' || pagamentoStatus === 'Erro'
+      }">
+        <strong>{{ pagamentoStatus }}</strong>
+        <p>{{ pagamentoMensagem }}</p>
+        <small *ngIf="pagamentoId">ID: {{ pagamentoId }}</small>
+      </div>
+    </ng-container>
+  </section>
+</div>

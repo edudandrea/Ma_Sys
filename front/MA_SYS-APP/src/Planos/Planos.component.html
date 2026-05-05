@@ -36,7 +36,7 @@
             <input *ngIf="editarId === plano.id" [(ngModel)]="nome" class="edit-input" />
           </div>
 
-          <span class="subtitle">{{ plano.academiaNome || 'Academia não informada' }}</span>
+          <span class="subtitle">{{ plano.academiaNome || (isFederacao ? 'Plano da federação' : 'Academia não informada') }}</span>
         </div>
       </div>
 
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <div class="detail-list">
+      <div class="detail-list" *ngIf="!isFederacao">
         <div class="detail-item">
           <i class="fa-solid fa-users"></i>
           <div>
@@ -102,7 +102,7 @@
           <input [(ngModel)]="duracaoMeses" name="duracaoMeses" />
         </div>
 
-        <div class="form-group full" *ngIf="!isAcademia">
+        <div class="form-group full" *ngIf="!isAcademia && !isFederacao">
           <label>Academia</label>
           <select [(ngModel)]="academiaId" name="academiaId">
             <option *ngFor="let academia of academias" [ngValue]="academia.id">

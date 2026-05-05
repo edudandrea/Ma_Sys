@@ -98,6 +98,14 @@
   border-radius: 20px;
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--bg-panel-strong) 92%, transparent);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.qr-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-border-soft);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
 .hero-point strong,

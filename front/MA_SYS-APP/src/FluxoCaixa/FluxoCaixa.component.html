@@ -6,16 +6,16 @@
     </div>
 
     <div class="header-actions">
-      <select *ngIf="!isAcademia" [(ngModel)]="academiaIdSelecionada" (change)="carregarFluxo()">
+      <select *ngIf="!isAcademia && !isFederacao" [(ngModel)]="academiaIdSelecionada" (change)="carregarFluxo()">
         <option [ngValue]="null">Todas as academias visíveis</option>
         <option *ngFor="let academia of academias" [ngValue]="academia.id">
           {{ academia.nome }}
         </option>
       </select>
 
-      <button class="btn-save page-action" (click)="openModalNovoLancamento(templateNovoLancamento)">
+      <button *ngIf="podeLancarManual" class="btn-save page-action" (click)="openModalNovoLancamento(templateNovoLancamento)">
         <i class="fa-solid fa-plus"></i>
-        Novo lançamento
+        <span>Novo lançamento</span>
       </button>
     </div>
   </div>
@@ -76,7 +76,7 @@
 
       <div class="modal-body">
         <form class="form-grid">
-          <div class="form-group" *ngIf="!isAcademia">
+          <div class="form-group" *ngIf="!isAcademia && !isFederacao">
             <label>Academia</label>
             <select [(ngModel)]="novoLancamento.academiaId" name="academiaId">
               <option *ngFor="let academia of academias" [ngValue]="academia.id">

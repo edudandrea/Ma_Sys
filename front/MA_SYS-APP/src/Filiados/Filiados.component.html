@@ -3,6 +3,9 @@
     <h1>Filiados</h1>
     <p>Gerencie federações, vínculos e cobranças dos filiados.</p>
   </div>
+  <button class="btn-save" type="button" *ngIf="linkPagamentoPublico" (click)="copiarLinkPagamentoPublico()">
+    Copiar link publico de pagamento
+  </button>
 </div>
 
 <div class="filiados-page">

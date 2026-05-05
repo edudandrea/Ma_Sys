@@ -45,13 +45,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().AsNoTracking();
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar filiados.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -82,13 +82,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().AsNoTracking();
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar filiados.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -124,13 +124,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().Where(a => a.Id == id);
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar filiado.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -180,7 +180,7 @@ namespace MA_Sys.API.Services
                 LogoUrl = dto.LogoUrl?.Trim(),
                 RedeSocial = dto.RedeSocial,
                 Responsavel = dto.Responsavel,
-                OwnerUserId = RoleScope.IsAdmin(role) ? currentUserId : dto.OwnerUserId,
+                OwnerUserId = RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role) ? currentUserId : dto.OwnerUserId,
                 DataCadastro = DateTime.UtcNow,
                 Ativo = true
             };
@@ -193,13 +193,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().Where(a => a.Id == id);
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar filiado.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -229,13 +229,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().Where(a => a.Id == id);
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para excluir filiado.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -257,13 +257,13 @@ namespace MA_Sys.API.Services
         {
             var query = _repo.Query().Where(a => a.Id == id);
 
-            if (RoleScope.IsSuperAdmin(role) || RoleScope.IsFederacao(role))
+            if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status do filiado.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }

@@ -47,6 +47,15 @@ namespace MA_Sys.API.Controllers
             return Ok();
         }
 
+        [HttpPatch("{id}/status")]
+        public IActionResult AtualizarStatus(int id, [FromBody] bool ativo)
+        {
+            var (role, academiaId, userId) = GetUserInfo();
+            _service.UpdateStatus(id, role, academiaId, userId, ativo);
+
+            return NoContent();
+        }
+
         [AllowAnonymous]
         [HttpGet("public/{slug}")]
         public IActionResult GetPublico(string slug)

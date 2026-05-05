@@ -26,7 +26,7 @@ namespace MA_Sys.API.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery] MatriculasFiltro filtro)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var (role, academiaId, _) = GetUserInfo();
@@ -38,7 +38,7 @@ namespace MA_Sys.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] MatriculasCreateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             try
@@ -57,7 +57,7 @@ namespace MA_Sys.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] MatriculasUpdateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             try
@@ -75,7 +75,7 @@ namespace MA_Sys.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             try

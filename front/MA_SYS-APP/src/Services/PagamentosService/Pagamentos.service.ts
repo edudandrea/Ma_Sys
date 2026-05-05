@@ -6,6 +6,10 @@ import { PixResponse } from '../../Model/pix-response.model';
 
 export interface Pagamentos {
   id: number;
+  academiaId?: number | null;
+  ownerUserId?: number | null;
+  escopo?: string;
+  academiaNome?: string;
   nome: string;
   ativo: boolean;
   taxa: number;
@@ -62,7 +66,7 @@ export class PagamentosService {
   }
 
   atualizarStatus(id: number, ativo: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/status`, ativo);
+    return this.http.patch<void>(`${this.apiUrlFormaPagamento}/${id}/status`, ativo);
   }
 
   atualizarFormaPagamento(formaPg: Partial<Pagamentos>): Observable<Pagamentos> {

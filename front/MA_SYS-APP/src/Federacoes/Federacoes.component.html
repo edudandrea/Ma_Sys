@@ -12,61 +12,79 @@
   </div>
 
   <article class="federacao-card" *ngFor="let federacao of federacoes">
-    <div class="card-topline">
-      <span class="entity-badge">Federação</span>
-      <span
-        class="status clickable"
-        [class.ativo]="federacao.ativo"
-        [class.inativo]="!federacao.ativo"
-        (click)="toggleStatus(federacao)"
-      >
-        {{ federacao.ativo ? 'Ativa' : 'Inativa' }}
-      </span>
-    </div>
-
-    <div class="card-header-kpi">
-      <div class="avatar avatar-logo" *ngIf="federacao.logoUrl; else semLogo">
-        <img [src]="federacao.logoUrl" [alt]="federacao.nome" />
+    <div class="card-header">
+      <div class="header-top">
+        <div class="avatar-section">
+          <div class="avatar avatar-logo" *ngIf="federacao.logoUrl; else semLogo">
+            <img [src]="federacao.logoUrl" [alt]="federacao.nome" />
+          </div>
+          <ng-template #semLogo>
+            <div class="avatar">{{ getInicial(federacao.nome) }}</div>
+          </ng-template>
+        </div>
+        
+        <div class="header-info">
+          <h3>{{ federacao.nome }}</h3>
+          <p class="location">
+            <i class="fa-solid fa-location-dot"></i>
+            {{ federacao.cidade || 'Cidade não informada' }}
+            {{ federacao.estado ? '- ' + federacao.estado : '' }}
+          </p>
+        </div>
       </div>
-      <ng-template #semLogo>
-        <div class="avatar">{{ getInicial(federacao.nome) }}</div>
-      </ng-template>
 
-      <div class="title-block">
-        <h3>{{ federacao.nome }}</h3>
+      <div class="header-badges">
+        <span class="entity-badge">Federação</span>
         <span
-          >{{ federacao.cidade || 'Cidade não informada' }}
-          {{ federacao.estado ? '- ' + federacao.estado : '' }}</span
+          class="status clickable"
+          [class.ativo]="federacao.ativo"
+          [class.inativo]="!federacao.ativo"
+          (click)="toggleStatus(federacao)"
         >
+          {{ federacao.ativo ? 'Ativa' : 'Inativa' }}
+        </span>
       </div>
     </div>
+
+    <div class="card-divider"></div>
 
     <div class="detail-list">
       <div class="detail-item">
-        <i class="fa-solid fa-user-tie"></i>
-        <div>
-          <span>Responsável</span>
-          <strong>{{ federacao.responsavel || 'Não informado' }}</strong>
+        <div class="detail-icon">
+          <i class="fa-solid fa-user-tie"></i>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Responsável</span>
+          <strong class="detail-value">{{ federacao.responsavel || 'Não informado' }}</strong>
         </div>
       </div>
+
       <div class="detail-item">
-        <i class="fa-solid fa-envelope"></i>
-        <div>
-          <span>Email</span>
-          <strong>{{ federacao.email || 'Não informado' }}</strong>
+        <div class="detail-icon">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Email</span>
+          <strong class="detail-value">{{ federacao.email || 'Não informado' }}</strong>
         </div>
       </div>
+
       <div class="detail-item">
-        <i class="fa-solid fa-phone"></i>
-        <div>
-          <span>Telefone</span>
-          <strong>{{ federacao.telefone || 'Não informado' }}</strong>
+        <div class="detail-icon">
+          <i class="fa-solid fa-phone"></i>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Telefone</span>
+          <strong class="detail-value">{{ federacao.telefone || 'Não informado' }}</strong>
         </div>
       </div>
     </div>
 
     <div class="card-actions">
-      <button class="btn-save" (click)="editar(templateFederacao, federacao)">Editar</button>
+      <button class="btn-edit" (click)="editar(templateFederacao, federacao)">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Editar Federação
+      </button>
     </div>
   </article>
 </div>

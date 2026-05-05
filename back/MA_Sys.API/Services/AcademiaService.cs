@@ -44,10 +44,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar academias.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -84,10 +84,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar academias.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -129,10 +129,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar academia.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -182,7 +182,7 @@ namespace MA_Sys.API.Services
                 LogoUrl = dto.LogoUrl?.Trim(),
                 MercadoPagoPublicKey = dto.MercadoPagoPublicKey?.Trim(),
                 MercadoPagoAccessToken = dto.MercadoPagoAccessToken?.Trim(),
-                OwnerUserId = RoleScope.IsAdmin(role) ? currentUserId : dto.OwnerUserId,
+                OwnerUserId = RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role) ? currentUserId : dto.OwnerUserId,
                 DataCadastro = DateTime.UtcNow,
                 Ativo = true
             };
@@ -198,10 +198,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar academia.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -236,10 +236,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para excluir academia.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }
@@ -264,10 +264,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status da academia.");
 
                 query = query.Where(a => a.OwnerUserId == userId.Value);
             }

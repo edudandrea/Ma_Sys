@@ -36,6 +36,7 @@ export class FiliadosComponent implements OnInit {
   cobrancaDescricao = '';
   pixPayload = '';
   pixQrCodeBase64 = '';
+  linkPagamentoPublico = '';
 
   constructor(
     private filiadosService: FiliadosService,
@@ -46,6 +47,7 @@ export class FiliadosComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.definirLinkPagamentoPublico();
     this.carregarFiliados();
   }
 
@@ -218,6 +220,16 @@ export class FiliadosComponent implements OnInit {
     });
   }
 
+  copiarLinkPagamentoPublico() {
+    if (!this.linkPagamentoPublico) {
+      this.toastr.warning('Usuario sem federacao vinculada para gerar link publico.');
+      return;
+    }
+
+    navigator.clipboard.writeText(this.linkPagamentoPublico);
+    this.toastr.success('Link publico de pagamento copiado.');
+  }
+
   onLogoSelecionada(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] || null;
@@ -277,5 +289,13 @@ export class FiliadosComponent implements OnInit {
     this.logoUrl = '';
     this.logoPreviewUrl = '';
     this.logoArquivo = null;
+  }
+
+  private definirLinkPagamentoPublico() {
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const federacaoId = Number(usuario.federacaoId || 0);
+    this.linkPagamentoPublico = federacaoId
+      ? `${window.location.origin}/federacao/${federacaoId}/pagamento`
+      : '';
   }
 }

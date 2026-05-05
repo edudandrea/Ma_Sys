@@ -90,6 +90,14 @@
   border: 1px solid var(--border-color);
   background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-strong));
   box-shadow: var(--shadow-soft);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover,
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-border-soft);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
 .stat-card {

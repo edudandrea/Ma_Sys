@@ -20,35 +20,37 @@ namespace MA_Sys.API.Services
         public List<FormaPagamentoResponseDto> List(int academiaId)
         {
             return _repo.Query()
+                .Include(m => m.Academia)
                 .Where(m => m.AcademiaId == academiaId)
-                .Select(a => new FormaPagamentoResponseDto
-                {
-                    Id = a.Id,
-                    Nome = a.Nome,
-                    Ativo = a.Ativo,
-                    Taxa = a.Taxa,
-                    Parcelas = a.Parcelas,
-                    Dias = a.Dias
-                }).ToList();
+                .ToList()
+                .Select(a => MapToResponse(a))
+                .ToList();
         }
 
         public List<FormaPagamentoResponseDto> Get(string role, FormaPagamentoFiltroDto filtro, int? academiaId, int? userId)
         {
-            var query = _repo.Query().AsNoTracking();
+            IQueryable<FormaPagamento> query = _repo.Query().AsNoTracking().Include(m => m.Academia);
 
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar formas de pagamento.");
+
+                query = query.Where(m => m.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar formas de pagamento.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id);
 
-                query = query.Where(m => academiaIds.Contains(m.AcademiaId));
+                query = query.Where(m => m.AcademiaId.HasValue && academiaIds.Contains(m.AcademiaId.Value));
             }
             else
             {
@@ -61,40 +63,53 @@ namespace MA_Sys.API.Services
             if (filtro != null && !string.IsNullOrEmpty(filtro.Nome))
                 query = query.Where(m => m.Nome.Contains(filtro.Nome));
 
-            return query.Select(m => new FormaPagamentoResponseDto
-            {
-                Id = m.Id,
-                Nome = m.Nome,
-                Ativo = m.Ativo,
-                Taxa = m.Taxa,
-                Parcelas = m.Parcelas,
-                Dias = m.Dias
-            }).ToList();
+            return query.ToList().Select(m => MapToResponse(m)).ToList();
         }
 
         public void Add(FormaPagamentoCreateDto dto, int? academiaId, string role, int? userId)
         {
-            var academiaDestino = RoleScope.IsAcademia(role) ? academiaId ?? 0 : dto.AcademiaId;
+            int? academiaDestino = RoleScope.IsAcademia(role) ? academiaId ?? 0 : dto.AcademiaId;
+            int? ownerUserId = null;
 
-            if (!RoleScope.IsAdmin(role) && !RoleScope.IsSuperAdmin(role) && academiaId == null)
+            if (!RoleScope.IsAdmin(role) && !RoleScope.IsSuperAdmin(role) && !RoleScope.IsFederacao(role) && academiaId == null)
                 throw new UnauthorizedAccessException("Usuario sem vinculo com academia nao pode criar formas de pagamento.");
 
-            if (RoleScope.IsAdmin(role))
+            if (RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para cadastrar formas de pagamento.");
 
-                var academiaPertenceAoAdmin = _academiaRepo.Query()
-                    .Any(a => a.Id == academiaDestino && a.OwnerUserId == userId.Value);
+                academiaDestino = null;
+                ownerUserId = userId.Value;
+            }
+            else if (RoleScope.IsAdmin(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para cadastrar formas de pagamento.");
 
-                if (!academiaPertenceAoAdmin)
-                    throw new UnauthorizedAccessException("Admin nao pode cadastrar formas de pagamento fora do seu escopo.");
+                if (!academiaDestino.HasValue)
+                    throw new InvalidOperationException("Informe uma academia para cadastrar a forma de pagamento.");
+
+                var academiaPertenceAoUsuario = _academiaRepo.Query()
+                    .Any(a => a.Id == academiaDestino.Value && a.OwnerUserId == userId.Value);
+
+                if (!academiaPertenceAoUsuario)
+                    throw new UnauthorizedAccessException("Usuario nao pode cadastrar formas de pagamento fora do seu escopo.");
+            }
+            else if (!RoleScope.IsSuperAdmin(role) && !academiaDestino.HasValue)
+            {
+                throw new UnauthorizedAccessException("Usuario sem vinculo com academia nao pode criar formas de pagamento.");
+            }
+            else if (RoleScope.IsSuperAdmin(role) && !academiaDestino.HasValue)
+            {
+                throw new InvalidOperationException("Informe uma academia para cadastrar a forma de pagamento.");
             }
 
             var formaPagamento = new FormaPagamento
             {
                 Nome = dto.Nome,
                 AcademiaId = academiaDestino,
+                OwnerUserId = ownerUserId,
                 Ativo = true,
                 Taxa = dto.Taxa,
                 Parcelas = dto.Parcelas,
@@ -112,17 +127,24 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar forma de pagamento.");
+
+                query = query.Where(a => a.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar forma de pagamento.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id)
                     .ToList();
 
-                query = query.Where(a => academiaIds.Contains(a.AcademiaId));
+                query = query.Where(a => a.AcademiaId.HasValue && academiaIds.Contains(a.AcademiaId.Value));
             }
             else
             {
@@ -150,17 +172,24 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
+            else if (RoleScope.IsFederacao(role))
+            {
+                if (!userId.HasValue)
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status da forma de pagamento.");
+
+                query = query.Where(a => a.OwnerUserId == userId.Value);
+            }
             else if (RoleScope.IsAdmin(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para alterar status da forma de pagamento.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
                     .Select(a => a.Id)
                     .ToList();
 
-                query = query.Where(a => academiaIds.Contains(a.AcademiaId));
+                query = query.Where(a => a.AcademiaId.HasValue && academiaIds.Contains(a.AcademiaId.Value));
             }
             else
             {
@@ -176,6 +205,23 @@ namespace MA_Sys.API.Services
 
             _repo.Update(formaPagamento);
             _repo.Save();
+        }
+
+        private static FormaPagamentoResponseDto MapToResponse(FormaPagamento formaPagamento)
+        {
+            return new FormaPagamentoResponseDto
+            {
+                Id = formaPagamento.Id,
+                AcademiaId = formaPagamento.AcademiaId,
+                OwnerUserId = formaPagamento.OwnerUserId,
+                AcademiaNome = formaPagamento.Academia?.Nome,
+                Escopo = formaPagamento.OwnerUserId.HasValue ? "Federacao" : "Academia",
+                Nome = formaPagamento.Nome,
+                Ativo = formaPagamento.Ativo,
+                Taxa = formaPagamento.Taxa,
+                Parcelas = formaPagamento.Parcelas,
+                Dias = formaPagamento.Dias
+            };
         }
     }
 }

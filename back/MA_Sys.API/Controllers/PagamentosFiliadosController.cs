@@ -58,5 +58,109 @@ namespace MA_Sys.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [AllowAnonymous]
+        [HttpGet("public/{federacaoId}/config")]
+        public IActionResult ConfigPublica(int federacaoId)
+        {
+            try
+            {
+                return Ok(_service.ObterConfiguracaoPublica(federacaoId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("public/{federacaoId}/formas-pagamento")]
+        public IActionResult FormasPagamentoPublicas(int federacaoId)
+        {
+            try
+            {
+                return Ok(_service.ListarFormasPagamentoPublicas(federacaoId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("public/{federacaoId}/buscar")]
+        public IActionResult BuscarFiliadoPublico(int federacaoId, [FromBody] PagamentoFiliadoBuscaPublicaDto busca)
+        {
+            try
+            {
+                return Ok(_service.BuscarFiliadoPublico(federacaoId, busca));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = "Filiado nao encontrado." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("public/pix")]
+        public async Task<IActionResult> GerarPixPublico([FromBody] PagamentoFiliadoPublicoDto dto)
+        {
+            try
+            {
+                return Ok(await _service.GerarPixPublicoAsync(dto));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("public/cartao")]
+        public async Task<IActionResult> PagarCartaoPublico([FromBody] PagamentoFiliadoCartaoPublicoDto dto)
+        {
+            try
+            {
+                var status = await _service.PagarCartaoPublicoAsync(dto);
+                var mensagem = status.Status switch
+                {
+                    "Pago" => "Pagamento com cartao aprovado com sucesso.",
+                    "Pendente" => "Pagamento pendente. Aguarde a confirmacao do emissor.",
+                    "EmAnalise" => "Pagamento em analise. Retorne em instantes para consultar o status.",
+                    _ => "Pagamento recusado pelo Mercado Pago."
+                };
+
+                return Ok(new
+                {
+                    pagamentoId = status.PagamentoId,
+                    status = status.Status,
+                    formaPagamentoNome = status.FormaPagamentoNome,
+                    dataPagamento = status.DataPagamento,
+                    mensagem
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("public/{federacaoId}/{pagamentoId}/status")]
+        public IActionResult StatusPublico(int federacaoId, int pagamentoId)
+        {
+            try
+            {
+                return Ok(_service.AtualizarStatusPublico(federacaoId, pagamentoId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

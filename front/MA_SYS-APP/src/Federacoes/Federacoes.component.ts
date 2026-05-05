@@ -163,7 +163,7 @@ export class FederacoesComponent implements OnInit {
   private resolveLogoUrl(logoUrl?: string | null): string {
     if (!logoUrl) return '';
     if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://') || logoUrl.startsWith('blob:')) return logoUrl;
-    if (logoUrl.startsWith('/api/')) return logoUrl;
+    if (logoUrl.startsWith('/api/')) return `http://localhost:5167${logoUrl}`;
     if (logoUrl.startsWith('/uploads/federacoes/')) {
       const fileName = logoUrl.split('/').pop();
       return fileName ? `${environment.apiUrl}/Federacoes/logo/${fileName}` : logoUrl;

@@ -1,0 +1,160 @@
+<div class="dashboard-page">
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <span class="page-kicker">Centro de comando</span>
+      <h1>Dashboard da Federação</h1>
+      <p>Leia filiados, cobranças e alertas financeiros em um painel dedicado.</p>
+    </div>
+
+    <div class="hero-actions">
+      <div class="hero-chip">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Visão da federação</span>
+      </div>
+
+      <div class="filter">
+        <label for="periodo" class="sr-only">Selecionar período</label>
+        <select id="periodo" (change)="onPeriodoChange($event)">
+          <option value="mes">Este mês</option>
+          <option value="ano">Este ano</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="!dashboard" class="loading-state surface-card">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <span>Carregando indicadores da federação...</span>
+  </div>
+
+  <ng-container *ngIf="dashboard">
+    <section class="stats-grid">
+      <article class="stat-card accent-teal">
+        <i class="fa-solid fa-building-user"></i>
+        <div>
+          <h3>{{ dashboard?.totalFiliados }}</h3>
+          <span>Filiados</span>
+          <small class="trend up">{{ dashboard?.totalFiliadosAtivos || 0 }} ativos</small>
+        </div>
+      </article>
+
+      <article class="stat-card accent-amber">
+        <i class="fa-solid fa-hourglass-half"></i>
+        <div>
+          <h3>{{ dashboard?.totalCobrancasPendentes || 0 }}</h3>
+          <span>Cobranças pendentes</span>
+        </div>
+      </article>
+
+      <article class="stat-card accent-red">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <div>
+          <h3>{{ dashboard?.totalCobrancasVencidas || 0 }}</h3>
+          <span>Cobranças vencidas</span>
+        </div>
+      </article>
+
+      <article class="stat-card accent-green">
+        <i class="fa-solid fa-sack-dollar"></i>
+        <div>
+          <h3>{{ (dashboard?.receitasMes || 0) | currency: 'BRL' }}</h3>
+          <span>Receitas do mês</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="dashboard-card chart-card">
+        <div class="card-heading">
+          <div>
+            <h4>Crescimento de filiados</h4>
+            <span>Entradas recentes e ritmo de expansão</span>
+          </div>
+        </div>
+        <div class="chart-shell">
+          <canvas id="graficoFiliadosFederacao"></canvas>
+        </div>
+      </article>
+
+      <article class="dashboard-card chart-card">
+        <div class="card-heading">
+          <div>
+            <h4>Status das cobranças</h4>
+            <span>Distribuição financeira da base atual</span>
+          </div>
+        </div>
+        <div class="chart-shell doughnut-shell">
+          <canvas id="graficoCobrancasFederacao"></canvas>
+        </div>
+      </article>
+
+      <article class="dashboard-card">
+        <div class="card-heading">
+          <div>
+            <h4>Resumo financeiro</h4>
+            <span>Recorte consolidado das cobranças de filiados</span>
+          </div>
+        </div>
+
+        <div class="list-item">
+          <span>Receitas do mês</span>
+          <strong>{{ (dashboard?.receitasMes || 0) | currency: 'BRL' }}</strong>
+        </div>
+
+        <div class="list-item">
+          <span>Valor pendente</span>
+          <strong>{{ (dashboard?.valorPendente || 0) | currency: 'BRL' }}</strong>
+        </div>
+
+        <div class="list-item">
+          <span>Cobranças pagas</span>
+          <strong>{{ dashboard?.totalCobrancasPagas || 0 }}</strong>
+        </div>
+      </article>
+
+      <article class="dashboard-card">
+        <div class="card-heading">
+          <div>
+            <h4>Cobranças em alerta</h4>
+            <span>Vencidas ou vencendo nos próximos 10 dias</span>
+          </div>
+        </div>
+
+        <div class="list-item" *ngFor="let c of dashboard?.cobrancasAlerta">
+          <span>{{ c.nomeFiliado || 'Filiado' }} - {{ c.descricao || 'Cobrança' }}</span>
+          <strong>{{ c.diasParaVencimento }} dia(s)</strong>
+        </div>
+
+        <div *ngIf="!dashboard?.cobrancasAlerta?.length" class="empty-note">
+          Nenhuma cobrança em alerta no momento.
+        </div>
+      </article>
+
+      <article class="dashboard-card full">
+        <div class="card-heading">
+          <div>
+            <h4>Últimas cobranças</h4>
+            <span>Histórico recente com status, vencimento e valor.</span>
+          </div>
+        </div>
+
+        <div class="billing-row" *ngFor="let c of dashboard?.ultimasCobrancas">
+          <div class="billing-copy">
+            <strong>{{ c.nomeFiliado || 'Filiado' }}</strong>
+            <span>{{ c.descricao || 'Cobrança de filiado' }}</span>
+            <span>Vencimento: {{ c.dataVencimento | date: 'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="billing-summary">
+            <strong>{{ c.valor | currency: 'BRL' }}</strong>
+            <span>{{ c.status }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!dashboard?.ultimasCobrancas?.length" class="empty-note">
+          Nenhuma cobrança registrada até o momento.
+        </div>
+      </article>
+    </section>
+  </ng-container>
+</div>

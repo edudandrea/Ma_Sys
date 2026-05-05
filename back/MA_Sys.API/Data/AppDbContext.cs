@@ -65,6 +65,42 @@ namespace MA_SYS.Api.Data
                 .HasForeignKey(m => m.OwnerUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Plano>()
+                .HasOne(p => p.Academia)
+                .WithMany()
+                .HasForeignKey(p => p.AcademiaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Plano>()
+                .HasOne(p => p.OwnerUser)
+                .WithMany()
+                .HasForeignKey(p => p.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FormaPagamento>()
+                .HasOne(fp => fp.Academia)
+                .WithMany()
+                .HasForeignKey(fp => fp.AcademiaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FormaPagamento>()
+                .HasOne(fp => fp.OwnerUser)
+                .WithMany()
+                .HasForeignKey(fp => fp.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Financeiro>()
+                .HasOne(f => f.Academia)
+                .WithMany()
+                .HasForeignKey(f => f.AcademiaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Financeiro>()
+                .HasOne(f => f.OwnerUser)
+                .WithMany()
+                .HasForeignKey(f => f.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<PagamentoAcademia>()
                 .HasOne(p => p.MensalidadeSistema)
                 .WithMany()

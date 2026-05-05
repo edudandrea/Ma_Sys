@@ -45,6 +45,12 @@ export class FederacoesService {
   uploadLogo(file: File): Observable<{ logoUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ logoUrl: string }>(`${this.apiUrl}/upload-logo`, formData);
+    
+    // When using FormData with Angular HttpClient, do not set Content-Type header
+    // Angular will automatically use multipart/form-data with correct boundary
+    return this.http.post<{ logoUrl: string }>(
+      `${this.apiUrl}/upload-logo`, 
+      formData
+    );
   }
 }

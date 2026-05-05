@@ -54,7 +54,7 @@ export class FluxoCaixaComponent implements OnInit {
     this.academiaIdSelecionada = usuario.role === 'Academia' ? (usuario.academiaId ?? null) : null;
     this.novoLancamento.academiaId = this.academiaIdSelecionada;
 
-    if (this.role !== 'Academia') {
+    if (!this.isAcademia && !this.isFederacao) {
       this.carregarAcademias();
     }
 
@@ -63,6 +63,14 @@ export class FluxoCaixaComponent implements OnInit {
 
   get isAcademia(): boolean {
     return this.role === 'Academia';
+  }
+
+  get isFederacao(): boolean {
+    return this.role === 'Federacao';
+  }
+
+  get podeLancarManual(): boolean {
+    return true;
   }
 
   openModalNovoLancamento(template: TemplateRef<any>) {
@@ -102,7 +110,11 @@ export class FluxoCaixaComponent implements OnInit {
   salvarLancamento() {
     const payload = {
       ...this.novoLancamento,
-      academiaId: this.isAcademia ? this.academiaIdSelecionada : this.novoLancamento.academiaId,
+      academiaId: this.isFederacao
+        ? null
+        : this.isAcademia
+          ? this.academiaIdSelecionada
+          : this.novoLancamento.academiaId,
     };
 
     this.fluxoCaixaService.lancar(payload).subscribe({

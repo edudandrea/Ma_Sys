@@ -133,7 +133,7 @@ export class LayoutComponent implements OnInit {
   }
 
   canViewCadastrosAcademia(): boolean {
-    return this.isAcademia() || this.isFederacao() || this.isSuperAdmin();
+    return this.isAcademia() || this.isSuperAdmin();
   }
 
   canViewFinanceiroSistema(): boolean {
@@ -142,6 +142,14 @@ export class LayoutComponent implements OnInit {
 
   canViewFinanceiroAcademia(): boolean {
     return this.isAcademia() || this.isFederacao() || this.isSuperAdmin();
+  }
+
+  canViewDashboard(): boolean {
+    return !this.isFederacao();
+  }
+
+  canViewRelatorios(): boolean {
+    return !this.isFederacao();
   }
 
   openPerfilModal(template: TemplateRef<any>, event?: Event) {

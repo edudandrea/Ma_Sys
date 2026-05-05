@@ -14,4 +14,8 @@ export class DashboardService {
   getDashboard(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }
+
+  getDashboardFederacao(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/federacao`);
+  }
 }

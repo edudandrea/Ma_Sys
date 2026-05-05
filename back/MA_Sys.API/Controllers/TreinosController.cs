@@ -21,7 +21,7 @@ namespace MA_Sys.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             return Ok(_service.List(GetAcademiaId() ?? 0));
@@ -30,7 +30,7 @@ namespace MA_Sys.API.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] TreinoCreateUpdateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             return Ok(_service.Add(dto, GetAcademiaId() ?? 0));
@@ -39,7 +39,7 @@ namespace MA_Sys.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] TreinoCreateUpdateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             return Ok(_service.Update(id, dto, GetAcademiaId() ?? 0));
@@ -48,7 +48,7 @@ namespace MA_Sys.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             _service.Delete(id, GetAcademiaId() ?? 0);

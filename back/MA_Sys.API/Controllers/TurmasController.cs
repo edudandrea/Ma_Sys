@@ -21,7 +21,7 @@ namespace MA_Sys.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var academiaId = GetAcademiaId();
@@ -31,7 +31,7 @@ namespace MA_Sys.API.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] TurmaCreateUpdateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var academiaId = GetAcademiaId();
@@ -41,7 +41,7 @@ namespace MA_Sys.API.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] TurmaCreateUpdateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var academiaId = GetAcademiaId();
@@ -51,7 +51,7 @@ namespace MA_Sys.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var academiaId = GetAcademiaId();

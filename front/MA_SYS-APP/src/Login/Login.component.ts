@@ -41,10 +41,11 @@ export class LoginComponent implements OnInit {
 
   entrar() {
     this.auth.login(this.login, this.password).subscribe({
-      next: () => {
+      next: (res) => {
         this.toastr.success('Login realizado com sucesso', 'Sucesso');
 
-        this.ngZone.run(() => this.router.navigate(['/dashboard']));
+        const destino = res?.usuario?.role === 'Federacao' ? '/dashboard-federacao' : '/dashboard';
+        this.ngZone.run(() => this.router.navigate([destino]));
       },
       error: () => {
         this.toastr.error('Usuario ou senha invalidos', 'Erro');

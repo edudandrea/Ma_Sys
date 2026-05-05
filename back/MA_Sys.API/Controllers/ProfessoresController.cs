@@ -22,7 +22,7 @@ namespace MA_SYS.Api.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery] ProfessorFiltroDto filtro)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var (role, academiaId, _) = GetUserInfo();
@@ -34,7 +34,7 @@ namespace MA_SYS.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] ProfessorCreateDto dto)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var (role, academiaId, _) = GetUserInfo();
@@ -46,7 +46,7 @@ namespace MA_SYS.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] ProfessorUpdateDto dto, int id)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var (role, academiaId, _) = GetUserInfo();
@@ -58,7 +58,7 @@ namespace MA_SYS.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (RoleScope.IsAdmin(GetUserRole()))
+            if (RoleScope.IsAdmin(GetUserRole()) || RoleScope.IsFederacao(GetUserRole()))
                 return Forbid();
 
             var (_, academiaId, _) = GetUserInfo();

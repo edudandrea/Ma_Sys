@@ -28,7 +28,7 @@
             <input *ngIf="editarId === pagamento.id" [(ngModel)]="nome" class="edit-input" />
           </div>
 
-          <span class="subtitle">Configuração operacional da cobrança</span>
+          <span class="subtitle">{{ pagamento.academiaNome || (isFederacao ? 'Forma de pagamento da federação' : 'Configuração operacional da cobrança') }}</span>
         </div>
       </div>
 
@@ -100,7 +100,7 @@
           <input [(ngModel)]="dias" name="dias" />
         </div>
 
-        <div class="form-group full" *ngIf="!isAcademia">
+        <div class="form-group full" *ngIf="!isAcademia && !isFederacao">
           <label>Academia</label>
           <select [(ngModel)]="academiaId" name="academiaId">
             <option *ngFor="let academia of academias" [ngValue]="academia.id">

@@ -14,6 +14,9 @@ namespace MA_Sys.API.Security
         public static bool IsAcademia(string? role)
             => string.Equals(role?.Trim(), "Academia", StringComparison.OrdinalIgnoreCase);
 
+        public static bool IsSuperAdminOrFederacao(string? role)
+            => IsSuperAdmin(role) || IsFederacao(role);
+
         public static bool CanViewAll(string? role) => IsSuperAdmin(role);
     }
 }

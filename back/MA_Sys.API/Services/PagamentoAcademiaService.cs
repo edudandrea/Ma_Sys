@@ -36,10 +36,10 @@ namespace MA_Sys.API.Services
                     query = query.Where(x => x.AcademiaId == academiaIdFiltro.Value);
                 }
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar cobrancas.");
 
                 var academiaIds = _academiaRepo.Query()
                     .Where(a => a.OwnerUserId == userId.Value)
@@ -90,7 +90,7 @@ namespace MA_Sys.API.Services
             var academiaExiste = _academiaRepo.Query()
                 .Any(a => a.Id == dto.AcademiaId &&
                     (RoleScope.IsSuperAdmin(role) ||
-                     (RoleScope.IsAdmin(role) && userId.HasValue && a.OwnerUserId == userId.Value)));
+                     ((RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role)) && userId.HasValue && a.OwnerUserId == userId.Value)));
             if (!academiaExiste)
                 throw new InvalidOperationException("Academia nao encontrada.");
 
@@ -226,10 +226,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para baixar cobranca.");
 
                 query = query.Where(p => p.Academia.OwnerUserId == userId.Value);
             }
@@ -318,10 +318,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para acessar cobranca.");
 
                 query = query.Where(p => p.Academia.OwnerUserId == userId.Value);
             }
@@ -403,10 +403,10 @@ namespace MA_Sys.API.Services
             if (RoleScope.IsSuperAdmin(role))
             {
             }
-            else if (RoleScope.IsAdmin(role))
+            else if (RoleScope.IsAdmin(role) || RoleScope.IsFederacao(role))
             {
                 if (!userId.HasValue)
-                    throw new UnauthorizedAccessException("Usuario administrador invalido.");
+                    throw new UnauthorizedAccessException("Usuario invalido para selecionar mensalidade do sistema.");
 
                 query = query.Where(x => x.OwnerUserId == userId.Value);
             }
